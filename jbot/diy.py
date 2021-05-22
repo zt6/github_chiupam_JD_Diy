@@ -12,14 +12,14 @@ from telethon import events, TelegramClient
 import requests, re
 
 
-'''
+"""
 1. 存储路径：/jd/jbot/diy/
 2. 进入容器：docker exec -it jd bash
 3. 停机器人：pm2 stop jbot
 4. 开机器人：python3 -m jbot
 5. 按 Ctrl + C 退出前台
 6. 后台启动：pm2 start jbot
-'''
+"""
 
 
 if proxystart:
@@ -28,7 +28,7 @@ else:
     client = TelegramClient("diy", api_id, api_hash, connection_retries=None).start()
 
 
-@client.on(events.NewMessage(from_users=chat_id))  # 监控机器人
+@client.on(events.NewMessage(from_users=chat_id))  # 监控收藏夹用以测试
 @client.on(events.NewMessage(chats=[-1001197524983, -1001159808620]))  # 监控频道
 async def my_event_handler(event):
     """
