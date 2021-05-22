@@ -10,6 +10,4 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 import re, os, json, time, glob
 
-"""
-脚本过分强大，不公开代码
-"""
+None
