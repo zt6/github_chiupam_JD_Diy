@@ -1,21 +1,23 @@
 """
 Author: Chiupam (https://t.me/chiupam)
-version: Test v5
-date: 2021-05-22
-update: 1. 简化大部分函数
+version: Test v7
+date: 2021-05-25
+update: 1. 兼容青龙
 """
 
 
 import re, os, time, requests, sys, json
 
 
-# 读取 Cookie
 def readCookies():
     """
     读取 Cookie
-    :return: cookie
     """
-    with open(f'{env}/config/config.sh', 'r', encoding='utf-8') as f:
+    if isv4:
+        config = f'{env}/config/config.sh'
+    else:
+        config = f'{env}/config/cookie.sh' # 青龙
+    with open(config, 'r', encoding='utf-8') as f:
         config = ''.join(f.readlines())
     cookie = re.findall(r"pt_key=.*;pt_pin=.*;", config)
     illegal_cookie = 'pt_key=xxxxxxxxxx;pt_pin=xxxx;'
@@ -25,11 +27,9 @@ def readCookies():
     return cookie
 
 
-# 读取 RRA
 def readRRAs():
     """
     读取 RRA
-    :return: RRA
     """
     with open(RRA_file, 'r', encoding='utf-8') as f:
         RRA = f.read()[:-1]
@@ -40,14 +40,9 @@ def readRRAs():
         return RRA
 
 
-# 发起 GET 请求
 def receiveRedRain(i, cookie, RRA):
     """
     发起 GET 请求
-    :param i: 0
-    :param cookie: cookie
-    :param RRA: RRA
-    :return: res
     """
     body = {
         "functionId": "noahRedRainLottery",
@@ -79,12 +74,33 @@ def receiveRedRain(i, cookie, RRA):
     return res
 
 
-# 执行任务
-def taskUrl(cookies, RRAs):
+def checkCrontab():
+    """
+    新旧命令对比，有新命令则写入新命令
+    """
+    storage = '/' + path_list[-2]
+    file = '/' + path_list[-1]
+    crontab_list = f'{env}/config/crontab.list'
+    key = '# 直播间红包雨（请勿删除此行）\n'
+    new = f'{cron} python /jd{storage}{file} >> /jd/log{file.split(".")[0]}.log 2>&1\n'
+    with open(crontab_list, 'r', encoding='utf-8') as f1:
+        crontab = f1.readlines()
+    if crontab[-1] == '\n':
+        del(crontab[-1])
+    if key in crontab:
+        m = crontab.index(key)
+        if crontab[m + 1] != new:
+            del(crontab[m + 1])
+            crontab.insert(m + 1,new)
+    else:
+        crontab.append(f'\n{key}{new}')
+    with open(crontab_list, 'w', encoding='utf-8') as f2:
+        print(''.join(crontab), file=f2)
+
+
+def main(cookies, RRAs):
     """
     执行任务
-    :param cookies: ['cookie1', 'cookie2']
-    :param RRAs: ['RRA1','RRA2']
     """
     i = 0
     info = '京东直播间红包雨\n\n'
@@ -99,11 +115,9 @@ def taskUrl(cookies, RRAs):
     tgNofity(info)
 
 
-# Telegram Bot 推送
 def tgNofity(text):
     """
     Telegram Bot 推送
-    :param text: info
     """
     bot = f'{env}/config/bot.json'
     with open(bot, 'r', encoding='utf-8') as botSet:
@@ -130,12 +144,13 @@ def tgNofity(text):
 
 
 # 主程序
-def main():
+def run():
     """
     主程序
     """
+    checkCrontab()
     if os.path.isfile(RRA_file):
-        taskUrl(readCookies(), readRRAs())
+        main(readCookies(), readRRAs())
         os.remove(RRA_file)
     else:
         sys.exit()
@@ -145,8 +160,15 @@ def main():
 if __name__ == '__main__':
     path_list = os.path.realpath(__file__).split('/')[1:]
     env = '/' + '/'.join(path_list[:-2])
-    if not os.path.isfile(env + '/config/bot.json'): # 容器执行
-        env = '/jd'
+    if os.path.isfile('/ql/config/cookie.sh') or os.path.isfile(f'{env}/config/cookie.sh'): # 青龙
+        isv4 = False
+        if not os.path.isfile(f'{env}/config/cookie.sh'): # 青龙容器内
+            env = '/ql'
+    else: # v4-bot
+        isv4 = True
+        if not os.path.isfile(f'{env}/config/config.sh'): # v4-bot 容器内
+            env = '/jd'
     RRA_file = f'{env}/log/{time.localtime()[3]}-{time.localtime()[4]}.txt'
-    main()
+    cron = '*/30 * * * *'
+    run()
 
