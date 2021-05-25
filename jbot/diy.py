@@ -1,8 +1,31 @@
 """
-Author: Chiupam (https://t.me/chiupam)
-version: Test v2
-date: 2021-05-22
-update: 1. 修复了日志报错的问题
+Author: unknow & Chiupam (https://t.me/chiupam)
+version: v1.2
+date: 2021-05-25
+update: 1. 添加说明；2. 是否兼容青龙请自行测试
+"""
+
+"""
+声明：
+    此脚本是根据布道场群文件 shopbean.py(v1.1) 改写的，并非完全自创
+添加功能：
+    1. 解析 GET 请求后的包，以及其推送到 Telegram Bot 的消息会更加美观
+    2. 同时监控龙王庙频道，截取RRA，配合 redrain.py 定时使用（但 redrain.py 正在测试，因此未启用）
+使用方法：（直链: https://t.me/monk_dust_channel/692）
+    1. 存储路径：/jd/jbot/diy/（如果没有需要重新映射此文件夹）
+    2. 进入容器：docker exec -it jd bash
+    3. 停机器人：pm2 stop jbot
+    4. 开机器人：python3 -m jbot
+    5. 登陆后按 Ctrl + C 退出前台
+    6. 后台启动：pm2 start jbot
+报错处理：（直链：https://t.me/monk_dust_channel/714）
+    一、 机器人交互没有反应，或者测试没有反应
+        1. docker exec -it jd bash
+        2. rm shopbean.session
+        3. pm2 stop jbot
+        4. python -m jbot
+        5. 登陆后按 Ctrl + C 退出前台
+        6. pm2 start jbot
 """
 
 
@@ -12,32 +35,21 @@ from telethon import events, TelegramClient
 import requests, re
 
 
-"""
-1. 存储路径：/jd/jbot/diy/
-2. 进入容器：docker exec -it jd bash
-3. 停机器人：pm2 stop jbot
-4. 开机器人：python3 -m jbot
-5. 按 Ctrl + C 退出前台
-6. 后台启动：pm2 start jbot
-"""
-
-
 if proxystart:
-    client = TelegramClient("diy", api_id, api_hash, proxy=proxy, connection_retries=None).start()
+    client = TelegramClient("shopbean", api_id, api_hash, proxy=proxy, connection_retries=None).start()
 else:
-    client = TelegramClient("diy", api_id, api_hash, connection_retries=None).start()
+    client = TelegramClient("shopbean", api_id, api_hash, connection_retries=None).start()
 
 
-@client.on(events.NewMessage(from_users=chat_id))  # 监控收藏夹用以测试
+@client.on(events.NewMessage(from_users=chat_id))  # 监控收藏夹和自己的发言
 @client.on(events.NewMessage(chats=[-1001197524983, -1001159808620]))  # 监控频道
 async def my_event_handler(event):
     """
     监控消息并做出相应动作
-    :param event: 
     """
     message = event.message.text
 
-    # 参考 shopbean.py
+    # shopbean https://t.me/monk_dust_channel 布道场
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
     if url != [] and len(cookies) > 0:
         i = 0
@@ -51,7 +63,7 @@ async def my_event_handler(event):
                 continue
         await jdbot.send_message(chat_id, info)
 
-    # RRA
+    # redrain https://t.me/longzhuzhu 龙王庙
     if 'RRA' in message:
         RRA = re.findall(r"RRA.*", message)
         input_RRA = '&'.join(RRA)
@@ -61,14 +73,9 @@ async def my_event_handler(event):
             print(input_RRA, file=f)
 
 
-# 参考 shopbean.py
 def getbean(i, cookie, url):
     """
     发起 GET 请求
-    :param i: 0
-    :param cookie: cookie
-    :param url: url
-    :return: result
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36",
@@ -90,5 +97,7 @@ def getbean(i, cookie, url):
                 result = f"\n\t\t└{giftsToast}"
         elif followDesc.find('已经') != -1:
             result = f"\n\t\t└{followDesc}"
+        else:
+            result = res
     return f"\n京东账号{i}{result}\n"
 
