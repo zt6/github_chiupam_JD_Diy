@@ -8,7 +8,7 @@ def checkCrontab():
     storage = '/' + path_list[-2]
     file = '/' + path_list[-1]
     crontab_list = f'{env}/config/crontab.list'
-    key = '# 直播间红包雨（请勿删除此行）\n'
+    key = '# xxxxxx（请勿删除此行）\n'
     new = f'{cron} python /jd{storage}{file} >> /jd/log{file.split(".")[0]}.log 2>&1\n'
     with open(crontab_list, 'r', encoding='utf-8') as f1:
         crontab = f1.readlines()
