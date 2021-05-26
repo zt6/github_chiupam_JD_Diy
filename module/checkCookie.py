@@ -9,28 +9,34 @@ def readCookie():
 		config = ''.join(f.readlines())
 	cookies = re.findall(r"pt_key=.*;pt_pin=.*;", config)
 	illegal_cookie = 'pt_key=xxxxxxxxxx;pt_pin=xxxx;'
+	userInfo = []
 	if illegal_cookie in cookies:
 		m = cookies.index(illegal_cookie)
 		del(cookies[m])
-# 	for cookie in cookies: # 未完成
-# 		TotalBean(cookie) # 未完成
-	return cookies
+	for cookie in cookies:
+		# print(nickName(cookie))
+		if nickName(cookie) == False:
+			cookies.remove(cookie)
+			# 接下来进行推送操作
+		else:
+			userInfo.append([cookie,nickName(cookie)])
+	return userInfo
 
 
-def TotalBean(Cookie):
+def nickName(cookie):
 	url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
 	headers = {
 		"Host": "me-api.jd.com",
 		"Accept": "*/*",
 		"Connection": "keep-alive",
-		"Cookie": Cookie,
+		"Cookie": cookie,
 		"User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
 		"Accept-Language": "zh-cn",
 		"Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
 		"Accept-Encoding": "gzip, deflate, br"
 	}
 	try:
-		r = requests.get(url, headers= headers)
+		r = requests.get(url, headers=headers)
 		if r.ok:
 			res = r.json()
 			if res['retcode'] == '1001':
@@ -38,13 +44,11 @@ def TotalBean(Cookie):
 				return isLogin
 			if res['retcode'] == '0' and res['data'] and res['data']['userInfo']['baseInfo']:
 				nickName = res['data']['userInfo']['baseInfo']['nickname']
-			if res['retcode'] == '0' and res['data'] and res['data']['assetInfo']:
-				beanCount = res['data']['assetInfo']['beanNum']
 		else:
 			print("京东服务器返回空数据")
 	except Exception as e:
 		print(e)
-	return [nickName, beanCount]
+	return nickName
 
 
 if __name__ == '__main__':
@@ -58,7 +62,5 @@ if __name__ == '__main__':
 		isv4 = True
 		if not os.path.isfile(f'{env}/config/config.sh'): # v4-bot 容器内
 			env = '/jd'
-	for cookie in readCookie():
-		print(TotalBean(cookie))
+	print(readCookie())
 
-    
