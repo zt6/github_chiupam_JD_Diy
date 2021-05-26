@@ -17,5 +17,5 @@
 - 您必须在下载后的24小时内从计算机或手机中完全删除以上内容。
 
 ## 特别感谢
-- 脚本的写作参考了 v4-bot 的[作者仓库](https://github.com/SuMaiKaDe/jddockerbot/tree/master)
+- 脚本的写作参考了 SuMaiKaDe 的 [jddockerbot 仓库](https://github.com/SuMaiKaDe/jddockerbot/tree/master)
 - 模块的写作参考了 lxk0301 的 JavaScripts 模板
