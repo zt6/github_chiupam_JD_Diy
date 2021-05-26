@@ -36,7 +36,7 @@ def nickName(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    no = '空白数据'
+    e = '京东服务器返回空数据'
     try:
         r = requests.get(url, headers=headers)
         if r.ok:
@@ -48,10 +48,10 @@ def nickName(cookie):
                 nickName = res['data']['userInfo']['baseInfo']['nickname']
                 return nickName
         else:
-            print("京东服务器返回空数据")
+            print(e)
     except Exception as e:
         print(e)
-    return no
+    return e
 
 
 if __name__ == '__main__':
