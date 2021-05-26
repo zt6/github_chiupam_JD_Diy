@@ -18,3 +18,4 @@
 
 ## 特别感谢
 - 脚本的写作参考了 v4-bot 的[作者仓库](https://github.com/SuMaiKaDe/jddockerbot/tree/master)
+- 模块的写作参考了 lxk0301 的 JavaScripts 模板
