@@ -18,4 +18,4 @@
 
 ## 特别感谢
 - 脚本的写作参考了 [SuMaiKaDe](https://github.com/SuMaiKaDe) 的 [jddockerbot 仓库](https://github.com/SuMaiKaDe/jddockerbot/tree/master)
-- 模块的写作参考了 lxk0301 的 JD_sctipts 仓库
+- 模块的写作参考了 lxk0301 的 jd_sctipts 仓库
