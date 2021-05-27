@@ -37,4 +37,5 @@ if __name__ == '__main__':
         isv4 = True
         if not os.path.isfile(f'{env}/config/config.sh'): # v4-bot 容器内
             env = '/jd'
+    cron = ''
     checkCrontab()
