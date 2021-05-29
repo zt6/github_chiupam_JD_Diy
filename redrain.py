@@ -65,7 +65,6 @@ def receiveRedRain(i, cookie, RRA):
         }
     try:
         r = requests.get(url, params=params, headers=headers)
-        print(r.url)
         if r.ok:
             res = r.json()
             account = f'京东账号{i}\n\t\t└'
@@ -120,8 +119,7 @@ def main(cookies, RRAs):
             except Exception as error:
                 print(error)
                 continue
-    print(info)
-    # tgNofity(info)
+    tgNofity(info)
 
 
 def tgNofity(text):
