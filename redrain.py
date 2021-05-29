@@ -47,7 +47,7 @@ def receiveRedRain(i, cookie, RRA):
     url = 'https://api.m.jd.com/api'
     params = {
         "functionId": "noahRedRainLottery",
-        "body": json.dumps({"actId": RRA}),
+        "body": urllib.parse.quote(json.dumps({"actId": RRA}).encode('unicode-escape')).replace('%5Cu', '%u'),
         "client": "wh5",
         "clientVersion": "1.0.0",
         "_": round(time.time() * 1000)
