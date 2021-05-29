@@ -1,12 +1,12 @@
-"""
-Author: Chiupam (https://t.me/chiupam)
-version: Test v7
-date: 2021-05-25
-update: 1. 兼容青龙
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Author   : Chiupam (https://t.me/chiupam)
+# @Data     : 2021-05-29 14:24
+# @Version  : Test v8
+# @Updata   : 1. 修正 GET 传参的参数
 
 
-import re, os, time, requests, sys, json
+import re, os, time, requests, sys, json, urllib
 
 
 def readCookies():
@@ -44,14 +44,14 @@ def receiveRedRain(i, cookie, RRA):
     """
     发起 GET 请求
     """
-    body = {
+    url = 'https://api.m.jd.com/api'
+    params = {
         "functionId": "noahRedRainLottery",
-        "actId": RRA,
+        "body": json.dumps({"actId": RRA}),
         "client": "wh5",
         "clientVersion": "1.0.0",
         "_": round(time.time() * 1000)
     }
-    url = 'https://api.m.jd.com/api'
     headers = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate, br",
@@ -63,15 +63,23 @@ def receiveRedRain(i, cookie, RRA):
         "Cookie": cookie,
         "User-Agent": "JD4iPhone/9.3.5 CFNetwork/1209 Darwin/20.2.0"
         }
-    r = requests.get(url, params=body, headers=headers).json()
-    account = f'京东账号{i}\n\t\t└'
-    if r['subCode'] == '0':
-        res = f"{account}领取成功，获得 {r['lotteryResult']['PeasList'][0]['quantity']}京豆\n"
-    elif r['subCode'] == '8':
-        res = "{account}领取失败，本场已领过\n"
-    else:
-        res = f"{account}异常：{r['msg']}\n"
-    return res
+    try:
+        r = requests.get(url, params=params, headers=headers)
+        print(r.url)
+        if r.ok:
+            res = r.json()
+            account = f'京东账号{i}\n\t\t└'
+            if res['subCode'] == '0':
+                info = f"{account}领取成功，获得 {res['lotteryResult']['PeasList'][0]['quantity']}京豆\n"
+            elif res['subCode'] == '8':
+                info = "{account}领取失败，本场已领过\n"
+            else:
+                info = f"{account}异常：{res['msg']}\n"
+        else:
+            info = r.text
+    except Exception as info:
+        print(info)
+    return info
 
 
 def checkCrontab():
@@ -112,7 +120,8 @@ def main(cookies, RRAs):
             except Exception as error:
                 print(error)
                 continue
-    tgNofity(info)
+    print(info)
+    # tgNofity(info)
 
 
 def tgNofity(text):
@@ -171,4 +180,3 @@ if __name__ == '__main__':
     RRA_file = f'{env}/log/{time.localtime()[3]}-{time.localtime()[4]}.txt'
     cron = '*/30 * * * *'
     run()
-
