@@ -1,7 +1,7 @@
 import os
 
 
-def changeCookie():
+def replaceCookie():
   path = f'{env}/config/config.sh'
     with open(path, 'r', encoding='utf-8') as f1:
       configs = f1.readlines()
@@ -28,4 +28,4 @@ if __name__ == '__main__':
             env = '/jd'
     m = '1'
     new_cookie = 'pt_key=.*;pt_pin=.*;'
-    changeCookie()
+    replaceCookie()
