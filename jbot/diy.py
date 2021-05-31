@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-05-31 11：17
+# @Data     : 2021-05-31 13：07
 # @Version  : v1.4
 # @Updata   : 1. 当用户给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）；2. 当用户给机器人发送 /untempblockcookie 命令即可取消屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）
 # @Future   : 1. 当机器人给用户发送 cookie 失效信息时自动屏蔽这些失效 cookie；2. 当获取新的 cookie 后自动取消临时屏蔽
