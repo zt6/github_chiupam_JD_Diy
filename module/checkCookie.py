@@ -1,30 +1,7 @@
-import os, requests, re
+import os, requests
 
 
-def readCookie():
-    if isv4:
-        config = f'{env}/config/config.sh'
-    else:
-        config = f'{env}/config/cookie.sh'  # 青龙
-    with open(config, 'r', encoding='utf-8') as f:
-        config = ''.join(f.readlines())
-    cookies = re.findall(r"pt_key=.*;pt_pin=.*;", config)
-    illegal_cookie = 'pt_key=xxxxxxxxxx;pt_pin=xxxx;'
-    userInfo = []
-    if illegal_cookie in cookies:
-        m = cookies.index(illegal_cookie)
-        del (cookies[m])
-    for cookie in cookies:
-        if nickName(cookie) == False:
-            cookies.remove(cookie)  # 把这个过期的 Cookie 移出列表
-        # 接下来进行推送操作
-        # ......
-        else:
-            userInfo.append([cookie, nickName(cookie)])
-    return userInfo
-
-
-def nickName(cookie):
+def checkCookie():
     url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
     headers = {
         "Host": "me-api.jd.com",
@@ -36,22 +13,15 @@ def nickName(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    no = '京东服务器返回空数据'
     try:
         r = requests.get(url, headers=headers)
         if r.ok:
             res = r.json()
             if res['retcode'] == '1001':
-                isLogin = False
-                return isLogin
-            if res['retcode'] == '0' and res['data'] and res['data']['userInfo']['baseInfo']:
-                nickName = res['data']['userInfo']['baseInfo']['nickname']
-                return nickName
-        else:
-            print(no)
+                expired = False
+                return expired
     except Exception as e:
-        print(e)
-    return no
+        return e
 
 
 if __name__ == '__main__':
@@ -65,4 +35,5 @@ if __name__ == '__main__':
         isv4 = True
         if not os.path.isfile(f'{env}/config/config.sh'):  # v4-bot 容器内
             env = '/jd'
-    print(readCookie())
+    cookie = ''
+    print(checkCookie())
