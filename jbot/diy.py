@@ -3,8 +3,8 @@
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-05-31 11：17
 # @Version  : v1.4
-# @Updata   : 1. 给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）
-# @Future   : 1. 当机器人发送 cookie 失效信息时自动屏蔽这些失效 cookie；2. 当获取新的 cookie 后自动取消临时屏蔽
+# @Updata   : 1. 当用户给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）；2. 当用户给机器人发送 /untempblockcookie 命令即可取消屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）
+# @Future   : 1. 当机器人给用户发送 cookie 失效信息时自动屏蔽这些失效 cookie；2. 当获取新的 cookie 后自动取消临时屏蔽
 
 
 """
@@ -181,3 +181,29 @@ async def check(event):
                 await jdbot.edit_message(msg, f'早时已临时屏蔽Cookie{n}，无需再次屏蔽')
                 break
 
+
+@client.on(events.NewMessage(from_users=chat_id, pattern=r'^/untempblockcookie'))
+async def check(event):
+    """
+    取消屏蔽某个cookie
+    """
+    path = f'{_ConfigDir}/config.sh'
+    with open(path, 'r', encoding='utf-8') as f1:
+        configs = f1.readlines()
+    for config in configs:
+        if config.find('TempBlockCookie') != -1 and config.find('举例') == -1:
+            if configs[configs.index(config) + 1].find(';;\n') == -1:
+                m = re.findall(r'\d', config) # 列表
+                if m != ['']:
+                    for n in m:
+                        Expired = checkCookie2(cookies[int(n) - 1])
+                        if not Expired:
+                            del(m[m.index(n)])
+                    x = ''.join(m)
+                    configs[configs.index(config)] = f'TempBlockCookie="{x}"\n'
+                    with open(path, 'w', encoding='utf-8') as f2:
+                        print(''.join(configs), file=f2)
+        elif config.find('AutoDelCron') != -1:
+            break
+            
+            
