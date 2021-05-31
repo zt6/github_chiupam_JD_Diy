@@ -15,14 +15,16 @@ def checkCrontab():
     if crontab[-1] == '\n':
         del(crontab[-1])
     if key in crontab:
-        m = crontab.index(key)
-        if crontab[m + 1] != new:
-            del(crontab[m + 1])
-            crontab.insert(m + 1,new)
+        m = crontab.index(key) + 1
+        if crontab[m] != new:
+            crontab[m] = new
+            with open(crontab_list, 'w', encoding='utf-8') as f2:
+                print(''.join(crontab), file=f2)
     else:
         crontab.append(f'\n{key}{new}')
-    with open(crontab_list, 'w', encoding='utf-8') as f2:
-        print(''.join(crontab), file=f2)
+        with open(crontab_list, 'w', encoding='utf-8') as f2:
+            print(''.join(crontab), file=f2)
+    
 
 
 # 开始执行主程序
