@@ -4,7 +4,7 @@
 # @Data     : 2021-05-31 11：17
 # @Version  : v1.4
 # @Updata   : 1. 给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）
-# @Future   : 1. 当机器人发送 cookie 失效信息时自动屏蔽这些失效 cookie
+# @Future   : 1. 当机器人发送 cookie 失效信息时自动屏蔽这些失效 cookie；2. 当获取新的 cookie 后自动取消临时屏蔽
 
 
 """
@@ -166,17 +166,19 @@ async def check(event):
         path = f'{_ConfigDir}/config.sh'
         with open(path, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
-        for n in m:
-            i = n + 1
-            for config in configs:
-                if config.find('TempBlockCookie=""\n') != -1:
-                    n = configs.index(config)
-                    configs[n] = f'TempBlockCookie="{i}"\n'
-                    with open(path, 'w', encoding='utf-8') as f2:
-                        print(''.join(configs), file=f2)
-                    await jdbot.edit_message(msg, f'已临时屏蔽Cookie{i}')
-                    break
-                elif config.find('AutoDelCron') != -1:
-                    break
-                elif config.find(f'TempBlockCookie="{i}"\n') != -1:
-                    await jdbot.edit_message(msg, f'早时已临时屏蔽Cookie{i}，无需再次屏蔽')
+        n = " ".join('%s' %i for i in m)
+        for config in configs:
+            if config.find('TempBlockCookie=""\n') != -1:
+                configs[n] = f'TempBlockCookie="{i}"\n'
+                with open(path, 'w', encoding='utf-8') as f2:
+                    print(''.join(configs), file=f2)
+                await jdbot.edit_message(msg, f'已临时屏蔽Cookie{i}')
+                break
+            elif config.find('AutoDelCron') != -1:
+                break
+            elif config.find(f'TempBlockCookie="{i}"\n') != -1:
+                await jdbot.edit_message(msg, f'早时已临时屏蔽Cookie{i}，无需再次屏蔽')
+                break
+            else:
+                await jdbot.edit_message(msg, '无法检测到 TempBlockCookie 变量的存在')
+
