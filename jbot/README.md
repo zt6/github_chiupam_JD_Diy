@@ -1,4 +1,9 @@
-# 自启机器人
+<h1 align="center">
+  自启机器人
+  <br>
+  Author: chiupam
+</h1>
+
 ## 简介
 随着 v4-bot 启动而启动的自定义机器人。
 ## 使用方法
@@ -21,7 +26,7 @@
 ## 代码块
 ### 监控布道场
 ```python
-@client.on(events.NewMessage(chats=-1001197524983)
+@client.on(events.NewMessage(chats=-1001197524983))
 async def shopbean(event):
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
