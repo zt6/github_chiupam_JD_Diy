@@ -86,7 +86,7 @@ def checkCookie1():
     for cookie in cookies:
         Expired = checkCookie2(cookie)
         if Expired:
-            m.append(cookies.index(cookie))
+            m.append(cookies.index(cookie) + 1)
     return m
 
 
