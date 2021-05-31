@@ -18,7 +18,7 @@ def checkCookie():
         if r.ok:
             res = r.json()
             if res['retcode'] == '1001':
-                expired = False
+                expired = True
                 return expired
     except Exception as e:
         return e
