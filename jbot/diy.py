@@ -40,16 +40,13 @@ if proxystart:
 else:
     client = TelegramClient("shopbean", api_id, api_hash, connection_retries=None).start()
 
-
-@client.on(events.NewMessage(from_users=chat_id))  # 监控收藏夹和自己的发言
-@client.on(events.NewMessage(chats=[-1001197524983, -1001159808620]))  # 监控频道
-async def my_event_handler(event):
+    
+@client.on(events.NewMessage(chats=-1001197524983)) # 监控布道场频道
+async def shopbean(event):
     """
-    监控消息并做出相应动作
+    监控布道场
     """
     message = event.message.text
-
-    # shopbean https://t.me/monk_dust_channel 布道场
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
     if url != [] and len(cookies) > 0:
         i = 0
@@ -63,7 +60,13 @@ async def my_event_handler(event):
                 continue
         await jdbot.send_message(chat_id, info)
 
-    # redrain https://t.me/longzhuzhu 龙王庙
+        
+@client.on(events.NewMessage(chats=-1001159808620))  # 监控龙王庙频道
+async def redrain(event):
+    """
+    监控龙王庙
+    """
+    message = event.message.text
     if 'RRA' in message:
         RRA = re.findall(r"RRA.*", message)
         input_RRA = '&'.join(RRA)
