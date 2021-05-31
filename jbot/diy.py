@@ -163,22 +163,21 @@ async def check(event):
     if m == []:
         await jdbot.edit_message(msg, '没有 Cookie 过期，无需临时屏蔽')
     else:
+        n = " ".join('%s' % i for i in m)
         path = f'{_ConfigDir}/config.sh'
         with open(path, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
-        n = " ".join('%s' %i for i in m)
         for config in configs:
-            if config.find('TempBlockCookie=""\n') != -1:
-                configs[n] = f'TempBlockCookie="{i}"\n'
+            if config.find('TempBlockCookie=""') != -1:
+                i = configs.index(config)
+                configs[i] = f'TempBlockCookie="{n}"\n'
                 with open(path, 'w', encoding='utf-8') as f2:
                     print(''.join(configs), file=f2)
-                await jdbot.edit_message(msg, f'已临时屏蔽Cookie{i}')
+                await jdbot.edit_message(msg, f'已临时屏蔽Cookie{n}')
                 break
             elif config.find('AutoDelCron') != -1:
                 break
-            elif config.find(f'TempBlockCookie="{i}"\n') != -1:
-                await jdbot.edit_message(msg, f'早时已临时屏蔽Cookie{i}，无需再次屏蔽')
+            elif config.find(f'TempBlockCookie="{n}"') != -1:
+                await jdbot.edit_message(msg, f'早时已临时屏蔽Cookie{n}，无需再次屏蔽')
                 break
-            else:
-                await jdbot.edit_message(msg, '无法检测到 TempBlockCookie 变量的存在')
 
