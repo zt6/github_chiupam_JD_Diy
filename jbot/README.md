@@ -11,16 +11,16 @@
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 先手动停止机器人，输入命令：`pm2 stop jbot`
 4. 手动前台开启机器人，输入命令：`python3 -m jbot`
-5. 输入手机号码和验证码后，登陆成功，按 `Ctrl` + `C` 退出前台
+5. 如果感觉卡住或要求输入手机号码和验证码后出现登陆成功信息，按 `Ctrl` + `C` 退出前台
 6. 最后后台启动机器人，输入命令：`pm2 start jbot`
 ## 常见问题
-1. Question: 发送指令没有反应
+1. Question: 发送机器人自带指令没有反应
 > Answer: 尝试进入容器后，删除位于 `/jd` 目录下的 `shopbean.session` 文件，然后重新按上述使用方法重新操作
 2. Question: 给机器人发送 `/untempblockcookie` 指令会无法取消屏蔽一些没有过期的账号
-> Answer: 尝试多发送几次
+> Answer: `v4-bot`用户可尝试多发送几次，青龙用户暂不可用
 ## 已有功能
-- 监控布道场，关注有礼
+- 监控布道场，关注店铺有礼
 - 监控龙王庙，领取直播间红包
 - 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
 - 发送 `/untempblockcookie` 指令可取消屏蔽 `cookie`
-
+- 监控 `cookie` 过期通知，并及时自动屏蔽
