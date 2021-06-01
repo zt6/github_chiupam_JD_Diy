@@ -28,6 +28,9 @@
 #         4. python -m jbot
 #         5. 登陆后按 Ctrl + C 退出前台
 #         6. pm2 start jbot
+#     二、青龙暂不适用某些指令
+#         1. /checkcookie
+#         2. /untempblockcookie
 # --------------------------------------------------------------------------------------- #
 
 
@@ -41,8 +44,8 @@ snode - 后台执行脚本
 getfile - 获取文件
 edit - 文件编辑
 getcookie - 扫码获取Cookie
-checkcookie - 自动检测失效Cookie并临时屏蔽
-untempblockcookie - 自动检测Cookie并取消临时屏蔽
+checkcookie - 自动检测失效Cookie并临时屏蔽（不适用于青龙）
+untempblockcookie - 自动检测Cookie并取消临时屏蔽（不适用于青龙）
 """
 
 
