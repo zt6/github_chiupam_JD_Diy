@@ -88,7 +88,7 @@ def checkCookie1():
     m = []
     for cookie in cookies:
         Expired = checkCookie2(cookie)
-        if Expired:
+        if not Expired:
             m.append(cookies.index(cookie) + 1)
     return m
 
@@ -110,7 +110,7 @@ def checkCookie2(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    r = requests.get(url, headers=headers, proxies={"http": None, "https": None})
+    r = requests.get(url, headers=headers)
     if r.ok:
         res = r.json()
         if res['retcode'] == '1001':
