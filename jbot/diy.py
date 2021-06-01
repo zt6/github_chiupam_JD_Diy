@@ -76,7 +76,6 @@ def getbean(i, cookie, url):
     result, o = '', '\n\t\t└' # 定义一些变量
     try: # 开始尝试执行下列代码
         r = requests.get(url=url, headers=headers) # 发起 GET 网络请求
-        r.encoding = r.apparent_encoding # 更换编码
         res = r.json() # 使用 json 解析 GET 后的数据包
         # 判断 cookie 是否过期
         if res['code'] == '0': # cookie 未过期
@@ -95,7 +94,10 @@ def getbean(i, cookie, url):
         else: # cookie 已过期或请求头缺少某些键值对
             result = f"{0}账号 Cookie 可能已经过期……"
     except Exception as e: # 如果 try 中发生任何错误
-        result = f"{o}访问发生错误：{e}\n返回的包：{r.text}"
+        if str(e).find('line 1 column 1 (char 0)') != -1: # 如果错误提示中找到 line 1 column 1 (char 0) 字符
+            result = f"{o}访问发生错误：无法解析数据包" # 无法解析 GET 后的数据包
+        else: # 其他情况的错误
+            result = f"{o}访问发生错误：{e}" # 直接返回错误信息
     return f"\n京东账号{i}{result}\n" # 执行函数后输出的内容
 
 
