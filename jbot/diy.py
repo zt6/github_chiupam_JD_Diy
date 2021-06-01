@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Author   : Chiupam (https://t.me/chiupam)
+# @Author   : unkonw & Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-01 16:20
 # @Version  : v1.5
 # @Updata   : 1. 修改了 getBwan() 函数；
@@ -12,8 +12,7 @@
 #     此脚本是根据布道场群文件 shopbean.py(v1.1) 改写的，并非完全自创
 # 已有功能：
 #     1. 解析 GET 请求后的包，以及其推送到 Telegram Bot 的消息会更加美观
-#     2. 同时监控龙王庙频道，截取RRA，配合 redrain.py 定时使用（但 redrain.py 正在测试，因此未启用）
-#     3. 给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie
+#     2. 同时监控龙王庙频道，截取RRA，配合 redrain.py 定时使用（但 redrain.py 正在测试）
 # 使用方法：（直链: https://t.me/monk_dust_channel/692）
 #     1. 存储路径：/jd/jbot/diy/（如果没有需要重新映射此文件夹）
 #     2. 进入容器：docker exec -it jd bash
@@ -30,6 +29,21 @@
 #         5. 登陆后按 Ctrl + C 退出前台
 #         6. pm2 start jbot
 # --------------------------------------------------------------------------------------- #
+
+
+""" 机器人快捷命令备份
+start - 开始使用
+help - 获取命令
+a - 快捷按钮
+cmd - 执行CMD命令
+node - 前台执行脚本
+snode - 后台执行脚本
+getfile - 获取文件
+edit - 文件编辑
+getcookie - 扫码获取Cookie
+checkcookie - 自动检测失效Cookie并临时屏蔽
+untempblockcookie - 自动检测Cookie并取消临时屏蔽
+"""
 
 
 from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
@@ -167,7 +181,7 @@ async def redrain(event):
             print(input_RRA, file=f) # 把 RRA 字符串写入文件中
 
 
-# 临时屏蔽某个cookie
+# 监测到用户在任意窗口发送 /checkcookie 指令，则自动临时屏蔽某个过期的cookie
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
 async def check():
     """
@@ -197,6 +211,7 @@ async def check():
                 break # 退出 for 循环
 
 
+# 监测到用户在任意窗口发送 /untempblockcookie 指令，则自动取消屏蔽某个cookie
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/untempblockcookie'))
 async def check():
     """
