@@ -1,38 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-05-31 13：07
-# @Version  : v1.4
-# @Updata   : 1. 当用户给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）；2. 当用户给机器人发送 /untempblockcookie 命令即可取消屏蔽所有失效 cookie （即修改环境变量 TempBlockCookie 的值）
-# @Future   : 1. 当机器人给用户发送 cookie 失效信息时自动屏蔽这些失效 cookie；2. 当获取新的 cookie 后自动取消临时屏蔽
+# @Data     : 2021-06-01 16:20
+# @Version  : v1.5
+# @Updata   : 1. 修改了 getBwan() 函数；
+# @Future   : 1. Null
 
 
-"""
-声明：
-    此脚本是根据布道场群文件 shopbean.py(v1.1) 改写的，并非完全自创
-已有功能：
-    1. 解析 GET 请求后的包，以及其推送到 Telegram Bot 的消息会更加美观
-    2. 同时监控龙王庙频道，截取RRA，配合 redrain.py 定时使用（但 redrain.py 正在测试，因此未启用）
-    3. 给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie
-使用方法：（直链: https://t.me/monk_dust_channel/692）
-    1. 存储路径：/jd/jbot/diy/（如果没有需要重新映射此文件夹）
-    2. 进入容器：docker exec -it jd bash
-    3. 停机器人：pm2 stop jbot
-    4. 开机器人：python3 -m jbot
-    5. 登陆后按 Ctrl + C 退出前台
-    6. 后台启动：pm2 start jbot
-报错处理：（直链：https://t.me/monk_dust_channel/714）
-    一、 机器人交互没有反应，或者测试没有反应
-        1. docker exec -it jd bash
-        2. rm shopbean.session
-        3. pm2 stop jbot
-        4. python -m jbot
-        5. 登陆后按 Ctrl + C 退出前台
-        6. pm2 start jbot
-"""
+# --------------------------------------------------------------------------------------- #
+# 声明：
+#     此脚本是根据布道场群文件 shopbean.py(v1.1) 改写的，并非完全自创
+# 已有功能：
+#     1. 解析 GET 请求后的包，以及其推送到 Telegram Bot 的消息会更加美观
+#     2. 同时监控龙王庙频道，截取RRA，配合 redrain.py 定时使用（但 redrain.py 正在测试，因此未启用）
+#     3. 给机器人发送 /checkcookie 命令即可临时屏蔽所有失效 cookie
+# 使用方法：（直链: https://t.me/monk_dust_channel/692）
+#     1. 存储路径：/jd/jbot/diy/（如果没有需要重新映射此文件夹）
+#     2. 进入容器：docker exec -it jd bash
+#     3. 停机器人：pm2 stop jbot
+#     4. 开机器人：python3 -m jbot
+#     5. 登陆后按 Ctrl + C 退出前台
+#     6. 后台启动：pm2 start jbot
+# 报错处理：（直链：https://t.me/monk_dust_channel/714）
+#     一、 机器人交互没有反应，或者测试没有反应
+#         1. docker exec -it jd bash
+#         2. rm shopbean.session
+#         3. pm2 stop jbot
+#         4. python -m jbot
+#         5. 登陆后按 Ctrl + C 退出前台
+#         6. pm2 start jbot
+# --------------------------------------------------------------------------------------- #
 
 
-from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir
+from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
 from telethon import events, TelegramClient
 import requests, re
@@ -57,6 +57,7 @@ def getbean(i, cookie, url):
         "Accept-Encoding": "gzip,compress,br,deflate",
         "Cookie": cookie,
     }
+    result, o = '', '\n\t\t└'
     try:
         r = requests.get(url=url, headers=headers)
         r.encoding = r.apparent_encoding
@@ -65,18 +66,17 @@ def getbean(i, cookie, url):
             followDesc = res['result']['followDesc']
             if followDesc.find('成功') != -1:
                 try:
-                    result = ""
                     for n in range(len(res['result']['alreadyReceivedGifts'])):
                         redWord = res['result']['alreadyReceivedGifts'][n]['redWord']
                         rearWord = res['result']['alreadyReceivedGifts'][n]['rearWord']
-                        result += f"\n\t\t└领取成功，获得{redWord}{rearWord}"
+                        result += f"{o}领取成功，获得{redWord}{rearWord}"
                 except:
-                    giftsToast = res['result']['giftsToast'].split(" \n ")[1]
-                    result = f"\n\t\t└{giftsToast}"
+                    giftsToast = res['result']['giftsToast'].split(' \n ')[1]
+                    result = f"{o}{giftsToast}"
             elif followDesc.find('已经') != -1:
-                result = f"\n\t\t└{followDesc}"
+                result = f"{o}{followDesc}"
     except Exception as e:
-        result = f"\n\t\t└访问发生错误：{e}\n返回的包：{r.text}"
+        result = f"{o}访问发生错误：{e}\n返回的包：{r.text}"
     return f"\n京东账号{i}{result}\n"
 
 
@@ -96,7 +96,7 @@ def checkCookie1():
 def checkCookie2(cookie):
     """
     检测 Cookie 是否过期
-    :param cookiex: 传入 Cookie
+    :param cookie: 传入 Cookie
     :return: 返回是否过期
     """
     url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
@@ -120,7 +120,7 @@ def checkCookie2(cookie):
     else:
         return False
 
-    
+
 @client.on(events.NewMessage(chats=-1001197524983)) # 监控布道场频道
 async def shopbean(event):
     """
@@ -140,7 +140,7 @@ async def shopbean(event):
                 continue
         await jdbot.send_message(chat_id, info)
 
-        
+
 @client.on(events.NewMessage(chats=-1001159808620))  # 监控龙王庙频道
 async def redrain(event):
     """
@@ -155,9 +155,9 @@ async def redrain(event):
         with open(f'{_LogDir}/{file}.txt', 'w', encoding='utf-8') as f:
             print(input_RRA, file=f)
 
-            
+
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
-async def check(event):
+async def check():
     """
     临时屏蔽某个cookie
     """
@@ -186,7 +186,7 @@ async def check(event):
 
 
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/untempblockcookie'))
-async def check(event):
+async def check():
     """
     取消屏蔽某个cookie
     """
@@ -217,6 +217,3 @@ async def check(event):
                 await jdbot.edit_message(msg, '没有 Cookie 被临时屏蔽')
         elif config.find('AutoDelCron') != -1:
             break
-
-            
-            
