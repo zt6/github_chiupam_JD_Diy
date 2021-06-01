@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : unkonw & Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-01 16:20
+# @Data     : 2021-06-01 23：59
 # @Version  : v1.5
-# @Updata   : 1. 修改了 getBwan() 函数；
+# @Updata   : 1. 修改了 getBwan() 函数；2. 检测到 cookie 失效信息时自动屏蔽此账号并发送通知
 # @Future   : 1. Null
 
 
@@ -48,16 +48,15 @@ checkcookie - 自动检测失效Cookie并临时屏蔽（不适用于青龙）
 untempblockcookie - 自动检测Cookie并取消临时屏蔽（不适用于青龙）
 """
 
-
 from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
 from telethon import events, TelegramClient
 import requests, re
 
-
 # 判断用户是否启用代理功能
 if proxystart: # 判断成立，即启用了代理功能
-    client = TelegramClient("shopbean", api_id, api_hash, proxy=proxy, connection_retries=None).start() # 使用代理开始登录 Telegram
+    client = TelegramClient("shopbean", api_id, api_hash, proxy=proxy,
+                            connection_retries=None).start() # 使用代理开始登录 Telegram
 else: # 判断不成立，即未启用代理功能
     client = TelegramClient("shopbean", api_id, api_hash, connection_retries=None).start() # 使用直连登录 Telegram
 
@@ -80,7 +79,7 @@ def getbean(i, cookie, url):
     try: # 开始尝试执行下列代码
         r = requests.get(url=url, headers=headers) # 发起 GET 网络请求
         res = r.json() # 使用 json 解析 GET 后的数据包
-        # 判断 cookie 是否过期
+       # 判断 cookie 是否过期
         if res['code'] == '0': # cookie 未过期
             followDesc = res['result']['followDesc'] # 截取 followDesc 的值
             if followDesc.find('成功') != -1: # 成功获取奖励
@@ -112,7 +111,7 @@ def checkCookie1():
     """
     expired = [] # 首先定义一个空列表，名为 expired 列表
     for cookie in cookies: # 从 cookies 列表中轮询 cookie
-        # 判断 cookie 是否过期
+       # 判断 cookie 是否过期
         if checkCookie2(cookie): # 过期了
             expired.append(cookies.index(cookie) + 1) # 把过期的第x个账号添加进 expired 列表中
     return expired # 执行函数后输出 expired 列表
@@ -155,6 +154,8 @@ def checkCookie2(cookie):
 async def shopbean(event):
     """
     监控布道场
+    :param event:
+    :return:
     """
     message = event.message.text # 获取频道发布的消息
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message) # 获取频道发布的消息中符合正则表达式的 url 链接
@@ -165,7 +166,7 @@ async def shopbean(event):
             try: # 开始尝试执行下列代码
                 i += 1 # 把上一个 i 加上 1
                 info += getbean(i, cookie, url[0]) # 执行 getBean() 函数后生成消息的消息内容
-            except:  # 如果 try 中发生任何错误
+            except: # 如果 try 中发生任何错误
                 continue # 继续执行 for 下的代码
         await jdbot.send_message(chat_id, info) # 执行完 for 下的代码给 Telegram Bot 发送消息
 
@@ -175,6 +176,8 @@ async def shopbean(event):
 async def redrain(event):
     """
     监控龙王庙
+    :param event:
+    :return:
     """
     message = event.message.text # 获取频道发布的消息
     if 'RRA' in message and '开始' in message and '结束' in message: # 消息中包含 RRA 开始 结束 三个词
@@ -191,8 +194,10 @@ async def redrain(event):
 async def check():
     """
     临时屏蔽某个cookie
+    :param event:
+    :return:
     """
-    m = checkCookie1() #定义 m 为执行 checkCookie1() 函数检查是否有过期的 cookie 的结果
+    m = checkCookie1() # 定义 m 为执行 checkCookie1() 函数检查是否有过期的 cookie 的结果
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况......') # 给用户发送一条消息证明程序没有在偷懒
     if m == []: # 如果 m 是一个空列表
         await jdbot.edit_message(msg, '没有 Cookie 过期，无需临时屏蔽') # 给用户发送一条消息证明程序没有在偷懒
@@ -221,12 +226,14 @@ async def check():
 async def check():
     """
     取消屏蔽某个cookie
+    :param event:
+    :return:
     """
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 屏蔽情况......') # 给用户发送一条消息证明程序没有在偷懒
     path = f'{_ConfigDir}/config.sh' # 定义 path 变量为 config.sh 文件的路径
     with open(path, 'r', encoding='utf-8') as f1: # 打开 config.sh 文件，只读
         configs = f1.readlines() # 把 config.sh 文件的每一行写入一个列表，定义为 configs 变量
-    del(configs[-1]) # 删除 configs 列表最后一个元素，因为这一行往往是空白行
+    del (configs[-1]) # 删除 configs 列表最后一个元素，因为这一行往往是空白行
     for config in configs: # 从 configs 列表中轮询元素，把元素定义为 config 变量
         if config.find('TempBlockCookie') != -1 and config.find('举例') == -1 and configs[configs.index(config) + 1].find(';;\n') == -1: # 如果找到需要的。。。
             m = re.findall(r'\d', config) # 从 config 变量中截取纯数字，判断这是第几个账户，并定义成 m 列表
@@ -234,17 +241,51 @@ async def check():
                 for n in m: # 从 m 列表中轮询元素，把元素定义为 n 变量
                     Expired = checkCookie2(cookies[int(n) - 1]) # 执行 checkCookie2() 函数，并把返回结果定义为 Expired
                     if not Expired: # 如果 Expired 值不为真（即 Expired 的值是假）
-                        del(m[m.index(n)]) # 把 n 的值从 m 中删除，因为第 n 个账号的 cookie 值已经有效
+                        del (m[m.index(n)]) # 把 n 的值从 m 中删除，因为第 n 个账号的 cookie 值已经有效
                         await jdbot.edit_message(msg, f'取消临时屏蔽 Cookie{n} 成功') # 给用户发送一条消息证明程序没有在偷懒
                 if m != []: # 如果轮询完发现 m 列表不为空，则仍有账户的 cookie 是过期的
                     x = ' '.join(m) # 把 m 列表转换成字符串，并定义为 x
-                    configs[configs.index(config)] = f'TempBlockCookie="{x}"\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式
+                    configs[configs.index(
+                        config)] = f'TempBlockCookie="{x}"\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式
                 else: # 如果轮询完发现 m 列表为空，则已经没有账户的 cookie 是过期的了
-                    configs[configs.index(config)] = f'TempBlockCookie=""\n'  # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式，即 TempBlockCookie=""
+                    configs[configs.index(
+                        config)] = f'TempBlockCookie=""\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式，即 TempBlockCookie=""
                     await jdbot.edit_message(msg, '取消屏蔽所有 Cookie 成功') # 给用户发送一条消息证明程序没有在偷懒
                 with open(path, 'w', encoding='utf-8') as f2: # 打开 config.sh 文件，覆写
-                        print(''.join(configs), file=f2)  # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
+                    print(''.join(configs), file=f2) # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
             else: # 如果一开始的 m 列表不为空，则证明没有账户的 cookie 被临时屏蔽
                 await jdbot.edit_message(msg, '没有 Cookie 被临时屏蔽') # 给用户发送一条消息证明程序没有在偷懒
         elif config.find('AutoDelCron') != -1: # 如果 config 中找不到符合条件的字符串，但是却找到了 AutoDelCron 则证明找过头了
             break # 退出 for 循环
+
+
+# 监测到机器人发送 cookie 失效信息时，自动屏蔽此账号
+@client.on(events.NewMessage(from_users=bot_id, pattern=r'.*cookie.*已失效'))
+async def myexpiredcookie(event):
+    """
+    当监测到 Cookie 失效时第一时间屏蔽此账号并发送提醒
+    :param event:
+    :return:
+    """
+    path = f'{_ConfigDir}/config.sh' # 设置 config.sh 的路径，并定义为变量 path
+    message = event.message.text # 处理机器人发送的消息，并定义为变量 message
+    m = message.split('\n') # 以换行符为分隔符，对变量 message 进行切割，生成一个列表，并定义为变量 m
+    for n in m: # 从 m 列表轮询元素，并将元素定义为变量 n
+        if n.find('京东账号') != -1: # 如果在变量 n 中找到字符串 京东账号
+            x = n.split(' ')[0] # 以空格为分隔符，对变量 n 进行切割，生成一个列表，去第一个元素并定义为变量 x
+            i = re.findall(r'\d', x)[0] # 从变量 x 中使用正则表达式寻找到账号数，并定义为变量 i
+            msg = await jdbot.send_message(chat_id, f'监测到京东账号{i}的 cookiee 已过期，正在自动屏蔽……') # 给用户发送一条消息证明程序没有在偷懒
+            break # 退出 for 循环
+    with open(path, 'r', encoding='utf-8') as f1: # 打开 config.sh 文件，只读
+        configs = f1.readlines() # 把 config.sh 文件的每一行写入一个列表，定义为 configs 变量
+    for config in configs: # 从 configs 列表轮询元素，并将元素定义为变量 config
+        if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1: # 如果找到需要的。。。
+            configs[configs.index(config)] = f'TempBlockCookie="{i}"\n' # 从 config 变量中截取纯数字，判断这是第几个账户，并定义成 m 列表
+            with open(path, 'w', encoding='utf-8') as f2: # 打开 config.sh 文件，覆写
+                del (configs[-1]) # 删除 configs 列表最后一个元素，因为这一行往往是空白行
+                print(''.join(configs), file=f2) # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
+            await jdbot.edit_message(msg, f'已成功屏蔽京东账号{i}\n请执行 /getcookie 指令') # 给用户发送一条消息证明程序没有在偷懒
+            break # 退出 for 循环
+        elif config.find('AutoDelCron') != -1: # 如果 config 中找不到符合条件的字符串，但是却找到了 AutoDelCron 则证明找过头了
+            break # 退出 for 循环
+
