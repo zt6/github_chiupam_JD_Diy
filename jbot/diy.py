@@ -57,23 +57,26 @@ def getbean(i, cookie, url):
         "Accept-Encoding": "gzip,compress,br,deflate",
         "Cookie": cookie,
     }
-    res = requests.get(url=url, headers=headers).json()
-    if res['code'] == '0':
-        followDesc = res['result']['followDesc']
-        if followDesc.find('成功') != -1:
-            try:
-                result = ""
-                for n in range(len(res['result']['alreadyReceivedGifts'])):
-                    redWord = res['result']['alreadyReceivedGifts'][n]['redWord']
-                    rearWord = res['result']['alreadyReceivedGifts'][n]['rearWord']
-                    result += f"\n\t\t└领取成功，获得{redWord}{rearWord}"
-            except:
-                giftsToast = res['result']['giftsToast'].split(" \n ")[1]
-                result = f"\n\t\t└{giftsToast}"
-        elif followDesc.find('已经') != -1:
-            result = f"\n\t\t└{followDesc}"
-        else:
-            result = res
+    try:
+        r = requests.get(url=url, headers=headers)
+        r.encoding = r.apparent_encoding
+        res = r.json()
+        if res['code'] == '0':
+            followDesc = res['result']['followDesc']
+            if followDesc.find('成功') != -1:
+                try:
+                    result = ""
+                    for n in range(len(res['result']['alreadyReceivedGifts'])):
+                        redWord = res['result']['alreadyReceivedGifts'][n]['redWord']
+                        rearWord = res['result']['alreadyReceivedGifts'][n]['rearWord']
+                        result += f"\n\t\t└领取成功，获得{redWord}{rearWord}"
+                except:
+                    giftsToast = res['result']['giftsToast'].split(" \n ")[1]
+                    result = f"\n\t\t└{giftsToast}"
+            elif followDesc.find('已经') != -1:
+                result = f"\n\t\t└{followDesc}"
+    except Exception as e:
+        result = f"\n\t\t└访问发生错误：{e}\n返回的包：{r.text}"
     return f"\n京东账号{i}{result}\n"
 
 
