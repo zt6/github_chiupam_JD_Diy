@@ -61,6 +61,10 @@ else: # 判断不成立，即未启用代理功能
     client = TelegramClient("shopbean", api_id, api_hash, connection_retries=None).start() # 使用直连登录 Telegram
 
 
+with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
+    bot_id = int(json.load(open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8'))['bot_token'].split(':')[0])
+
+
 # 监控布道场频道，检测到关键事件的触发时执行的函数
 def getbean(i, cookie, url):
     """
