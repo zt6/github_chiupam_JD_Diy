@@ -157,16 +157,16 @@ async def redrain(event):
 
 
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
-async def check():
+async def mycheckcookie(event):
     """
     临时屏蔽某个cookie
     """
-    m = checkCookie1()
+    expired = checkCookie1()
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况......')
-    if m == []:
+    if expired == []:
         await jdbot.edit_message(msg, '没有 Cookie 过期，无需临时屏蔽')
     else:
-        n = " ".join('%s' % i for i in m)
+        n = " ".join('%s' % i for i in expired)
         path = f'{_ConfigDir}/config.sh'
         with open(path, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
@@ -185,35 +185,40 @@ async def check():
                 break
 
 
+
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/untempblockcookie'))
-async def check():
+async def myuntempblockcookie(event):
     """
     取消屏蔽某个cookie
     """
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 屏蔽情况......')
     path = f'{_ConfigDir}/config.sh'
+    m = []
     with open(path, 'r', encoding='utf-8') as f1:
         configs = f1.readlines()
-    del(configs[-1])
     for config in configs:
-        if config.find('TempBlockCookie') != -1 and config.find('举例') == -1 and configs[configs.index(config) + 1].find(';;\n') == -1:
-            m = re.findall(r'\d', config)
-            if m != []:
-                for n in m:
-                    Expired = checkCookie2(cookies[int(n) - 1])
-                    if not Expired:
-                        del(m[m.index(n)])
-                        await jdbot.edit_message(msg, f'取消临时屏蔽 Cookie{n} 成功')
-                if m != []:
-                    x = ' '.join(m)
-                    configs[configs.index(config)] = f'TempBlockCookie="{x}"\n'
-                else:
-                    configs[configs.index(config)] = f'TempBlockCookie=""\n'
-                    await jdbot.edit_message(msg, '取消屏蔽所有 Cookie 成功')
-                with open(path, 'w', encoding='utf-8') as f2:
-                        print(''.join(configs), file=f2)
-            else:
-                print(False)
-                await jdbot.edit_message(msg, '没有 Cookie 被临时屏蔽')
+        if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
+            m, temp = re.findall(r'\d', config), config
+            break
         elif config.find('AutoDelCron') != -1:
             break
+    if m == []:
+        await jdbot.edit_message(msg, '没有 Cookie 被临时屏蔽')
+    else:
+        for n in m:
+            expired_cookie = checkCookie2(cookies[int(n) - 1])
+            if not expired_cookie:
+                del(m[m.index(n)])
+        if m != []:
+            x = ' '.join(m)
+            with open(path, 'w', encoding='utf-8') as f2:
+                del(configs[-1])
+                print(''.join(configs), file=f2)
+            configs[configs.index(temp)] = f'TempBlockCookie="{x}"\n'
+        else:
+            configs[configs.index(temp)] = f'TempBlockCookie=""\n'
+            with open(path, 'w', encoding='utf-8') as f2:
+                del(configs[-1])
+                print(''.join(configs), file=f2)
+            await jdbot.edit_message(msg, '取消屏蔽所有 Cookie 成功')
+        
