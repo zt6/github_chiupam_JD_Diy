@@ -159,7 +159,6 @@ def checkCookie2(cookie):
         return False # 执行函数后输出假
 
 
-
 # 欢迎使用，发送欢迎语
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/start'))
 async def myhello(event):
@@ -175,7 +174,7 @@ async def myhello(event):
     /checkcookie - 检测失效Cookie并临时屏蔽（暂不适用于青龙）
     /untempblockcookie - 检测Cookie并取消临时屏蔽（暂不适用于青龙）
 
-    仓库：https://github.com/chiupam/JD_Diy
+    仓库：https://github.com/chiupam/JD_Diy.git
     欢迎🌟 Star & 提出🙋 isuss & 请勿🚫 Fork
 """
     await asyncio.sleep(1) # 等待 1 秒后才发送欢迎语
@@ -191,10 +190,10 @@ async def myhello(event):
     :return:
     """
     diy_help = """restart - 重启机器人
-checkcookie - 检测临时屏蔽
+checkcookie - 检测并临时屏蔽
 untempblockcookie - 取消临时屏蔽
 """
-    await asyncio.sleep(1) # 等待 1 秒后才发送欢迎语
+    await asyncio.sleep(1) # 等待 1 秒后才发送快捷命令
     await jdbot.send_message(chat_id, diy_help) # 给用户发送一条消息证明程序没有在偷懒
 
 
