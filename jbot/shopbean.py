@@ -246,12 +246,11 @@ async def check():
                         del (m[m.index(n)]) # 把 n 的值从 m 中删除，因为第 n 个账号的 cookie 值已经有效
                         await jdbot.edit_message(msg, f'取消临时屏蔽 Cookie{n} 成功') # 给用户发送一条消息证明程序没有在偷懒
                 if m != []: # 如果轮询完发现 m 列表不为空，则仍有账户的 cookie 是过期的
-                    x = ' '.join(m) # 把 m 列表转换成字符串，并定义为 x
-                    configs[configs.index(
-                        config)] = f'TempBlockCookie="{x}"\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式
+                    x = ' '.join(m) # 把 m 列表转换成字符串，并定义为 x 
+                    await jdbot.edit_message(msg, f'检测到 Cookie{x} 仍过期，将继续屏蔽......') # 给用户发送一条消息证明程序没有在偷懒
+                    configs[configs.index(config)] = f'TempBlockCookie="{x}"\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式
                 else: # 如果轮询完发现 m 列表为空，则已经没有账户的 cookie 是过期的了
-                    configs[configs.index(
-                        config)] = f'TempBlockCookie=""\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式，即 TempBlockCookie=""
+                    configs[configs.index(config)] = f'TempBlockCookie=""\n' # 把 configs 列表的第 configs.index(config) 个元素替换成需要的格式，即 TempBlockCookie=""
                     await jdbot.edit_message(msg, '取消屏蔽所有 Cookie 成功') # 给用户发送一条消息证明程序没有在偷懒
                 with open(path, 'w', encoding='utf-8') as f2: # 打开 config.sh 文件，覆写
                     print(''.join(configs), file=f2) # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
