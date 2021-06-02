@@ -186,7 +186,7 @@ async def shopbean(event):
 
 
 # 监控龙王庙频道
-@client.on(events.NewMessage(chats=-1001159808620, pattern=r'RRA.*'))
+@client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*京豆雨.*'))
 async def redrain(event):
     """
     监控龙王庙
