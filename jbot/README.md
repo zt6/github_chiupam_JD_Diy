@@ -21,6 +21,8 @@
 ## 已有功能
 - 监控布道场，关注店铺有礼
 - 监控龙王庙，领取直播间红包
+- 发送 `/restart` 指令可开启自定义机器人
+- 发送 `/help` 指令可获取快捷命令
 - 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
 - 发送 `/untempblockcookie` 指令可取消屏蔽 `cookie`
 - 监控 `cookie` 过期通知，并及时自动屏蔽
