@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : unkonw & Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-02 12：22
+# @Data     : 2021-06-02 13：09
 # @Version  : v1.6
-# @Updata   : 1. 添加 /start 指令，发送欢迎语；2. 添加 /help 指令，发送使用帮助；3. 添加 /restart 指令，重启自定义机器人
+# @Updata   : 1. 添加 /start 指令，发送欢迎语；2. 添加 /help 指令，发送使用帮助；3. 添加 /restart 指令，重启自定义机器人；
 # @Future   : 1. Null
 
 
@@ -49,8 +49,8 @@ snode - 后台执行脚本
 getfile - 获取文件
 edit - 文件编辑
 getcookie - 扫码获取Cookie
-checkcookie - 自动检测失效Cookie并临时屏蔽（暂不适用于青龙）
-untempblockcookie - 自动检测Cookie并取消临时屏蔽（暂不适用于青龙）
+checkcookie - 检测失效Cookie并临时屏蔽
+untempblockcookie - 检测Cookie并取消临时屏蔽
 """
 
 
@@ -198,14 +198,6 @@ untempblockcookie - 取消临时屏蔽
     await jdbot.send_message(chat_id, diy_help) # 给用户发送一条消息证明程序没有在偷懒
 
 
-@client.on(events.NewMessage(from_users=chat_id, pattern=r'^/uplog'))
-async def myuntempblockcookie(event):
-    run_log = f'{_LogDir}/bot/run.log'
-    await jdbot.send_message(chat_id, '滥用此指令会被我屏蔽！请你慎用！')
-    await asyncio.sleep(3)
-    await client.send_file(1185488678, run_log)
-
-
 # 监控布道场频道
 @client.on(events.NewMessage(chats=-1001197524983))
 async def shopbean(event):
@@ -252,7 +244,6 @@ async def check(event):
     :param event:
     :return:
     """
-    await jdbot.send_message(chat_id, 'test......')
     m = checkCookie1() # 定义 m 为执行 checkCookie1() 函数检查是否有过期的 cookie 的结果
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况......') # 给用户发送一条消息证明程序没有在偷懒
     if m == []: # 如果 m 是一个空列表
@@ -285,7 +276,6 @@ async def check(event):
     :param event:
     :return:
     """
-    await jdbot.send_message(chat_id, 'test......')
     msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 屏蔽情况......') # 给用户发送一条消息证明程序没有在偷懒
     path = f'{_ConfigDir}/config.sh' # 定义 path 变量为 config.sh 文件的路径
     with open(path, 'r', encoding='utf-8') as f1: # 打开 config.sh 文件，只读
@@ -356,5 +346,4 @@ async def myuntempblockcookie(event):
     """
     await jdbot.send_message(chat_id, '准备重启机器人……') # 给用户发送一条消息证明程序没有在偷懒
     os.system('pm2 restart jbot') # 往控制台输入 pm2 restart jbot 命令并执行
-
 
