@@ -253,7 +253,7 @@ async def check(event):
         with open(path, 'r', encoding='utf-8') as f1: # 打开 config.sh 文件，只读
             configs = f1.readlines() # 把 config.sh 文件的每一行写入一个列表，定义为 configs 变量
         for config in configs: # 从 configs 列表中轮询元素，把元素定义为 config
-            if config.find('TempBlockCookie=""') != -1: # 如果 config 中找到 TempBlockCookie="" 字符串
+            if config.find('TempBlockCookie') != -1 and config.find('举例') == -1 and configs[configs.index(config) + 1].find(';;\n') == -1: # 如果找到需要的。。。
                 i = configs.index(config) # 定义 i 为该元素序列
                 configs[i] = f'TempBlockCookie="{n}"\n' # 把 configs 列表中第 i 个元素替换成 TempBlockCookie="{n}"\n
                 with open(path, 'w', encoding='utf-8') as f2: # 打开 config.sh 文件，覆写
