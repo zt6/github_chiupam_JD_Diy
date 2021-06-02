@@ -171,6 +171,7 @@ async def shopbean(event):
     :param event:
     :return:
     """
+    await jdbot.send_message(chat_id, "监控龙王庙成功~")
     message = event.message.text # 获取频道发布的消息
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message) # 获取频道发布的消息中符合正则表达式的 url 链接
     if url != [] and len(cookies) > 0: # 如果 url 链接不为空，且 cookies 列表的长度大于 0
@@ -193,9 +194,9 @@ async def redrain(event):
     :param event:
     :return:
     """
-    RRA = re.findall(r"RRA.*", event.message.tex) # 截取 RRA 字符串
+    RRA = re.findall(r"RRA.*", event.message.text) # 截取 RRA 字符串
     input_RRA = '&'.join(RRA) # 处理 RRA 字符串
-    start_time = re.findall(re.compile(r"开.*"), event.message.tex) # 截取开始时间
+    start_time = re.findall(re.compile(r"开.*"), event.message.text) # 截取开始时间
     file = '-'.join(start_time[0].split(' ')[1].split(':')[:-1]) # 定义文件名
     with open(f'{_LogDir}/{file}.txt', 'w', encoding='utf-8') as f: # 打开 log 下一个新的写入文件
         print(input_RRA, file=f) # 把 RRA 字符串写入文件中
