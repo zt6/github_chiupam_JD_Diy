@@ -231,9 +231,9 @@ async def myexpiredcookie(event):
                 else: # 没有被屏蔽
                     y.append(i) # 把新失效的账号添加进去
                     i = ' '.join(y) # 把新的 y 列表转化成字符串，并定义为 i
-                    configs[z] = f'TempBlockCookie="{i}"\n'  # 从 config 变量中截取纯数字，判断这是第几个账户，并定义成 m 列表
+                    configs[z] = f'TempBlockCookie="{i}"\n' # 修改此元素的内容为新的需要屏蔽账号 TempBlockCookie="{i}"\n 
             else: # 判断 y 列表为空列表
-                configs[z] = f'TempBlockCookie="{i}"\n'  # 从 config 变量中截取纯数字，判断这是第几个账户，并定义成 m 列表
+                configs[z] = f'TempBlockCookie="{i}"\n' # 修改此元素的内容为新的需要屏蔽账号 TempBlockCookie="{i}"\n 
             with open(path, 'w', encoding='utf-8') as f2:  # 打开 config.sh 文件，覆写
                 del (configs[-1])  # 删除 configs 列表最后一个元素，因为这一行往往是空白行
                 print(''.join(configs), file=f2)  # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
