@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : unkonw & Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-01 23：59
+# @Data     : 2021-06-02 10:05
 # @Version  : v1.5
 # @Updata   : 1. 修改了 getBwan() 函数；2. 检测到 cookie 失效信息时自动屏蔽此账号并发送通知
 # @Future   : 1. Null
