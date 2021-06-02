@@ -51,7 +51,7 @@ untempblockcookie - 自动检测Cookie并取消临时屏蔽（不适用于青龙
 from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
 from telethon import events, TelegramClient
-import requests, re
+import requests, re, json
 
 # 判断用户是否启用代理功能
 if proxystart: # 判断成立，即启用了代理功能
