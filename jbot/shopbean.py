@@ -171,7 +171,6 @@ async def shopbean(event):
     :param event:
     :return:
     """
-    await jdbot.send_message(chat_id, "监控龙王庙成功~")
     message = event.message.text # 获取频道发布的消息
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message) # 获取频道发布的消息中符合正则表达式的 url 链接
     if url != [] and len(cookies) > 0: # 如果 url 链接不为空，且 cookies 列表的长度大于 0
