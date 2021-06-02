@@ -193,7 +193,7 @@ async def redrain(event):
 
 # 监测到用户在任意窗口发送 /checkcookie 指令，则自动临时屏蔽某个过期的cookie
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
-async def check():
+async def check(event):
     """
     临时屏蔽某个cookie
     :param event:
@@ -225,7 +225,7 @@ async def check():
 
 # 监测到用户在任意窗口发送 /untempblockcookie 指令，则自动取消屏蔽某个cookie
 @client.on(events.NewMessage(from_users=chat_id, pattern=r'^/untempblockcookie'))
-async def check():
+async def check(event):
     """
     取消屏蔽某个cookie
     :param event:
