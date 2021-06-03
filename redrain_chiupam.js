@@ -1,4 +1,4 @@
-# 仅为了我的 python 脚本调用而上传
+// 仅为了我的 python 脚本调用而上传
 
 const $ = new Env('整点京豆雨');
 let allMessage = '';
