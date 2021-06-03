@@ -112,8 +112,7 @@ async def myhello(event):
     /start 开始使用此自定义机器人
     /restart 重启机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
-    /checkcookie 检测失效Cookie并临时屏蔽（暂不适用于青龙）
-    /untempblockcookie 检测Cookie并取消临时屏蔽（暂不适用于青龙）
+    /checkcookie 检测Cookie并屏蔽（暂不适用于青龙）
 
     仓库：https://github.com/chiupam/JD_Diy.git
     欢迎🌟Star & 提出🙋[isuss](https://github.com/chiupam/JD_Diy/issues/new) & 请勿🚫Fork
@@ -131,9 +130,7 @@ async def myhelp(event):
     :return:
     """
     diy_help = """restart - 重启机器人
-web - 启动面板
-checkcookie - 检测临时屏蔽
-untempblockcookie - 取消临时屏蔽
+checkcookie - 检测cookie
 """
     await asyncio.sleep(1) # 等待 1 秒后才发送快捷命令
     await jdbot.send_message(chat_id, diy_help) # 给用户发送一条消息证明程序没有在偷懒
