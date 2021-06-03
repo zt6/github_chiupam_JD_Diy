@@ -17,15 +17,15 @@
   - [启动user.py文件](#启动userpy文件)
 - [常见问题](#常见问题)
 ## 已有功能
-- [bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)功能
-  - [x] 发送 `/start` 指令可开启自定义机器人
-  - [x] 发送 `/restart` 指令可重启机器人
-  - [x] 发送 `/help` 指令可获取快捷命令
-  - [x] 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
-  - [x] 监控 `cookie` 过期通知，并及时自动屏蔽
- - [user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)功能
-  - [x] 监控布道场，关注店铺有礼
-  - [ ] 监控龙王庙，领取直播间红包
+###bot.py功能
+- [x] 发送 `/start` 指令可开启自定义机器人
+- [x] 发送 `/restart` 指令可重启机器人
+- [x] 发送 `/help` 指令可获取快捷命令
+- [x] 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
+- [x] 监控 `cookie` 过期通知，并及时自动屏蔽
+###user.py功能
+- [x] 监控布道场，关注店铺有礼
+- [ ] 监控龙王庙，领取直播间红包
 ## 使用方法
 ### 启动[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)文件
 1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来
