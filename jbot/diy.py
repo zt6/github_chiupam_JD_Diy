@@ -1,6 +1,6 @@
-from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
+from .. import chat_id, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
-from telethon import events, TelegramClient, Button
+from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, json, asyncio
 
@@ -60,7 +60,7 @@ def checkCookie2(cookie):
 
 
 # 监测到机器人发送 cookie 失效信息时，自动屏蔽此账号
-@client.on(events.NewMessage(from_users=bot_id, pattern=r'.*cookie.*已失效'))
+@jdbot.on(events.NewMessage(from_users=bot_id, pattern=r'.*cookie.*已失效'))
 async def myexpiredcookie(event):
     """
     当监测到 Cookie 失效时第一时间屏蔽此账号并发送提醒
@@ -101,7 +101,7 @@ async def myexpiredcookie(event):
 
 
 # 发送欢迎语
-@client.on(events.NewMessage(chats=[bot_id], from_users=chat_id, pattern=r'^/start'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start'))
 async def myhello(event):
     """
     发送欢迎语
@@ -123,8 +123,8 @@ async def myhello(event):
 
 
 # 获取自定义机器人的快捷命令
-@client.on(events.NewMessage(chats=[bot_id], from_users=chat_id, pattern=r'^/help'))
-async def myhello(event):
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/help'))
+async def myhelp(event):
     """
     发送快捷命令
     :param event:
@@ -140,7 +140,7 @@ untempblockcookie - 取消临时屏蔽
 
 
 # 自动检测cookie的过期情况并临时屏蔽此账号
-@client.on(events.NewMessage(chats=[bot_id], from_users=chat_id, pattern=r'^/checkcookie'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
 async def mycheckcookie(event):
     """
     临时屏蔽某个cookie
@@ -168,8 +168,8 @@ async def mycheckcookie(event):
 
 
 # 重启机器人
-@client.on(events.NewMessage(chats=[bot_id], from_users=chat_id, pattern=r'^/restart'))
-async def myuntempblockcookie(event):
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart'))
+async def myrestart(event):
     """
     发送 /restart 重启机器人
     :param event:
