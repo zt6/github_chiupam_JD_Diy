@@ -238,7 +238,7 @@ async def myexpiredcookie(event):
             with open(path, 'w', encoding='utf-8') as f2:  # 打开 config.sh 文件，覆写
                 del (configs[-1])  # 删除 configs 列表最后一个元素，因为这一行往往是空白行
                 print(''.join(configs), file=f2)  # 把新的 configs 列表转化成字符串，最后写入进 config.sh 文件
-            await jdbot.edit_message(msg, '成功屏蔽')
+            await jdbot.edit_message(msg, '成功屏蔽此帐号\n请及时 /getcookie 获取')
         elif config.find('AutoDelCron') != -1: # 如果 config 中找不到符合条件的字符串，但是却找到了 AutoDelCron 则证明找过头了
             break # 退出 for 循环
 
