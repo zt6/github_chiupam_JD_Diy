@@ -104,7 +104,7 @@ async def myexpiredcookie(event):
                 with open(path, 'w', encoding='utf-8') as f2:
                     del (configs[-1])
                     print(''.join(configs), file=f2)
-                await jdbot.edit_message(msg, '成功屏蔽')
+                await jdbot.edit_message(msg, '成功屏蔽此账号，请及时/getcookie获取新cookie')
             elif config.find('AutoDelCron') != -1:
                 break
     except Exception as e:
