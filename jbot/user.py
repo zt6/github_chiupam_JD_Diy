@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-04 1:14
+# @Data     : 2021-06-04 15:02
 # @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录
+# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 新增读取 cookie 的函数
 # @Future   : 1. 继续完善 redrain 红包雨
 
 
@@ -11,6 +11,7 @@ from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart,
 from ..bot.utils import cookies
 from telethon import events, TelegramClient
 import re, json, requests, os
+
 
 if proxystart:
     client = TelegramClient("diy", api_id, api_hash, proxy=proxy, connection_retries=None).start()
@@ -21,6 +22,23 @@ with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
     bot_id = int(json.load(botf)['bot_token'].split(':')[0])
 
 
+# 从 config.sh 中读取 cookies
+def readCookies():
+    """
+    读取 cookie
+    :return: 最新的 cookies 列表
+    """
+    ckreg = re.compile(r'pt_key=\S*;pt_pin=\S*;')
+    with open(f'{_ConfigDir}/config.sh', 'r', encoding='utf-8') as f:
+        lines = f.read()
+    cookies = ckreg.findall(lines)
+    for cookie in cookies:
+        if cookie == 'pt_key=xxxxxxxxxx;pt_pin=xxxx;':
+            cookies.remove(cookie)
+            break
+    return cookies
+
+
 # 检查 cookie 是否过期的第一个函数
 def checkCookie1():
     """
@@ -28,10 +46,12 @@ def checkCookie1():
     :return: 返回过期的 Cookie 的账号数字列表
     """
     expired = []
+    cookies = readCookies()
     for cookie in cookies:
+        cknum = cookies.index(cookie) + 1
         if checkCookie2(cookie):
-            expired.append(cookies.index(cookie) + 1)
-    return expired
+            expired.append(cknum)
+    return expired, cookies
 
 
 # 检查 cookie 是否过期的第二个函数
@@ -66,15 +86,9 @@ def checkCookie2(cookie):
         return False
 
 
-# 新旧命令对比
 def checkCrontab(cron, PL, fname, fpath):
     """
     新旧命令对比，有新命令则写入新命令
-    :param cron: 传入 cron 表达式
-    :param PL: 传入执行方式 python jtask otask
-    :param fname: 传入文件名
-    :param fpath: 传入文件路径
-    :return:
     """
     crontab_list = f'{_ConfigDir}/crontab.list'
     key = f'# {fname}（请勿删除此行）\n'
@@ -159,3 +173,43 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
+@client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
+async def redrain(event):
+    """
+    替换修改 redrain.js 的 RRA
+    :param event:
+    :return:
+    """
+    try:
+        fname = '整点京豆雨'
+        fpath = f'{_ScriptsDir}/redrain_chiupam.js'
+        if not os.path.isfile(fpath):
+            f_url = 'https://raw.githubusercontent.com/chiupam/JD_Diy/main/redrain_chiupam.js'
+            cmdtext = f'cd {_ScriptsDir} && wget -t 3 {f_url}'
+            os.system(cmdtext)
+        checkCrontab("0 0 5 1 *", "otask", fname, fpath)
+        messages = event.raw_text.split('\n')
+        rras = []
+        times = []
+        for message in messages:
+            if "RRA" in message:
+                rra = re.findall(r'RRA.*', message)[0]
+                rras.append(rra)
+                str_time = messages[messages.index(message) + 2].split(' ')[1].split(':')[0]
+                if str_time.startswith('0'):
+                    str_time = str_time[1:]
+                times.append(str_time)
+        with open(fpath, 'r', encoding='utf-8') as f1:
+            js = f1.readlines()
+        for line in js:
+            if line.find(f"'{times[0]}': 'RRA") != -1:
+                js[js.index(line)] = f"  '{times[0]}': '{rras[0]}',\n"
+                del(times[0])
+                del(rras[0])
+            if rras == []:
+                break
+        with open(fpath, 'w', encoding='utf-8') as f2:
+            f2.write(''.join(js))
+        await jdbot.send_message(chat_id, '已完成替换咯')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
