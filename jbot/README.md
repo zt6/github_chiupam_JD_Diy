@@ -38,17 +38,11 @@
 方法一、 在终端中使用 Linux 命令
 ```
 docker exec -it jd bash
-wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
-pm2 restart jbot
+wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
 ```
 方法二、 给机器人发消息（需开启cmd命令功能）
-1. 给机器人发送第一条消息
 ```
-/cmd wget -p /jd/jbot/diy -o bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
-```
-2. 给机器人发送第二条消息
-```
-/cmd pm2 restart jbot
+/cmd wget -p /jd/jbot/diy -o bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
 ```
 ### 启动[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)文件
 1. 把文件存储在路径 `/jbot/diy/` 下， 或可以开启cmd功能给机器人发消息 `/cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py`
