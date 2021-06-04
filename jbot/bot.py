@@ -156,7 +156,7 @@ checkcookie - 检测cookie过期
 async def mycheckcookie(event):
     try:
         expired = checkCookie1()
-        msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况')
+        msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况，如果出错请/restart一下！一会儿修复此问题')
         if expired != []:
             n = " ".join('%s' % i for i in expired)
             path = f'{_ConfigDir}/config.sh'
