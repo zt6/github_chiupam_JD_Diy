@@ -173,43 +173,43 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
-async def redrain(event):
-    """
-    替换修改 redrain.js 的 RRA
-    :param event:
-    :return:
-    """
-    try:
-        fname = '整点京豆雨'
-        fpath = f'{_ScriptsDir}/redrain_chiupam.js'
-        if not os.path.isfile(fpath):
-            f_url = 'https://raw.githubusercontent.com/chiupam/JD_Diy/main/redrain_chiupam.js'
-            cmdtext = f'cd {_ScriptsDir} && wget -t 3 {f_url}'
-            os.system(cmdtext)
-        checkCrontab("0 0 5 1 *", "otask", fname, fpath)
-        messages = event.raw_text.split('\n')
-        rras = []
-        times = []
-        for message in messages:
-            if "RRA" in message:
-                rra = re.findall(r'RRA.*', message)[0]
-                rras.append(rra)
-                str_time = messages[messages.index(message) + 2].split(' ')[1].split(':')[0]
-                if str_time.startswith('0'):
-                    str_time = str_time[1:]
-                times.append(str_time)
-        with open(fpath, 'r', encoding='utf-8') as f1:
-            js = f1.readlines()
-        for line in js:
-            if line.find(f"'{times[0]}': 'RRA") != -1:
-                js[js.index(line)] = f"  '{times[0]}': '{rras[0]}',\n"
-                del(times[0])
-                del(rras[0])
-            if rras == []:
-                break
-        with open(fpath, 'w', encoding='utf-8') as f2:
-            f2.write(''.join(js))
-        await jdbot.send_message(chat_id, '已完成替换咯')
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
+# @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
+# async def redrain(event):
+#     """
+#     替换修改 redrain.js 的 RRA
+#     :param event:
+#     :return:
+#     """
+#     try:
+#         fname = '整点京豆雨'
+#         fpath = f'{_ScriptsDir}/redrain_chiupam.js'
+#         if not os.path.isfile(fpath):
+#             f_url = 'https://raw.githubusercontent.com/chiupam/JD_Diy/main/redrain_chiupam.js'
+#             cmdtext = f'cd {_ScriptsDir} && wget -t 3 {f_url}'
+#             os.system(cmdtext)
+#         checkCrontab("0 0 5 1 *", "otask", fname, fpath)
+#         messages = event.raw_text.split('\n')
+#         rras = []
+#         times = []
+#         for message in messages:
+#             if "RRA" in message:
+#                 rra = re.findall(r'RRA.*', message)[0]
+#                 rras.append(rra)
+#                 str_time = messages[messages.index(message) + 2].split(' ')[1].split(':')[0]
+#                 if str_time.startswith('0'):
+#                     str_time = str_time[1:]
+#                 times.append(str_time)
+#         with open(fpath, 'r', encoding='utf-8') as f1:
+#             js = f1.readlines()
+#         for line in js:
+#             if line.find(f"'{times[0]}': 'RRA") != -1:
+#                 js[js.index(line)] = f"  '{times[0]}': '{rras[0]}',\n"
+#                 del(times[0])
+#                 del(rras[0])
+#             if rras == []:
+#                 break
+#         with open(fpath, 'w', encoding='utf-8') as f2:
+#             f2.write(''.join(js))
+#         await jdbot.send_message(chat_id, '已完成替换咯')
+#     except Exception as e:
+#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
