@@ -44,7 +44,7 @@ pm2 restart jbot
 方法二、 给机器人发消息（需开启cmd命令功能）
 1. 给机器人发送第一条消息
 ```
-/cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
+/cmd wget -p /jd/jbot/diy -o bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
 ```
 2. 给机器人发送第二条消息
 ```
