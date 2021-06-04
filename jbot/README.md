@@ -16,6 +16,7 @@
   - [启动bot.py文件](#启动botpy文件)
   - [启动user.py文件](#启动userpy文件)
 - [常见问题](#常见问题)
+- [注意事项](#注意事项)
 ## 已有功能
 ### bot.py功能
 - [x] 发送 `/start` 指令可开启自定义机器人
@@ -42,3 +43,6 @@
 ## 常见问题
 1. Question: 使用 `user.py` 后发送机器人自带指令没有反应
 > Answer: 尝试进入容器后，删除位于 `/jd` 目录下的 `diy.session` 文件，然后重新按上述使用方法重新操作
+## 注意事项
+- 如果有使用旧的[diy.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/backup/diy.py)请删除后再使用以上两个脚本，因为大部分功能重复
+- 首次使用[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)需要按说明登录 `telegram`，因为 `.session` 文件名已经修改
