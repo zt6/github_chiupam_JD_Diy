@@ -35,25 +35,27 @@
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 输入命令 `pm2 restart jbot` 重启机器人即可
 ### 部署bot.py快捷命令
-方法一、 SSH命令
+方法一、 在终端中使用 Linux 命令
 ```
 docker exec -it jd bash
 wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
 pm2 restart jbot
 ```
 方法二、 给机器人发消息（需开启cmd命令功能）
+1. 给机器人发送第一条消息
 ```
 /cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
 ```
-> 随后重启机器人即可（`/cmd pm2 restart jbot`）
+2. 给机器人发送第二条消息
+```
+/cmd pm2 restart jbot
+```
 ### 启动[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)文件
-1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来
-> 或可以开启cmd功能给机器人发消息 `/cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py`
+1. 把文件存储在路径 `/jbot/diy/` 下， 或可以开启cmd功能给机器人发消息 `/cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py`
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 先手动停止机器人，输入命令：`pm2 stop jbot`
 4. 手动前台开启机器人，输入命令：`python3 -m jbot`
-5. 输入手机号和验证码登录
-> 可能会卡住，如果卡住说明已登录过，直接进行第6步即可
+5. 输入手机号和验证码登录，可能会卡住，如果卡住说明已登录过，直接进行第6步即可
 6. 按 `Ctrl`+`C` 退出前台运行，然后输入命令 `pm2 start jbot` 启动机器人
 ## 常见问题
 1. Question: 使用 `user.py` 后发送机器人自带指令没有反应
