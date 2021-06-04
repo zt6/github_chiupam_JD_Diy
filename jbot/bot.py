@@ -1,20 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-04 11:37
+# @Data     : 2021-06-04 15:02
 # @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割
+# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割；4. 新增读取 cookie 的函数，使得 /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
 # @Future   : 1. 继续完善 redrain 红包雨；2. /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
-from ..bot.utils import cookies, cmd, press_event, backfile, jdcmd, _DiyDir
+from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
 
 
 bot_id = int(TOKEN.split(':')[0])
+
+
+# 从 config.sh 中读取 cookies
+def readCookies():
+    """
+    读取 cookie
+    :return: 最新的 cookies 列表
+    """
+    ckreg = re.compile(r'pt_key=\S*;pt_pin=\S*;')
+    with open(f'{_ConfigDir}/config.sh', 'r', encoding='utf-8') as f:
+        lines = f.read()
+    cookies = ckreg.findall(lines)
+    for cookie in cookies:
+        if cookie == 'pt_key=xxxxxxxxxx;pt_pin=xxxx;':
+            cookies.remove(cookie)
+            break
+    return cookies
 
 
 # 检查 cookie 是否过期的第一个函数
@@ -24,10 +41,12 @@ def checkCookie1():
     :return: 返回过期的 Cookie 的账号数字列表
     """
     expired = []
+    cookies = readCookies()
     for cookie in cookies:
+        cknum = cookies.index(cookie) + 1
         if checkCookie2(cookie):
-            expired.append(cookies.index(cookie) + 1)
-    return expired
+            expired.append(cknum)
+    return expired, cookies
 
 
 # 检查 cookie 是否过期的第二个函数
@@ -82,8 +101,7 @@ async def myexpiredcookie(event):
         with open(path, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         for config in configs:
-            if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(
-                    ';;\n') == -1 and config.find('举例') == -1:
+            if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
                 z = configs.index(config)
                 y = config[config.find('="') + 2:-2].split()
                 if y != []:
@@ -99,7 +117,7 @@ async def myexpiredcookie(event):
                 with open(path, 'w', encoding='utf-8') as f2:
                     del (configs[-1])
                     print(''.join(configs), file=f2)
-                await jdbot.edit_message(msg, '成功屏蔽，请及时发送/getcookie指令获取新的cooki\n获取完成手动替换后请手动发送/checkcookie指令取消屏蔽')
+                await jdbot.edit_message(msg, '成功屏蔽，请及时发送/getcookie指令\n当cookie生效后请发送/checkcookie指令')
             elif config.find('AutoDelCron') != -1:
                 break
     except Exception as e:
@@ -156,15 +174,14 @@ checkcookie - 检测cookie过期
 async def mycheckcookie(event):
     try:
         expired = checkCookie1()
-        msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况，如果出错请/restart一下！一会儿修复此问题')
-        if expired != []:
-            n = " ".join('%s' % i for i in expired)
+        msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况')
+        if expired[0] != []:
+            n = " ".join('%s' % i for i in expired[0])
             path = f'{_ConfigDir}/config.sh'
             with open(path, 'r', encoding='utf-8') as f1:
                 configs = f1.readlines()
             for config in configs:
-                if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(
-                        ';;\n') == -1 and config.find('举例') == -1:
+                if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
                     configs[configs.index(config)] = f'TempBlockCookie="{n}"\n'
                     with open(path, 'w', encoding='utf-8') as f2:
                         print(''.join(configs), file=f2)
@@ -250,3 +267,4 @@ async def mycodes(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
         logger.error('something wrong,I\'m sorry\n'+str(e))
+
