@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-04 15:02
+# @Data     : 2021-06-04 17:09
 # @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割；4. 新增读取 cookie 的函数，使得 /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
+# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割；4. 新增读取 cookie 的函数，使得 /checkcookie 不需要重启机器人就可实时更新屏蔽的账号；5. 重写 /checkcookie 指令的函数，以修复一个错误
 # @Future   : 1. 继续完善 redrain 红包雨；2. /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
 
 
@@ -173,24 +173,46 @@ checkcookie - 检测cookie过期
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/checkcookie'))
 async def mycheckcookie(event):
     try:
-        expired = checkCookie1()
+        path = f'{_ConfigDir}/config.sh'
+        expireds = checkCookie1()[0]
         msg = await jdbot.send_message(chat_id, '正在自动检测 cookie 过期情况')
-        if expired[0] != []:
-            n = " ".join('%s' % i for i in expired[0])
-            path = f'{_ConfigDir}/config.sh'
-            with open(path, 'r', encoding='utf-8') as f1:
-                configs = f1.readlines()
-            for config in configs:
-                if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
-                    configs[configs.index(config)] = f'TempBlockCookie="{n}"\n'
-                    with open(path, 'w', encoding='utf-8') as f2:
-                        print(''.join(configs), file=f2)
-                    await jdbot.edit_message(msg, f'以下是屏蔽的账号\n{n}')
-                    break
-                elif config.find('AutoDelCron') != -1:
-                    break
+        with open(path, 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        for config in configs:
+            if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
+                Templine = configs.index(config)
+                tbcookies = re.findall(r'\d', config)
+                break
+        edit = False
+        if tbcookies != []:
+            if expireds !=[]:
+                for expired in expireds:
+                    if str(expired) in tbcookies:
+                        del(expireds[expireds.index(expired)])
+                for expired in expireds: # 不知道为什么要循环两次
+                    if str(expired) in tbcookies: # 不知道为什么要循环两次
+                        del(expireds[expireds.index(expired)]) # 不知道为什么要循环两次
+                if expireds != []:
+                    for expired in expireds:
+                        tbcookies.append(expired)
+                    edit = True
+            else:
+                tbcookies = []
+                edit = True
+        elif tbcookies == [] and expireds != []:
+            for expired in expireds:
+                tbcookies.append(expired)
+                edit = True
+        n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
+        Temp = f'TempBlockCookie="{n}"\n'
+        if edit:
+            configs[Templine] = Temp
+            await jdbot.edit_message(msg, f'修改后的屏蔽情况变更为：\n文件第{Templine + 1}行 {Temp}')
+            with open(path, 'w', encoding='utf-8') as f2:
+                f2.write(''.join(configs))
         else:
-            await jdbot.edit_message(msg, '没有 Cookie 过期，无需临时屏蔽')
+            await jdbot.edit_message(msg, f'无需改动 TempBlockCookie 的值\n你目前配置内屏蔽情况为：\n文件第{Templine + 1}行 {Temp}')
+        jdbot.send_file(chat_id, path)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
