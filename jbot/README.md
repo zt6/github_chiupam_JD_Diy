@@ -49,11 +49,12 @@ pm2 restart jbot
 ### 启动[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)文件
 1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来
 > 或可以开启cmd功能给机器人发消息 `/cmd wget -p /jd/jbot/diy -O bot.py https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py`
-3. 进入容器，使用命令 `docker exec -it jd bash`
-4. 先手动停止机器人，输入命令：`pm2 stop jbot`
-5. 手动前台开启机器人，输入命令：`python3 -m jbot`
-6. (1) 如果卡住，请给机器人发送 `/start` 测试一下；(2) 如果需要登录，请登录
-7. 按 `Ctrl`+`C` 退出前台运行，然后输入命令 `pm2 start jbot` 启动机器人
+2. 进入容器，使用命令 `docker exec -it jd bash`
+3. 先手动停止机器人，输入命令：`pm2 stop jbot`
+4. 手动前台开启机器人，输入命令：`python3 -m jbot`
+5. 输入手机号和验证码登录
+> 可能会卡住，如果卡住说明已登录过，直接进行第6步即可
+6. 按 `Ctrl`+`C` 退出前台运行，然后输入命令 `pm2 start jbot` 启动机器人
 ## 常见问题
 1. Question: 使用 `user.py` 后发送机器人自带指令没有反应
 > Answer: 尝试进入容器后，删除位于 `/jd` 目录下的 `diy.session` 文件，然后重新按上述使用方法重新操作
