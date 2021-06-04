@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-04 1:14
+# @Data     : 2021-06-04 11:37
 # @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录
-# @Future   : 1. 继续完善 redrain 红包雨
+# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割
+# @Future   : 1. 继续完善 redrain 红包雨；2. /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
 
 
-from .. import chat_id, jdbot, _LogDir, _ConfigDir, logger
-from ..bot.utils import cookies, cmd, press_event
+from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
+from ..bot.utils import cookies, cmd, press_event, backfile, jdcmd, _DiyDir
 from telethon import events, Button
 from asyncio import exceptions
-import requests, re, os, json, asyncio
+import requests, re, os, asyncio
 
 
-with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
-    bot_id = int(json.load(botf)['bot_token'].split(':')[0])
-
-
-def press_event(user_id):
-    return events.CallbackQuery(func=lambda e: e.sender_id == user_id)
+bot_id = int(TOKEN.split(':')[0])
 
 
 # 检查 cookie 是否过期的第一个函数
@@ -104,7 +99,7 @@ async def myexpiredcookie(event):
                 with open(path, 'w', encoding='utf-8') as f2:
                     del (configs[-1])
                     print(''.join(configs), file=f2)
-                await jdbot.edit_message(msg, '成功屏蔽此账号，请及时/getcookie获取新cookie')
+                await jdbot.edit_message(msg, '成功屏蔽，请及时发送/getcookie指令获取新的cooki\n获取完成手动替换后请手动发送/checkcookie指令取消屏蔽')
             elif config.find('AutoDelCron') != -1:
                 break
     except Exception as e:
@@ -199,3 +194,59 @@ async def myrestart(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'https?://raw\S*'))
+async def mycodes(event):
+    """
+    用户发送 raw 链接后自动下载链接文件
+    :param event:
+    :return:
+    """
+    try:
+        SENDER = event.sender_id
+        url = event.raw_text
+        fname = url.split('/')[-1]
+        msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
+        resp = requests.get(url).text
+        btn = [[Button.inline('放入config', data=_ConfigDir), Button.inline('放入scripts', data=_ScriptsDir), Button.inline('放入OWN文件夹', data=_DiyDir)], [
+            Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]]
+        if resp:
+            cmdtext = None
+            async with jdbot.conversation(SENDER, timeout=30) as conv:
+                await jdbot.delete_messages(chat_id, msg)
+                msg = await conv.send_message('请选择您要放入的文件夹或操作：\n')
+                msg = await jdbot.edit_message(msg, '请选择您要放入的文件夹或操作：', buttons=btn)
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    msg = await jdbot.edit_message(msg, '对话已取消')
+                    conv.cancel()
+                elif res == 'node':
+                    fpath = f'{_DiyDir}/{fname}'
+                    backfile(fpath)
+                    with open(fpath, 'w+', encoding='utf-8') as f:
+                        f.write(resp)
+                    cmdtext = f'{jdcmd} {_DiyDir} {fname} now'
+                    await jdbot.edit_message(msg, f'脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
+                    conv.cancel()
+                elif res == 'node1':
+                    fpath = f'{_ScriptsDir}/{fname}'
+                    backfile(fpath)
+                    with open(fpath, 'w+', encoding='utf-8') as f:
+                        f.write(resp)
+                    cmdtext = f'{jdcmd} {_ScriptsDir} {fname} now'
+                    await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
+                    conv.cancel()
+                else:
+                    fpath = f'{res}/{fname}'
+                    backfile(fpath)
+                    with open(fpath, 'w+', encoding='utf-8') as f:
+                        f.write(resp)
+                    await jdbot.edit_message(msg, f'{fname}已保存到{res}文件夹')
+            if cmdtext:
+                await cmd(cmdtext)
+    except exceptions.TimeoutError:
+        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
+        logger.error('something wrong,I\'m sorry\n'+str(e))
