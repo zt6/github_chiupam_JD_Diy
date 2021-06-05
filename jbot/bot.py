@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-05 23:49
+# @Data     : 2021-06-06 02:41
 # @Version  : v 2.1
 # @Updata   : 1. 使用文件代理加速下载服务解决下载raw链接文件时的网络错误问题；2. 修复 checkcookie 指令的错误；3. 修复自动屏蔽失效 cookie 但没有成功屏蔽的错误；4. 修复下载raw链接文件并执行会无法执行的问题;5. 暂时停驶监控 cookie 失效自动屏蔽此账号功能
 # @Future   : 1. 待修复监控 cookie 失效消息所添加进 Tempblockcookie 的账号值与特定脚本屏蔽冲突的问题，这个问题在某些特定情况下会造成严重的错误
@@ -282,7 +282,6 @@ async def mycodes(event):
                     conv.cancel()
                 elif res == 'node1':
                     path, cmdtext = f'{_ScriptsDir}/{fname}', f'{jdcmd} {_ScriptsDir}/{fname} now'
-                     = 
                     await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
                     conv.cancel()
                 else:
