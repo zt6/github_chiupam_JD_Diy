@@ -287,7 +287,7 @@ async def mycodes(event):
             if cmdtext:
                 await cmd(cmdtext)
     except exceptions.TimeoutError:
-        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
         logger.error('something wrong,I\'m sorry\n'+str(e))
