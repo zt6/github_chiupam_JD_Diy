@@ -3,8 +3,8 @@
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-05 23:49
 # @Version  : v 2.1
-# @Updata   : 1. 使用文件代理加速下载服务解决下载raw链接文件时的网络错误问题；2. 修复 checkcookie 指令的错误；3. 修复自动屏蔽失效 cookie 但没有成功屏蔽的错误
-# @Future   : 1. 修复下载raw链接文件并执行后，反馈的日志是命令过多的错误
+# @Updata   : 1. 使用文件代理加速下载服务解决下载raw链接文件时的网络错误问题；2. 修复 checkcookie 指令的错误；3. 修复自动屏蔽失效 cookie 但没有成功屏蔽的错误；4. 修复下载raw链接文件并执行会无法执行的问题
+# @Future   : 
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
@@ -252,53 +252,53 @@ async def mycodes(event):
     """
     try:
         SENDER = event.sender_id
+        msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
         url = event.raw_text
         if url.startswith('https://raw.githubusercontent.com'):
-            url = f'http://ghproxy.com/{url}'  # 文件代理加速下载服务
+            url = f'http://ghproxy.com/{url}'
         fname = url.split('/')[-1]
-        msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
         resp = requests.get(url).text
-        btn = [[Button.inline('放入config', data=_ConfigDir), Button.inline('放入scripts', data=_ScriptsDir), Button.inline('放入OWN文件夹', data=_DiyDir)], [
-            Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]]
+        markup = [
+            [Button.inline('放入config', data=_ConfigDir), Button.inline('放入scripts', data=_ScriptsDir), Button.inline('放入OWN文件夹', data=_DiyDir)], 
+            [Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]
+        ]
         if resp:
             cmdtext = None
             async with jdbot.conversation(SENDER, timeout=30) as conv:
                 await jdbot.delete_messages(chat_id, msg)
                 msg = await conv.send_message('请选择您要放入的文件夹或操作：\n')
-                msg = await jdbot.edit_message(msg, '请选择您要放入的文件夹或操作：', buttons=btn)
+                msg = await jdbot.edit_message(msg, '请选择您要放入的文件夹或操作：', buttons=markup)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
+                write = True
                 if res == 'cancel':
+                    write = False
                     msg = await jdbot.edit_message(msg, '对话已取消')
                     conv.cancel()
                 elif res == 'node':
-                    fpath = f'{_DiyDir}/{fname}'
-                    backfile(fpath)
-                    with open(fpath, 'w+', encoding='utf-8') as f:
-                        f.write(resp)
-                    cmdtext = f'{jdcmd} {_DiyDir} {fname} now'
-                    await jdbot.edit_message(msg, f'脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
+                    path = f'{_DiyDir}/{fname}'
+                    cmdtext = '{} {}/{} now'.format(jdcmd, _DiyDir, fname)
+                    await jdbot.edit_message(msg, '脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
                     conv.cancel()
                 elif res == 'node1':
-                    fpath = f'{_ScriptsDir}/{fname}'
-                    backfile(fpath)
-                    with open(fpath, 'w+', encoding='utf-8') as f:
-                        f.write(resp)
-                    cmdtext = f'{jdcmd} {_ScriptsDir} {fname} now'
-                    await jdbot.edit_message(msg, f'脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
+                    path = f'{_ScriptsDir}/{fname}'
+                    cmdtext = '{} {}/{} now'.format(jdcmd,_ScriptsDir, fname)
+                    await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
                     conv.cancel()
                 else:
-                    fpath = f'{res}/{fname}'
-                    backfile(fpath)
-                    with open(fpath, 'w+', encoding='utf-8') as f:
-                        f.write(resp)
-                    await jdbot.edit_message(msg, f'脚本已保存到{res}文件夹')
+                    path = f'{res}/{fname}'
+                    await jdbot.edit_message(msg, fname+'已保存到'+res+'文件夹')
+            if write:
+                backfile(path)
+                with open(path, 'w+', encoding='utf-8') as f:
+                    f.write(resp)
             if cmdtext:
                 await cmd(cmdtext)
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止')
+        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
         logger.error('something wrong,I\'m sorry\n'+str(e))
+
 
 
