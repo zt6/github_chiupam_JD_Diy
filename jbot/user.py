@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-04 15:02
-# @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 新增读取 cookie 的函数
-# @Future   : 1. 继续完善 redrain 红包雨
+# @Data     : 2021-06-05 17:30
+# @Version  : v 2.1
+# @Updata   : 1. 自动下载 bot.py 并重启机器人
+# @Future   : 1. 
 
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir
@@ -21,7 +21,13 @@ else:
 with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
     bot_id = int(json.load(botf)['bot_token'].split(':')[0])
 
+    
+if not os.path.isfile('/jd/jbot/diy/bot.py'):
+    os.system(f'cd /jd/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
+    if os.path.isfile('/jd/jbot/diy/bot.py'):
+        os.system('pm2 restart jbot')
 
+        
 # 从 config.sh 中读取 cookies
 def readCookies():
     """
