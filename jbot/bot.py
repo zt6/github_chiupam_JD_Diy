@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-04 17:09
-# @Version  : v 2.0
-# @Updata   : 1. 将原来的脚本分开，user.py 需要登录 telegram，但是 bot.py 不需要登录；2. 添加功能，用户发送 raw 链接时自动下载，并让用户做出选择；3. 获取机器人 id 的方法由原来的读取 bot.json 文件变为从 jbot 模块中读取 TOKEN 的值进行切割；4. 新增读取 cookie 的函数，使得 /checkcookie 不需要重启机器人就可实时更新屏蔽的账号；5. 重写 /checkcookie 指令的函数，以修复一个错误
-# @Future   : 1. 继续完善 redrain 红包雨；2. /checkcookie 不需要重启机器人就可实时更新屏蔽的账号
+# @Version  : v 2.1
+# @Updata   : 1. 使用文件代理加速下载服务解决下载raw链接文件时的网络错误问题
+# @Future   : 1. 继续完善 redrain 红包雨；
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
@@ -244,6 +244,8 @@ async def mycodes(event):
     try:
         SENDER = event.sender_id
         url = event.raw_text
+        if url.startswith('https://raw.githubusercontent.com'):
+            url = f'http://ghproxy.com/{url}' # 文件代理加速下载服务
         fname = url.split('/')[-1]
         msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
         resp = requests.get(url).text
