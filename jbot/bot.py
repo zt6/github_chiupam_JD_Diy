@@ -4,7 +4,7 @@
 # @Data     : 2021-06-05 23:49
 # @Version  : v 2.1
 # @Updata   : 1. 使用文件代理加速下载服务解决下载raw链接文件时的网络错误问题；2. 修复 checkcookie 指令的错误；3. 修复自动屏蔽失效 cookie 但没有成功屏蔽的错误
-# @Future   :
+# @Future   : 1. 修复下载raw链接文件并执行后，反馈的日志是命令过多的错误
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
