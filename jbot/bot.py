@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-06 12:34
+# @Data     : 2021-06-06 16:46
 # @Version  : v 2.2
-# @Updata   : 1. 恢复了 /checkcookie 指令的正常工作
-# @Future   : 
+# @Updata   : 1. 恢复了 /checkcookie 指令的正常工作；2. 用户发送 .git 结尾的链接则开启添加仓库操作
+# @Future   : 1. 优化 /checkcookie 指令的工作
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
@@ -281,3 +281,56 @@ async def mycodes(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
         logger.error('something wrong,I\'m sorry\n'+str(e))
+        
+
+  
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\S+git$'))
+async def myconv(event):
+    """
+    用户发送以 .git 结尾的链接后的添加仓库操作
+    :param event:
+    :return:
+    """
+    try:
+        start = await jdbot.send_message(chat_id, '开始添加仓库，请在 3 分钟内完成操作\n如果想取消对话请等待会话自动结束')
+        SENDER = event.sender_id
+        url = event.raw_text
+        path = f'{_ConfigDir}/config.sh'
+        short_url = '/'.join(url.split('/')[-2:]).replace('.git', '')
+        tip1 = f'回复 root 代表使用 [{short_url}]({url}) 仓库的 "默认" 分支\n回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n'
+        tip2 = f'回复 root 代表你想使用的脚本就在仓库根目录下\n回复 scripts/jd normal 代表你想使用的脚本在仓库的 scripts/jd 和 normal文件夹下\n回复 root cron 代表你想使用的脚本在仓库的 根目录 和 cron 文件夹下\n具体目录路径以你所发仓库实际为准\n'
+        async with jdbot.conversation(SENDER, timeout=180) as conv:
+            msg = await conv.send_message('1')
+            msg = await jdbot.edit_message(msg, f'{tip1}请回复你想使用的分支清单\n使用默认分支时请回复 root')
+            branch = await conv.get_response()
+            branch = branch.raw_text.replace('root', '')
+            await jdbot.delete_messages(chat_id, msg)
+            msg = await conv.send_message('2')
+            msg = await jdbot.edit_message(msg, f'{tip2}请回复要使用的脚本在此仓库下的相对路径\n使用根目录时请回复 root')
+            fpath = await conv.get_response()
+            fpath = fpath.raw_text.replace('root', "''")
+            await jdbot.delete_messages(chat_id, msg)
+            conv.cancel()
+        with open(path, 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        nums = []
+        lines = []
+        for config in configs:
+            if config.find('OwnRepoUrl') != -1 and config.find('#') == -1:
+                lines.append(configs.index(config))
+                num = int(re.findall(r'(?<=OwnRepoUrl)[\d]+(?==")', config)[0])
+                content_data = re.findall(r'(?<==")[\S]+(?=")', config)
+                if content_data == []:
+                    nums.append(num)
+                    break
+                else:
+                    nums.append(num+1)
+        configs[lines[-1] + 1] = f'OwnRepoUrl{nums[-1]}="{url}"\nOwnRepoBranch{nums[-1]}="{branch}"\nOwnRepoPath{nums[-1]}="{fpath}"\n'
+        with open(path, 'w', encoding='utf-8') as f2:
+            f2.write(''.join(configs))
+        await jdbot.delete_messages(chat_id, start)
+    except exceptions.TimeoutError:
+        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
