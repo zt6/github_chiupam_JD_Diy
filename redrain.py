@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-05-29 14:24
+# @Data     : 2021-05-29 19:37
 # @Version  : Test v8
-# @Updata   : 1. 修正 GET 传参的参数
+# @Updata   : 1. 修正 GET 传参的参数；2. 添加一个逻辑，读取我的仓库设置来判断是否开启脚本
 
 
 import re, os, time, requests, sys, json, urllib
@@ -44,13 +44,14 @@ def receiveRedRain(i, cookie, RRA):
     """
     发起 GET 请求
     """
-    url = 'https://api.m.jd.com/api'
+    url = 'https://api.m.jd.com/client.action'
     params = {
-        "functionId": "noahRedRainLottery",
-        "body": urllib.parse.quote(json.dumps({"actId": RRA}).encode('unicode-escape')).replace('%5Cu', '%u'),
+        "functionId": "queryRedRainTemplate",
         "client": "wh5",
         "clientVersion": "1.0.0",
-        "_": round(time.time() * 1000)
+        "body": json.dumps({"actId": f"{RRA}"}),
+        "_": round(time.time() * 1000),
+        "callback": "jsonp1"
     }
     headers = {
         "Accept": "*/*",
@@ -63,22 +64,12 @@ def receiveRedRain(i, cookie, RRA):
         "Cookie": cookie,
         "User-Agent": "JD4iPhone/9.3.5 CFNetwork/1209 Darwin/20.2.0"
         }
-    try:
-        r = requests.get(url, params=params, headers=headers)
-        if r.ok:
-            res = r.json()
-            account = f'京东账号{i}\n\t\t└'
-            if res['subCode'] == '0':
-                info = f"{account}领取成功，获得 {res['lotteryResult']['PeasList'][0]['quantity']}京豆\n"
-            elif res['subCode'] == '8':
-                info = "{account}领取失败，本场已领过\n"
-            else:
-                info = f"{account}异常：{res['msg']}\n"
-        else:
-            info = r.text
-    except Exception as info:
-        print(info)
-    return info
+    r = requests.get(url.replace('+', ''), params=params, headers=headers)
+    if r.ok:
+        res = json.loads(re.match(".*?({.*}).*", r.text, re.S).group(1))
+    else:
+        res = r.text
+    return res
 
 
 def checkCrontab():
@@ -178,3 +169,4 @@ if __name__ == '__main__':
     RRA_file = f'{env}/log/{time.localtime()[3]}-{time.localtime()[4]}.txt'
     cron = '*/30 * * * *'
     run()
+
