@@ -180,6 +180,21 @@ async def shopbean(event):
 
 
 # @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
+# async def myredrain(event):
+#     """
+#     截取RRA
+#     :param event:
+#     :return:
+#     """
+#     RRA = re.findall(r"RRA.*", event.message.text)
+#     input_RRA = '&'.join(RRA)
+#     start_time = re.findall(re.compile(r"开.*"), event.message.text)
+#     file = '-'.join(start_time[0].split(' ')[1].split(':')[:-1])
+#     with open(f'{_LogDir}/{file}.txt', 'w', encoding='utf-8') as f:
+#         print(input_RRA, file=f)
+        
+        
+# @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
 # async def redrain(event):
 #     """
 #     替换修改 redrain.js 的 RRA
