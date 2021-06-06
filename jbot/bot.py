@@ -319,8 +319,9 @@ async def myconv(event):
         nums = []
         lines = []
         for config in configs:
-            if config.find('OwnRepoUrl') != -1 and config.find('#') == -1:
+            if config.find('启用其他开发者的仓库方式一') != -1:
                 lines.append(configs.index(config))
+            elif config.find('OwnRepoUrl') != -1 and config.find('#') == -1:
                 num = int(re.findall(r'(?<=OwnRepoUrl)[\d]+(?==")', config)[0])
                 content_data = re.findall(r'(?<==")[\S]+(?=")', config)
                 if content_data == []:
@@ -328,7 +329,7 @@ async def myconv(event):
                     break
                 else:
                     nums.append(num+1)
-        configs[lines[-1] + 1] = f'OwnRepoUrl{nums[-1]}="{url}"\nOwnRepoBranch{nums[-1]}="{branch}"\nOwnRepoPath{nums[-1]}="{fpath}"\n'
+        configs.insert(lines[-1] + 1, f'OwnRepoUrl{nums[-1]}="{url}"\nOwnRepoBranch{nums[-1]}="{branch}"\nOwnRepoPath{nums[-1]}="{fpath}"\n') 
         with open(path, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
