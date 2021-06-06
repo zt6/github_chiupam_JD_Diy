@@ -141,7 +141,7 @@ async def myhello(event):
     /help 获取机器人所有快捷命令，可直接发送至botfather
     /checkcookie 检测失效Cookie并临时屏蔽（暂不适用于青龙）
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择
-        2、发送以 .git 结尾的链接会开始添加仓库，用户按要求回复即可
+        2、发送仓库链接会开始添加仓库，用户按要求回复即可
         3、接受到 cookie 过期消息自动开启 /checkcookie 指令
 
     仓库：https://github.com/chiupam/JD_Diy.git
@@ -288,7 +288,7 @@ async def mycodes(event):
         
 
   
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\S+git$'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\S+(git$)?'))
 async def myconv(event):
     """
     用户发送以 .git 结尾的链接后的添加仓库操作
