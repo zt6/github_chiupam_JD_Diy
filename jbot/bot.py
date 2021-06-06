@@ -230,6 +230,7 @@ async def myrestart(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+# 原作者：@MaiKaDe666
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'https?://raw\S*'))
 async def mycodes(event):
     """
