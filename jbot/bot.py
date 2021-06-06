@@ -330,6 +330,7 @@ async def myconv(event):
                     break
                 else:
                     nums.append(num+1)
+        lines = list(map(int, lines)).sort()
         configs.insert(lines[-1] + 1, f'OwnRepoUrl{nums[-1]}="{url}"\nOwnRepoBranch{nums[-1]}="{branch}"\nOwnRepoPath{nums[-1]}="{fpath}"\n') 
         with open(path, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
