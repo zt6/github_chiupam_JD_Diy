@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 20:28
+# @Data     : 2021-06-07 20:57
 # @Version  : v 2.3
-# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作
+# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作；4. 尝试支持青龙用户使用 /checkcookie 指令
 # @Future   : 1. 优化 /checkcookie 指令的工作
 
 
@@ -184,33 +184,42 @@ async def mycheckcookie(event):
     :return:
     """
     try:
-        path = f'{_ConfigDir}/config.sh'
         msg = await jdbot.send_message(chat_id, '正在检测 cookie 过期情况')
-        with open(path, 'r', encoding='utf-8') as f1:
+        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         if configs[-1] == '\n':
             del(configs[-1])
-        Templines = []
-        Templines_data = []
-        for config in configs:
-            if config.find('TempBlockCookie') != -1 and config.find('#') == -1:
-                Templines.append(configs.index(config))
-                Templines_data.append(re.findall(r'\d', config))
-        expireds = checkCookie1()[0]
+        expireds = checkCookie1()[0] # cookie 序列号
         text, o = '检测结果\n\n', '\n\t\t└'
-        for Templine in Templines:
-            tbcookies = Templines_data[Templines.index(Templine)]
+        if V4:
+            Templines = []
+            Templines_data = []
+            for config in configs:
+                if config.find('TempBlockCookie') != -1 and config.find('#') == -1:
+                    Templines.append(configs.index(config))
+                    Templines_data.append(re.findall(r'\d', config))
+            for Templine in Templines:
+                # i = Templines.index(Templine)
+                tbcookies = Templines_data[Templines.index(Templine)]
+                for expired in expireds:
+                    tbcookies.append(expired)
+                tbcookies = list(set(list(map(int, tbcookies))))
+                n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
+                configs[Templine] = f'TempBlockCookie="{n}"\n'
+                text += f'【屏蔽情况】文件第{Templine + 1}行{o}TempBlockCookie="{n}"\n'
+        elif QL:
             for expired in expireds:
-                tbcookies.append(expired)
-            tbcookies = list(set(list(map(int, tbcookies))))
-            n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
-            configs[Templine] = f'TempBlockCookie="{n}"\n'
-            text += f'【屏蔽情况】文件第{Templine + 1}行{o}TempBlockCookie="{n}"\n'
-        with open(path, 'w', encoding='utf-8') as f2:
+                cookie = configs[int(expired) - 1]
+                pt_pin = cookie.split(';')[-2]
+                del(configs[int(expired) - 1])
+                text += f'【删除情况】用户名-{pt_pin}{o}删除第{expired}个用户的Cookie成功\n'
+        else:
+            await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
+            return
+        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.edit_message(msg, text)
-        path = f'{_ConfigDir}/config.sh'
-        await jdbot.send_file(chat_id, path)
+        await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
