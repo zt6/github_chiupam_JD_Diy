@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 15:38
+# @Data     : 2021-06-07 19:20
 # @Version  : v 2.3
-# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人
+# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作
 # @Future   : 1. 优化 /checkcookie 指令的工作
 
 
@@ -328,40 +328,58 @@ async def mycodes(event):
         logger.error('something wrong,I\'m sorry\n'+str(e))
 
   
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\S+(git$)?'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+'))
 async def myconv(event):
     """
-    用户发送以 .git 结尾的链接后的添加仓库操作
+    用户发送仓库链接后开始在 config.sh 中添加仓库
     :param event:
     :return:
     """
     try:
-        start = await jdbot.send_message(chat_id, '开始添加仓库，请在 3 分钟内完成操作\n如果想取消对话请等待会话自动结束')
+        start = await jdbot.send_message(chat_id, '开始添加仓库，请按提示进行选择或操作')
         SENDER = event.sender_id
         url = event.raw_text
-        path = f'{_ConfigDir}/config.sh'
         short_url = '/'.join(url.split('/')[-2:]).replace('.git', '')
-        tip1 = f'回复 root 代表使用 [{short_url}]({url}) 仓库的 "默认" 分支\n回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n'
-        tip2 = f'回复 root 代表你想使用的脚本就在仓库根目录下\n回复 scripts/jd normal 代表你想使用的脚本在仓库的 scripts/jd 和 normal文件夹下\n回复 root cron 代表你想使用的脚本在仓库的 根目录 和 cron 文件夹下\n具体目录路径以你所发仓库实际为准\n'
+        tips = [
+            '正在设置 OwnRepoBranch 的值\n该值为你想使用脚本在[仓库]({url})的哪个分支', '正在设置 OwnRepoPath 的\n该值为你要使用的脚本在分支的哪个路径'
+        ]
+        tips_2 = [
+            f'回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n', 
+            f'回复 scripts/jd normal 代表你想使用的脚本在 [{short_url}]({url}) 仓库的 scripts/jd 和 normal文件夹下\n回复 root cron 代表你想使用的脚本在 [{short_url}]({url}) 仓库的 根目录 和 cron 文件夹下\n具体目录路径以你所发仓库实际为准\n'
+            ]
+        btns = [
+            [[Button.inline('我使用仓库的 "默认" 分支', data='root')], [Button.inline('我使用仓库的 "main" 分支', data='main'), Button.inline('我使用仓库的 "master" 分支', data='master')], [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]],
+            [[Button.inline('我使用的脚本就在仓库根目录下', data='root')], [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]]
+        ]
+        replies = []
+        nums = []
         async with jdbot.conversation(SENDER, timeout=180) as conv:
-            msg = await conv.send_message('1')
-            msg = await jdbot.edit_message(msg, f'{tip1}请回复你想使用的分支清单\n使用默认分支时请回复 root')
-            branch = await conv.get_response()
-            branch = branch.raw_text.replace('root', '')
-            await jdbot.delete_messages(chat_id, msg)
-            msg = await conv.send_message('2')
-            msg = await jdbot.edit_message(msg, f'{tip2}请回复要使用的脚本在此仓库下的相对路径\n使用根目录时请回复 root')
-            fpath = await conv.get_response()
-            fpath = fpath.raw_text.replace('root', "''")
-            await jdbot.delete_messages(chat_id, msg)
+            for tip in tips:
+                i = tips.index(tip)
+                msg = await conv.send_message(tip)
+                msg = await jdbot.edit_message(msg, tip, buttons=btns[i])
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    msg = await jdbot.edit_message(msg, '对话已取消')
+                    conv.cancel()
+                    return
+                elif res == 'input':
+                    await jdbot.delete_messages(chat_id, msg)
+                    msg = await conv.send_message(tips_2[i])
+                    reply = await conv.get_response()
+                    replies.append(reply.raw_text)
+                    await jdbot.delete_messages(chat_id, msg)
+                else:
+                    await jdbot.delete_messages(chat_id, msg)
+                    replies.append(res)
             conv.cancel()
+        path = f'{_ConfigDir}/config.sh'
         with open(path, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
-        nums = []
-        lines = []
         for config in configs:
             if config.find('启用其他开发者的仓库方式一') != -1:
-                lines.append(configs.index(config))
+                line = int(configs.index(config))
             elif config.find('OwnRepoUrl') != -1 and config.find('#') == -1:
                 num = int(re.findall(r'(?<=OwnRepoUrl)[\d]+(?==")', config)[0])
                 content_data = re.findall(r'(?<==")[\S]+(?=")', config)
@@ -369,14 +387,20 @@ async def myconv(event):
                     nums.append(num)
                     break
                 else:
-                    nums.append(num+1)
-        nums = list(map(int, nums)).sort()
-        configs.insert(lines[-1] + 1, f'OwnRepoUrl{nums[-1]}="{url}"\nOwnRepoBranch{nums[-1]}="{branch}"\nOwnRepoPath{nums[-1]}="{fpath}"\n') 
+                    nums.append(num + 1)
+        OwnRepoUrl = f'OwnRepoUrl{nums[-1]}="{url}"'
+        OwnRepoBranch = f'OwnRepoBranch{nums[-1]}="{replies[0].replace("root", "")}"'
+        Path = replies[1].replace("root", "''")
+        OwnRepoPath = f'OwnRepoPath{nums[-1]}="{Path}"'
+        configs.insert(line + 1, f'\n{OwnRepoUrl}\n{OwnRepoBranch}\n{OwnRepoPath}\n')
         with open(path, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
+        await jdbot.send_message(chat_id, '配置完成，请自行检查 config 文件')
+        await jdbot.send_file(chat_id, path)
     except exceptions.TimeoutError:
         msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
