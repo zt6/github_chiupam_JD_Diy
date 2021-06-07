@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 19:20
+# @Data     : 2021-06-07 20:28
 # @Version  : v 2.3
 # @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作
 # @Future   : 1. 优化 /checkcookie 指令的工作
@@ -339,7 +339,7 @@ async def myconv(event):
         start = await jdbot.send_message(chat_id, '开始添加仓库，请按提示进行选择或操作')
         SENDER = event.sender_id
         url = event.raw_text
-        short_url = '/'.join(url.split('/')[-2:]).replace('.git', '')
+        short_url = url.split('/')[-1].replace(".git", "")
         tips = [
             '正在设置 OwnRepoBranch 的值\n该值为你想使用脚本在[仓库]({url})的哪个分支', '正在设置 OwnRepoPath 的\n该值为你要使用的脚本在分支的哪个路径'
         ]
@@ -374,8 +374,7 @@ async def myconv(event):
                     await jdbot.delete_messages(chat_id, msg)
                     replies.append(res)
             conv.cancel()
-        path = f'{_ConfigDir}/config.sh'
-        with open(path, 'r', encoding='utf-8') as f1:
+        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         for config in configs:
             if config.find('启用其他开发者的仓库方式一') != -1:
@@ -388,18 +387,32 @@ async def myconv(event):
                     break
                 else:
                     nums.append(num + 1)
+        nums.sort()            
         OwnRepoUrl = f'OwnRepoUrl{nums[-1]}="{url}"'
         OwnRepoBranch = f'OwnRepoBranch{nums[-1]}="{replies[0].replace("root", "")}"'
         Path = replies[1].replace("root", "''")
         OwnRepoPath = f'OwnRepoPath{nums[-1]}="{Path}"'
         configs.insert(line + 1, f'\n{OwnRepoUrl}\n{OwnRepoBranch}\n{OwnRepoPath}\n')
-        with open(path, 'w', encoding='utf-8') as f2:
+        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
-        await jdbot.send_message(chat_id, '配置完成，请自行检查 config 文件')
-        await jdbot.send_file(chat_id, path)
+        await jdbot.send_file(chat_id, _ConfigFile, caption='你可以查阅上面这个文件')
+        async with jdbot.conversation(SENDER, timeout=60) as conv:
+            btns2 = [
+                [Button.inline(f'是的，请帮我拉取{short_url}这个仓库的脚本', data='jup')],
+                [Button.inline('谢谢，但我暂时不需要', data='cancel')]
+            ]
+            msg = await jdbot.send_message(chat_id, '请问你需要拉取仓库里面的脚本吗？', buttons=btns2)
+            convdata = await conv.wait_event(press_event(SENDER))
+            res = bytes.decode(convdata.data)
+            if res == 'cancel':
+                msg = await jdbot.edit_message(msg, '配置完成，感谢你的使用')
+            else:
+                msg = await jdbot.edit_message(msg, '正在为你拉取仓库脚本，详情请查阅下一条通知')
+                await cmd(res)
+            conv.cancel()
     except exceptions.TimeoutError:
-        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
+        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
