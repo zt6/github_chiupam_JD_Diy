@@ -147,6 +147,7 @@ async def myhello(event):
 
     仓库：https://github.com/chiupam/JD_Diy.git
     欢迎🌟Star & 提出🙋[isuss](https://github.com/chiupam/JD_Diy/issues/new) & 请勿🚫Fork
+    频道：[👬和东哥做兄弟](https://t.me/jd_diy_bot_channel)
 """
         await asyncio.sleep(0.5)
         await jdbot.send_message(chat_id, diy_hello)
