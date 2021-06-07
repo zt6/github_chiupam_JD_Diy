@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
-from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir
+from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
