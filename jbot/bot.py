@@ -230,8 +230,7 @@ async def myrestart(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 原作者：@MaiKaDe666
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'https?://raw\S*'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://(raw)?.*(github|GitHub)?.*(js|py|sh)$'))
 async def mycodes(event):
     """
     用户发送 raw 链接后自动下载链接文件
@@ -240,52 +239,69 @@ async def mycodes(event):
     """
     try:
         SENDER = event.sender_id
-        msg = await jdbot.send_message(chat_id, '请稍后正在下载文件')
-        url = event.raw_text
-        if url.startswith('https://raw.githubusercontent.com'):
-            url = f'http://ghproxy.com/{url}'
-        fname = url.split('/')[-1]
-        resp = requests.get(url).text
-        markup = [
-            [Button.inline('放入config', data=_ConfigDir), Button.inline('放入scripts', data=_ScriptsDir), Button.inline('放入OWN文件夹', data=_DiyDir)], 
-            [Button.inline('放入scripts并运行', data='node1'), Button.inline('放入OWN并运行', data='node'), Button.inline('取消', data='cancel')]
-        ]
-        if resp:
-            cmdtext = None
-            async with jdbot.conversation(SENDER, timeout=30) as conv:
+        msg = await jdbot.send_message(chat_id, '开启下载文件会话')
+        btn = [
+            [Button.inline('我确定需要下载此链接文件，请继续', data='confirm')], 
+            [Button.inline('我不需要下载，请取消对话', data='cancel')]
+            ]
+        async with jdbot.conversation(SENDER, timeout=8) as conv:
+            await jdbot.delete_messages(chat_id, msg)
+            msg = await conv.send_message('检测到你发送了一条链接，请做出你的选择：\n')
+            msg = await jdbot.edit_message(msg, '检测到你发送了一条链接，请做出你的选择：', buttons=btn)
+            convdata = await conv.wait_event(press_event(SENDER))
+            res = bytes.decode(convdata.data)
+            if res == 'cancel':
+                msg = await jdbot.edit_message(msg, '对话已取消')
+                conv.cancel()
+            else:
+                # 以下代码大部分参照原作者：@MaiKaDe666，并作出一定的修改
                 await jdbot.delete_messages(chat_id, msg)
-                msg = await conv.send_message('请选择您要放入的文件夹或操作：\n')
-                msg = await jdbot.edit_message(msg, '请选择您要放入的文件夹或操作：', buttons=markup)
-                convdata = await conv.wait_event(press_event(SENDER))
-                res = bytes.decode(convdata.data)
-                write = True
-                if res == 'cancel':
-                    write = False
-                    msg = await jdbot.edit_message(msg, '对话已取消')
+                furl = event.raw_text
+                if furl.startswith('https://raw.githubusercontent.com'):
+                    ufrl = f'http://ghproxy.com/{furl}'
+                fname = ufrl.split('/')[-1]
+                resp = requests.get(furl).text
+                btn = [
+                    [Button.inline('仅放入config目录', data=_ConfigDir), Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
+                    [Button.inline('仅放入scripts目录', data=_ScriptsDir), Button.inline('放入scripts目录并运行', data='node1')],
+                    [Button.inline('仅放入own目录', data=_DiyDir), Button.inline('放入own目录并运行', data='node')],
+                    [Button.inline('取消', data='cancel')]
+                ]
+                if resp:
+                    write = True
+                    cmdtext = None
+                    msg = await conv.send_message('请做出你的选择：')
+                    msg = await jdbot.edit_message(msg, '请做出你的选择：', buttons=btn)
+                    convdata = await conv.wait_event(press_event(SENDER))
+                    res = bytes.decode(convdata.data)
+                    if res == 'cancel':
+                        write = False
+                        msg = await jdbot.edit_message(msg, '对话已取消')
+                    elif res == 'node':
+                        path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
+                        await jdbot.edit_message(msg, '脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
+                    elif res == 'node1':
+                        path, cmdtext = f'{_ScriptsDir}/{fname}', f'{jdcmd} {_ScriptsDir}/{fname} now'
+                        await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
+                    else:
+                        path = f'{res}/{fname}'
+                        await jdbot.edit_message(msg, f'{fname}已保存到{res}文件夹')
                     conv.cancel()
-                elif res == 'node':
-                    path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
-                    await jdbot.edit_message(msg, '脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
-                    conv.cancel()
-                elif res == 'node1':
-                    path, cmdtext = f'{_ScriptsDir}/{fname}', f'{jdcmd} {_ScriptsDir}/{fname} now'
-                    await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
-                    conv.cancel()
+                    if write:
+                        backfile(path)
+                        with open(path, 'w+', encoding='utf-8') as f:
+                            f.write(resp)
+                    if cmdtext:
+                        await cmd(cmdtext)
                 else:
-                    path = f'{res}/{fname}'
-                    await jdbot.edit_message(msg, fname+'已保存到'+res+'文件夹')
-            if write:
-                backfile(path)
-                with open(path, 'w+', encoding='utf-8') as f:
-                    f.write(resp)
-            if cmdtext:
-                await cmd(cmdtext)
+                    msg = await conv.send_message('下载失败，请稍后重试')
+                    await jdbot.edit_message(msg, '下载失败，请稍后重试')
+                    conv.cancel()
     except exceptions.TimeoutError:
         msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
         logger.error('something wrong,I\'m sorry\n'+str(e))
-        
 
   
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\S+(git$)?'))
