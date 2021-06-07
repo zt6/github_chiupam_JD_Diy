@@ -140,9 +140,9 @@ async def myhello(event):
     /restart 重启机器人
     /upbot 升级此自定义机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
-    /checkcookie 检测失效Cookie并临时屏蔽（暂不适用于青龙）
-    此外 1、发送已 raw 的链接会下载文件，并让用户做出选择
-        2、发送仓库链接会开始添加仓库，用户按要求回复即可
+    /checkcookie 检测失效Cookie并把它替换成无法识别的cookie
+    此外 1、发送已 raw 的链接会下载文件，并让用户做出选择（可能不支持青龙）
+        2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
         3、接受到 cookie 过期消息自动开启 /checkcookie 指令
 
     仓库：https://github.com/chiupam/JD_Diy.git
