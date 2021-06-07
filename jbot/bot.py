@@ -244,7 +244,7 @@ async def mycodes(event):
             [Button.inline('我确定需要下载此链接文件，请继续', data='confirm')], 
             [Button.inline('我不需要下载，请取消对话', data='cancel')]
             ]
-        async with jdbot.conversation(SENDER, timeout=8) as conv:
+        async with jdbot.conversation(SENDER, timeout=60) as conv:
             await jdbot.delete_messages(chat_id, msg)
             msg = await conv.send_message('检测到你发送了一条链接，请做出你的选择：\n')
             msg = await jdbot.edit_message(msg, '检测到你发送了一条链接，请做出你的选择：', buttons=btn)
