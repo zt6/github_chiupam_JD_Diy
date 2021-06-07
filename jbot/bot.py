@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 20:57
+# @Data     : 2021-06-07 22:40
 # @Version  : v 2.3
-# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作；4. 尝试支持青龙用户使用 /checkcookie 指令
-# @Future   : 1. 优化 /checkcookie 指令的工作
+# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作；4. 支持青龙用户使用 /checkcookie 指令；5. 改变 v4-bot 用户使用 /checkcookie 指令屏蔽失效 cookie 的方法
+# @Future   : 
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
@@ -189,37 +189,55 @@ async def mycheckcookie(event):
             configs = f1.readlines()
         if configs[-1] == '\n':
             del(configs[-1])
-        expireds = checkCookie1()[0] # cookie 序列号
-        text, o = '检测结果\n\n', '\n\t\t└'
+        check = checkCookie1()
+        expireds = check[0]
+        text, o = '检测结果\n\n', '\n\t   └ '
+        edit = False
         if V4:
-            Templines = []
-            Templines_data = []
-            for config in configs:
-                if config.find('TempBlockCookie') != -1 and config.find('#') == -1:
-                    Templines.append(configs.index(config))
-                    Templines_data.append(re.findall(r'\d', config))
-            for Templine in Templines:
-                # i = Templines.index(Templine)
-                tbcookies = Templines_data[Templines.index(Templine)]
-                for expired in expireds:
-                    tbcookies.append(expired)
-                tbcookies = list(set(list(map(int, tbcookies))))
-                n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
-                configs[Templine] = f'TempBlockCookie="{n}"\n'
-                text += f'【屏蔽情况】文件第{Templine + 1}行{o}TempBlockCookie="{n}"\n'
+            tip = '此账号的cookie已经失效，请及时获取新cookie来替换'
+            for expired in expireds:
+                for config in configs:
+                    if config.find(f'Cookie{expired}') != -1 and config.find('# Cookie') == -1:
+                        pt_pin = config.split(';')[-2].split('=')[-1]
+                        line = configs.index(config)
+                        configs[line] = f'Cookie{expired}="{pt_pin}：{tip}"\n'
+                        edit = True
+                        text += f'【屏蔽情况】 {pt_pin}{o}临时替换第{expired}个用户的cookie\n'
+                    elif config.find('第二区域') != -1:
+                        break
+            # Templines = []
+            # Templines_data = []
+            # for config in configs:
+            #     if config.find('TempBlockCookie') != -1 and config.find('#') == -1:
+            #         Templines.append(configs.index(config))
+            #         Templines_data.append(re.findall(r'\d', config))
+            # end_Templine = Templines[-1]
+            # for Templine in Templines:
+            #     if Templine != end_Templine:
+            #         tbcookies = Templines_data[Templines.index(Templine)]
+            #         for expired in expireds:
+            #             tbcookies.append(expired)
+            #         tbcookies = list(set(list(map(int, tbcookies))))
+            #         n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
+            #         configs[Templine] = f'TempBlockCookie="{n}"\n'
+            #         text += f'【屏蔽情况】文件第{Templine + 1}行{o}TempBlockCookie="{n}"\n'
         elif QL:
             for expired in expireds:
                 cookie = configs[int(expired) - 1]
                 pt_pin = cookie.split(';')[-2]
                 del(configs[int(expired) - 1])
+                edit = True
                 text += f'【删除情况】用户名-{pt_pin}{o}删除第{expired}个用户的Cookie成功\n'
         else:
             await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
             return
-        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-            f2.write(''.join(configs))
-        await jdbot.edit_message(msg, text)
-        await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
+        if edit:
+            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                f2.write(''.join(configs))
+            await jdbot.edit_message(msg, text)
+            await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
+        else:
+            await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
