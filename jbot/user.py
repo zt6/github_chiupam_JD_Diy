@@ -237,7 +237,7 @@ async def shopbean(event):
 
 
 # 监控并更新文件
-@client.on(events.NewMessage(chats=-1001431256850, from_users=1185488678))
+@client.on(events.NewMessage(chats=-1001431256850))
 async def myupuser(event):
     """
     关注频道：https://t.me/jd_diy_bot_channel
