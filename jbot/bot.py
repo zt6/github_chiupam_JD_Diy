@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 15:17
+# @Data     : 2021-06-07 15:38
 # @Version  : v 2.3
-# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可
+# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人
 # @Future   : 1. 优化 /checkcookie 指令的工作
 
 
@@ -138,6 +138,7 @@ async def myhello(event):
         diy_hello = """自定义机器人使用方法如下：
     /start 开始使用此自定义机器人
     /restart 重启机器人
+    /upbot 升级此自定义机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
     /checkcookie 检测失效Cookie并临时屏蔽（暂不适用于青龙）
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择
@@ -164,6 +165,7 @@ async def myhelp(event):
     """
     try:
         diy_help = """restart - 重启机器人
+upbot - 升级自定义机器人
 checkcookie - 检测cookie过期
 """
         await asyncio.sleep(0.5)
@@ -229,7 +231,29 @@ async def myrestart(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+        
+# 升级我的自定义机器人
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot'))
+async def mynoconv(event):
+    try:
+        msg = await jdbot.send_message(chat_id, '开始下载最新的bot.py文件')
+        furl = 'http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/bot.py'
+        fname = 'bot.py'
+        resp = requests.get(furl).text
+        if resp:
+            path = f'{_JdbotDir}/diy/{fname}'
+            backfile(path)
+            with open(path, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+            await jdbot.edit_message(msg, '准备重启机器人……')
+            os.system('pm2 restart jbot')
+        else:
+            await jdbot.edit_message(msg, "下载失败，请稍后重试")
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
+        
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://(raw)?.*(github|GitHub)?.*(js|py|sh)$'))
 async def mycodes(event):
     """
