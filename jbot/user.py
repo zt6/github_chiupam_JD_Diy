@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-05 17:30
-# @Version  : v 2.1
-# @Updata   : 1. 自动下载 bot.py 并重启机器人
+# @Data     : 2021-06-08 00:46
+# @Version  : v 2.2
+# @Updata   : 1. 监控我的频道，及时更新最新的user.py和bot.py
 # @Future   : 1. 
 
 
@@ -234,3 +234,23 @@ async def shopbean(event):
 #         await jdbot.send_message(chat_id, '已完成替换咯')
 #     except Exception as e:
 #         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
+
+
+# 监控并更新文件
+@client.on(events.NewMessage(chats=-1001431256850, from_users=1185488678))
+async def myupuser(event):
+    """
+    关注频道：https://t.me/jd_diy_bot_channel
+    """
+    try:
+        if event.message.file:
+            fname = event.message.file.name
+            if fname.endswith("bot.py") or fname.endswith("user.py"):
+                path = f'{_JdbotDir}/diy/{fname}'
+                backfile(path)
+                await client.download_file(input_location=event.message, file=path)
+                await jdbot.send_file(chat_id, path, caption='已更新，准备重启')
+                os.system('pm2 restart jbot')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
