@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-06 16:46
-# @Version  : v 2.2
-# @Updata   : 1. 恢复了 /checkcookie 指令的正常工作；2. 用户发送 .git 结尾的链接则开启添加仓库操作；3. 添加 /start 的使用说明
+# @Data     : 2021-06-07 15:17
+# @Version  : v 2.3
+# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可
 # @Future   : 1. 优化 /checkcookie 指令的工作
 
 
