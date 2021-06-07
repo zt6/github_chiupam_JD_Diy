@@ -7,7 +7,7 @@
 # @Future   : 1. 优化 /checkcookie 指令的工作
 
 
-from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN
+from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir
 from telethon import events, Button
 from asyncio import exceptions
