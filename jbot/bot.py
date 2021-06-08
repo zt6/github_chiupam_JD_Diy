@@ -4,7 +4,7 @@
 # @Data     : 2021-06-07 22:40
 # @Version  : v 2.3
 # @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作；4. 支持青龙用户使用 /checkcookie 指令；5. 改变 v4-bot 用户使用 /checkcookie 指令屏蔽失效 cookie 的方法
-# @Future   : 
+# @Future   :
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
@@ -127,7 +127,7 @@ def checkCookie2(cookie):
 
 
 # 发送欢迎语
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):
     """
     发送欢迎语
@@ -157,7 +157,7 @@ async def myhello(event):
 
 
 # 获取自定义机器人的快捷命令
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/help'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/help$'))
 async def myhelp(event):
     """
     发送快捷命令
@@ -177,7 +177,7 @@ checkcookie - 检测cookie过期
 
 
 # 自动检测cookie的过期情况并临时屏蔽此账号
-@jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie|.*cookie已失效'))
+@jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
 async def mycheckcookie(event):
     """
     自动检测cookie的过期情况
@@ -189,7 +189,7 @@ async def mycheckcookie(event):
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         if configs[-1] == '\n':
-            del(configs[-1])
+            del (configs[-1])
         check = checkCookie1()
         expireds = check[0]
         text, o = '检测结果\n\n', '\n\t   └ '
@@ -203,32 +203,16 @@ async def mycheckcookie(event):
                         line = configs.index(config)
                         configs[line] = f'Cookie{expired}="{pt_pin}：{tip}"\n'
                         edit = True
-                        text += f'【屏蔽情况】 {pt_pin}{o}临时替换第{expired}个用户的cookie\n'
+                        text += f'【屏蔽情况】 {pt_pin}{o}临时替换第 {expired} 个用户的cookie\n'
                     elif config.find('第二区域') != -1:
                         break
-            # Templines = []
-            # Templines_data = []
-            # for config in configs:
-            #     if config.find('TempBlockCookie') != -1 and config.find('#') == -1:
-            #         Templines.append(configs.index(config))
-            #         Templines_data.append(re.findall(r'\d', config))
-            # end_Templine = Templines[-1]
-            # for Templine in Templines:
-            #     if Templine != end_Templine:
-            #         tbcookies = Templines_data[Templines.index(Templine)]
-            #         for expired in expireds:
-            #             tbcookies.append(expired)
-            #         tbcookies = list(set(list(map(int, tbcookies))))
-            #         n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
-            #         configs[Templine] = f'TempBlockCookie="{n}"\n'
-            #         text += f'【屏蔽情况】文件第{Templine + 1}行{o}TempBlockCookie="{n}"\n'
         elif QL:
             for expired in expireds:
                 cookie = configs[int(expired) - 1]
                 pt_pin = cookie.split(';')[-2]
-                del(configs[int(expired) - 1])
+                del (configs[int(expired) - 1])
                 edit = True
-                text += f'【删除情况】用户名-{pt_pin}{o}删除第{expired}个用户的Cookie成功\n'
+                text += f'【删除情况】{pt_pin}{o}已经删除第 {expired} 个用户的Cookie\n'
         else:
             await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
             return
@@ -245,7 +229,7 @@ async def mycheckcookie(event):
 
 
 # 重启机器人
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart$'))
 async def myrestart(event):
     """
     发送 /restart 重启机器人
@@ -253,27 +237,26 @@ async def myrestart(event):
     :return:
     """
     try:
-        await jdbot.send_message(chat_id, '准备重启机器人……')
+        await jdbot.send_message(chat_id, '准备重启机器人')
         os.system('pm2 restart jbot')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
-        
+
 # 升级我的自定义机器人
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot'))
-async def mynoconv(event):
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot$'))
+async def myupbot(event):
     try:
         msg = await jdbot.send_message(chat_id, '开始下载最新的bot.py文件')
-        furl = 'http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/bot.py'
-        fname = 'bot.py'
-        resp = requests.get(furl).text
+        furl = 'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/bot.py'
+        resp = requests.get(f'http://ghproxy.com/{furl}').text
         if resp:
-            path = f'{_JdbotDir}/diy/{fname}'
+            path = f'{_JdbotDir}/diy/bot.py'
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await jdbot.edit_message(msg, '准备重启机器人……')
+            await jdbot.edit_message(msg, '准备重启机器人')
             os.system('pm2 restart jbot')
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
@@ -281,9 +264,9 @@ async def mynoconv(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
-        
+
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://(raw)?.*(github|GitHub)?.*(js|py|sh)$'))
-async def mycodes(event):
+async def mydownload(event):
     """
     用户发送 raw 链接后自动下载链接文件
     :param event:
@@ -293,9 +276,9 @@ async def mycodes(event):
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, '开启下载文件会话')
         btn = [
-            [Button.inline('我确定需要下载此链接文件，请继续', data='confirm')], 
+            [Button.inline('我确定需要下载此链接文件，请继续', data='confirm')],
             [Button.inline('我不需要下载，请取消对话', data='cancel')]
-            ]
+        ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             await jdbot.delete_messages(chat_id, msg)
             msg = await conv.send_message('检测到你发送了一条链接，请做出你的选择：\n')
@@ -314,7 +297,7 @@ async def mycodes(event):
                 fname = ufrl.split('/')[-1]
                 resp = requests.get(furl).text
                 btn = [
-                    [Button.inline('仅放入config目录', data=_ConfigDir), Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
+                    [Button.inline('仅放入config目录', data=_ConfigDir),Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
                     [Button.inline('仅放入scripts目录', data=_ScriptsDir), Button.inline('放入scripts目录并运行', data='node1')],
                     [Button.inline('仅放入own目录', data=_DiyDir), Button.inline('放入own目录并运行', data='node')],
                     [Button.inline('取消', data='cancel')]
@@ -352,12 +335,12 @@ async def mycodes(event):
     except exceptions.TimeoutError:
         msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
-        logger.error('something wrong,I\'m sorry\n'+str(e))
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
-  
+
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+'))
-async def myconv(event):
+async def myaddrepo(event):
     """
     用户发送仓库链接后开始在 config.sh 中添加仓库
     :param event:
@@ -369,15 +352,22 @@ async def myconv(event):
         url = event.raw_text
         short_url = url.split('/')[-1].replace(".git", "")
         tips = [
-            '正在设置 OwnRepoBranch 的值\n该值为你想使用脚本在[仓库]({url})的哪个分支', '正在设置 OwnRepoPath 的\n该值为你要使用的脚本在分支的哪个路径'
+            f'正在设置 OwnRepoBranch 的值\n该值为你想使用脚本在[仓库]({url})的哪个分支', '正在设置 OwnRepoPath 的\n该值为你要使用的脚本在分支的哪个路径'
         ]
         tips_2 = [
-            f'回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n', 
+            f'回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n',
             f'回复 scripts/jd normal 代表你想使用的脚本在 [{short_url}]({url}) 仓库的 scripts/jd 和 normal文件夹下\n回复 root cron 代表你想使用的脚本在 [{short_url}]({url}) 仓库的 根目录 和 cron 文件夹下\n具体目录路径以你所发仓库实际为准\n'
-            ]
+        ]
         btns = [
-            [[Button.inline('我使用仓库的 "默认" 分支', data='root')], [Button.inline('我使用仓库的 "main" 分支', data='main'), Button.inline('我使用仓库的 "master" 分支', data='master')], [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]],
-            [[Button.inline('我使用的脚本就在仓库根目录下', data='root')], [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]]
+            [
+                [Button.inline('我使用仓库的 "默认" 分支', data='root')],
+                [Button.inline('我使用仓库的 "main" 分支', data='main'), Button.inline('我使用仓库的 "master" 分支', data='master')],
+                [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]
+            ],
+            [
+                [Button.inline('我使用的脚本就在仓库根目录下', data='root')],
+                [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]
+            ]
         ]
         replies = []
         nums = []
@@ -415,7 +405,7 @@ async def myconv(event):
                     break
                 else:
                     nums.append(num + 1)
-        nums.sort()            
+        nums.sort()
         OwnRepoUrl = f'OwnRepoUrl{nums[-1]}="{url}"'
         OwnRepoBranch = f'OwnRepoBranch{nums[-1]}="{replies[0].replace("root", "")}"'
         Path = replies[1].replace("root", "''")
