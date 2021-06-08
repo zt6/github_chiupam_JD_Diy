@@ -4,7 +4,7 @@
 # @Data     : 2021-06-08 00:46
 # @Version  : v 2.2
 # @Updata   : 1. 监控我的频道，及时更新最新的user.py和bot.py
-# @Future   : 1. 
+# @Future   : 1.
 
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir
@@ -18,16 +18,17 @@ if proxystart:
 else:
     client = TelegramClient("diy", api_id, api_hash, connection_retries=None).start()
 
+
 with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
     bot_id = int(json.load(botf)['bot_token'].split(':')[0])
 
-    
+
 if not os.path.isfile('/jd/jbot/diy/bot.py'):
     os.system(f'cd /jd/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
     if os.path.isfile('/jd/jbot/diy/bot.py'):
         os.system('pm2 restart jbot')
 
-        
+
 # 从 config.sh 中读取 cookies
 def readCookies():
     """
@@ -102,7 +103,7 @@ def checkCrontab(cron, PL, fname, fpath):
     with open(crontab_list, 'r', encoding='utf-8') as f1:
         crontab = f1.readlines()
     if crontab[-1] == '\n':
-        del(crontab[-1])
+        del (crontab[-1])
     if key in crontab:
         m = crontab.index(key) + 1
         if crontab[m] != new:
@@ -192,8 +193,8 @@ async def shopbean(event):
 #     file = '-'.join(start_time[0].split(' ')[1].split(':')[:-1])
 #     with open(f'{_LogDir}/{file}.txt', 'w', encoding='utf-8') as f:
 #         print(input_RRA, file=f)
-        
-        
+
+
 # @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
 # async def redrain(event):
 #     """
@@ -241,6 +242,8 @@ async def shopbean(event):
 async def myupuser(event):
     """
     关注频道：https://t.me/jd_diy_bot_channel
+    :param event:
+    :return:
     """
     try:
         if event.message.file:
@@ -254,3 +257,4 @@ async def myupuser(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
