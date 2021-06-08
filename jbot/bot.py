@@ -224,7 +224,7 @@ async def myupbot(event):
         if os.path.isfile(f'{_JdbotDir}/diy/user.py'):
             userbtn = Button.inline("请帮我更新 user.py 文件", data='user')
             btn.append(userbtn)
-        btns = [no1_btn, [Button.inline("请帮我取消对话", data='cancel')]]
+        btns = [btn, [Button.inline("请帮我取消对话", data='cancel')]]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             await jdbot.delete_messages(chat_id, msg)
             msg = await conv.send_message("请问你需要更新哪个机器人文件？")
