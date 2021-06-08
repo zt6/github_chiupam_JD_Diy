@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 16:38
+# @Data     : 2021-06-08 19:01
 # @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加
-# @Future   : 1. 支持 v4-bot用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换
+# @Future   : 
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
@@ -17,7 +17,6 @@ import requests, re, os, asyncio
 bot_id = int(TOKEN.split(':')[0])
 
 
-# 从 config.sh 中读取最新的 cookies
 def readCookies():
     """
     读取 cookie
@@ -34,7 +33,6 @@ def readCookies():
     return cookies
 
 
-# 检查 cookie 是否过期的第一个函数
 def checkCookie1():
     """
     检测 Cookie 是否过期
@@ -49,7 +47,6 @@ def checkCookie1():
     return expired, cookies
 
 
-# 检查 cookie 是否过期的第二个函数
 def checkCookie2(cookie):
     """
     检测 Cookie 是否过期
@@ -81,52 +78,6 @@ def checkCookie2(cookie):
         return False
 
 
-# 监测到机器人发送 cookie 失效信息时，自动屏蔽此账号
-# @jdbot.on(events.NewMessage(from_users=bot_id, pattern=r'.*cookie.*已失效'))
-# async def myexpiredcookie(event):
-#     """
-#     当监测到 Cookie 失效时第一时间屏蔽此账号并发送提醒
-#     :param event:
-#     :return:
-#     """
-#     try:
-#         path = f'{_ConfigDir}/config.sh'
-#         message = event.message.text
-#         m = message.split('\n')
-#         for n in m:
-#             if n.find('京东账号') != -1:
-#                 expired = ''.join(re.findall(r'\d', n.split(' ')[0]))
-#                 msg = await jdbot.send_message(chat_id, f'监测到京东账号{expired}的 cookie 已过期，正在自动屏蔽')
-#                 break
-#         with open(path, 'r', encoding='utf-8') as f1:
-#             configs = f1.readlines()
-#         for config in configs:
-#             if config.find('TempBlockCookie') != -1 and configs[configs.index(config) + 1].find(';;\n') == -1 and config.find('举例') == -1:
-#                 Templine = configs.index(config)
-#                 tbcookies = re.findall(r'\d', config)
-#                 break
-#         edit = False
-#         if tbcookies != []:
-#             if str(expired) in tbcookies:
-#                 del(tbcookies[tbcookies.index(expired)])
-#                 edit = True
-#         else:
-#             tbcookies = [expired]
-#             edit = True
-#         if edit:
-#             n = " ".join('%s' % tbcookie for tbcookie in tbcookies)
-#             configs[Templine] = f'TempBlockCookie="{n}"\n'
-#             await jdbot.edit_message(msg, f'成功屏蔽，请及时发送/getcookie指令\n当cookie生效后请发送/checkcookie指令')
-#             with open(path, 'w', encoding='utf-8') as f2:
-#                 f2.write(''.join(configs))
-#         else:
-#             await jdbot.edit_message(msg, f'早前就已经屏蔽了京东账号{expired}的 cookie ，无需再次屏蔽')
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-# 发送欢迎语
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):
     """
@@ -140,7 +91,7 @@ async def myhello(event):
     /restart 重启机器人
     /upbot 升级此自定义机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
-    /checkcookie 检测失效Cookie并把它替换成无法识别的cookie
+    /checkcookie 检测失效Cookie并把它屏蔽
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择（可能不支持青龙）
         2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
         3、接受到 cookie 过期消息自动开启 /checkcookie 指令
@@ -156,11 +107,10 @@ async def myhello(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 获取自定义机器人的快捷命令
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/help$'))
 async def myhelp(event):
     """
-    发送快捷命令
+    获取自定义机器人的快捷命令
     :param event:
     :return:
     """
@@ -176,7 +126,6 @@ checkcookie - 检测cookie过期
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 自动检测cookie的过期情况并临时屏蔽此账号
 @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
 async def mycheckcookie(event):
     """
@@ -186,27 +135,42 @@ async def mycheckcookie(event):
     """
     try:
         msg = await jdbot.send_message(chat_id, '正在检测 cookie 过期情况')
-        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-            configs = f1.readlines()
-        if configs[-1] == '\n':
-            del (configs[-1])
         check = checkCookie1()
         expireds = check[0]
         text, o = '检测结果\n\n', '\n\t   └ '
         edit = False
         if V4:
-            tip = '此账号的cookie已经失效，请及时获取新cookie来替换'
-            for expired in expireds:
-                for config in configs:
-                    if config.find(f'Cookie{expired}') != -1 and config.find('# Cookie') == -1:
-                        pt_pin = config.split(';')[-2].split('=')[-1]
-                        line = configs.index(config)
-                        configs[line] = f'Cookie{expired}="{pt_pin}：{tip}"\n'
-                        edit = True
-                        text += f'【屏蔽情况】 {pt_pin}{o}临时替换第 {expired} 个用户的cookie\n'
-                    elif config.find('第二区域') != -1:
-                        break
+            web = '/jd/panel/server.js'
+            if os.path.isfile(web):
+                web = True
+                with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                    configs = f1.read()
+                n = " ".join('%s' % expired for expired in expireds)
+                configs = re.sub(r'TempBlockCookie=""', f'TempBlockCookie="{n}"', configs, re.M)
+                text += f'【屏蔽情况】{o}TempBlockCookie="{n}"\n\n使用修改 TempBlockCookie 策略'
+                edit = True
+            else:
+                web = False
+                with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                    configs = f1.readlines()
+                if configs[-1] == '\n':
+                    del (configs[-1])
+                tip = '此账号的cookie已经失效'
+                for expired in expireds:
+                    for config in configs:
+                        if config.find(f'Cookie{expired}') != -1 and config.find('# Cookie') == -1:
+                            pt_pin = config.split(';')[-2].split('=')[-1]
+                            configs[configs.index(config)] = f'Cookie{expired}="{pt_pin}{tip}"\n'
+                            edit = True
+                            text += f'【屏蔽情况】 {pt_pin}{o}临时替换第 {expired} 个用户的cookie\n'
+                        elif config.find('第二区域') != -1:
+                            break
         elif QL:
+            web = False
+            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                configs = f1.readlines()
+            if configs[-1] == '\n':
+                del (configs[-1])
             for expired in expireds:
                 cookie = configs[int(expired) - 1]
                 pt_pin = cookie.split(';')[-2]
@@ -217,8 +181,12 @@ async def mycheckcookie(event):
             await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
             return
         if edit:
-            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                f2.write(''.join(configs))
+            if web:
+                with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                    f2.write(configs)
+            else:
+                with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                    f2.write(''.join(configs))
             await jdbot.edit_message(msg, text)
             await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
         else:
@@ -228,7 +196,6 @@ async def mycheckcookie(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 重启机器人
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart$'))
 async def myrestart(event):
     """
@@ -244,9 +211,13 @@ async def myrestart(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 升级我的自定义机器人
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot$'))
 async def myupbot(event):
+    """
+    发送 /upbot 升级我的自定义机器人
+    :param event:
+    :return:
+    """
     try:
         msg = await jdbot.send_message(chat_id, '开始下载最新的bot.py文件')
         furl = 'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/bot.py'
@@ -336,7 +307,7 @@ async def mydownload(event):
                             [Button.inline('谢谢，但我暂时不需要', data='cancel')],
                         ]
                         msg = await conv.send_message(f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？")
-                        mag = await jdbot.edit_message(msg, f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？", buttons=btn)
+                        await jdbot.edit_message(msg, f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？", buttons=btn)
                         convdata = await conv.wait_event(press_event(SENDER))
                         res2 = bytes.decode(convdata.data)
                         if res2 == 'add':
