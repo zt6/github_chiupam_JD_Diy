@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-07 22:40
-# @Version  : v 2.3
-# @Updata   : 1. 下载文件支持更多链接格式，只要是已 raw 后的链接即可；2. 添加 /upbot 指令，可升级此自定义机器人；3. 更新了用户发送仓库链接后开始在 config.sh 中添加仓库的操作；4. 支持青龙用户使用 /checkcookie 指令；5. 改变 v4-bot 用户使用 /checkcookie 指令屏蔽失效 cookie 的方法
-# @Future   :
+# @Data     : 2021-06-08 16:38
+# @Version  : v 2.4
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加
+# @Future   : 1. 支持 v4-bot用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
@@ -276,7 +276,7 @@ async def mydownload(event):
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, '开启下载文件会话')
         btn = [
-            [Button.inline('我确定需要下载此链接文件，请继续', data='confirm')],
+            [Button.inline('我需要下载此链接文件，请继续', data='confirm')],
             [Button.inline('我不需要下载，请取消对话', data='cancel')]
         ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -296,31 +296,58 @@ async def mydownload(event):
                     ufrl = f'http://ghproxy.com/{furl}'
                 fname = ufrl.split('/')[-1]
                 resp = requests.get(furl).text
+                cron = re.findall(r'(?<=cron\s").*(?=")', resp) # 截取 Loon 的 cron 表达式
+                fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp)
+                if fname_cn != []:
+                    fname_cn = fname_cn[0]
                 btn = [
-                    [Button.inline('仅放入config目录', data=_ConfigDir),Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
-                    [Button.inline('仅放入scripts目录', data=_ScriptsDir), Button.inline('放入scripts目录并运行', data='node1')],
-                    [Button.inline('仅放入own目录', data=_DiyDir), Button.inline('放入own目录并运行', data='node')],
-                    [Button.inline('取消', data='cancel')]
+                    [Button.inline('放入config目录', data=_ConfigDir),Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
+                    [Button.inline('放入own目录', data=_DiyDir), Button.inline('放入own并运行', data='run_own')],
+                    [Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('放入scripts并运行', data='run_scripts')],
+                    [Button.inline('请帮我取消对话', data='cancel')]
                 ]
                 if resp:
                     write = True
                     cmdtext = None
-                    msg = await conv.send_message('请做出你的选择：')
-                    msg = await jdbot.edit_message(msg, '请做出你的选择：', buttons=btn)
+                    addcron = None
+                    if cron != []:
+                        addcron = cron[0]
+                    msg = await conv.send_message(f'成功下载{fname_cn}脚本\n现在，请做出你的选择：')
+                    msg = await jdbot.edit_message(msg, f'成功下载{fname_cn}脚本\n现在，请做出你的选择：', buttons=btn)
                     convdata = await conv.wait_event(press_event(SENDER))
                     res = bytes.decode(convdata.data)
                     if res == 'cancel':
                         write = False
                         msg = await jdbot.edit_message(msg, '对话已取消')
-                    elif res == 'node':
+                    elif res == 'run_own':
                         path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
-                        await jdbot.edit_message(msg, '脚本已保存到DIY文件夹，并成功在后台运行，请稍后自行查看日志')
-                    elif res == 'node1':
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到own文件夹，并成功在后台运行，请稍后自行查看日志')
+                    elif res == 'run_scripts':
                         path, cmdtext = f'{_ScriptsDir}/{fname}', f'{jdcmd} {_ScriptsDir}/{fname} now'
-                        await jdbot.edit_message(msg, '脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
                     else:
                         path = f'{res}/{fname}'
-                        await jdbot.edit_message(msg, f'{fname}已保存到{res}文件夹')
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到{res}文件夹')
+                    if addcron:
+                        btn = [
+                            [Button.inline('是的，请帮我添加定时任务', data='add')],
+                            [Button.inline('谢谢，但我暂时不需要', data='cancel')],
+                        ]
+                        msg = await conv.send_message(f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？")
+                        mag = await jdbot.edit_message(msg, f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？", buttons=btn)
+                        convdata = await conv.wait_event(press_event(SENDER))
+                        res2 = bytes.decode(convdata.data)
+                        if res2 == 'add':
+                            cronfpath = f'{_ConfigDir}/crontab.list'
+                            with open(cronfpath, 'a', encoding='utf-8') as f:
+                                f.write(f'{addcron} mtask {path}\n')
+                            await jdbot.delete_messages(chat_id, msg)
+                            await jdbot.send_file(chat_id, cronfpath, caption='我已经把它添加进定时任务中了')
+                        else:
+                            await  jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
+                    else:
+                        msg = await conv.send_message(f"我无法识别到脚本内的 cron 表达式，请手动添加进定时任务中")
+                        await jdbot.edit_message(msg, f"我无法识别到脚本内的 cron 表达式，请手动添加进定时任务中")
                     conv.cancel()
                     if write:
                         backfile(path)
@@ -333,7 +360,7 @@ async def mydownload(event):
                     await jdbot.edit_message(msg, '下载失败，请稍后重试')
                     conv.cancel()
     except exceptions.TimeoutError:
-        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止')
+        msg = await jdbot.send_message(chat_id, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
