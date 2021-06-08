@@ -14,7 +14,6 @@
   - [user.py功能](#userpy功能)
 - [使用方式](#使用方式)
   - [启动bot.py文件](#启动botpy文件)
-  - [部署bot.py快捷命令](#部署botpy快捷命令)
   - [启动user.py文件](#启动userpy文件)
 - [常见问题](#常见问题)
 - [注意事项](#注意事项)
@@ -33,19 +32,15 @@
 - [x] 监控我的脚本频道，自动更新最新的脚本
 ## 使用方法
 ### 启动[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)文件
-1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来，或者进容器操作
-2. 进入容器，使用命令 `docker exec -it jd bash`
-3. 输入命令 `pm2 restart jbot` 重启机器人即可
-### 部署bot.py快捷命令
 方法一、 在终端中使用 Linux 命令
 ```
 docker exec -it jd bash
 cd /jd/jbot/diy
 rm -rf bot.py
-wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
+wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py
 pm2 restart jbot
 ```
-方法二、 给机器人发消息（需开启cmd命令功能）
+方法二、 给机器人发消息（需开启cmd命令功能，且执行完后机器人不会有实际回应，请等待一阵后用 `/start` 查看效果）
 ```
 /cmd cd /jd/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
 ```
