@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 19:01
+# @Data     : 2021-06-08 19:29
 # @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换
-# @Future   : 
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 修改完配置后不发送配置文件
+# @Future   :
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, _LogDir, logger, TOKEN, _JdbotDir
@@ -188,7 +188,6 @@ async def mycheckcookie(event):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(''.join(configs))
             await jdbot.edit_message(msg, text)
-            await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
         else:
             await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
     except Exception as e:
@@ -314,8 +313,7 @@ async def mydownload(event):
                             cronfpath = f'{_ConfigDir}/crontab.list'
                             with open(cronfpath, 'a', encoding='utf-8') as f:
                                 f.write(f'{addcron} mtask {path}\n')
-                            await jdbot.delete_messages(chat_id, msg)
-                            await jdbot.send_file(chat_id, cronfpath, caption='我已经把它添加进定时任务中了')
+                            await jdbot.edit_message(msg, '我已经把它添加进定时任务中了')
                         else:
                             await  jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
                     else:
@@ -414,7 +412,6 @@ async def myaddrepo(event):
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
-        await jdbot.send_file(chat_id, _ConfigFile, caption='你可以查阅上面这个文件')
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             btns2 = [
                 [Button.inline(f'是的，请帮我拉取{short_url}这个仓库的脚本', data='jup')],
