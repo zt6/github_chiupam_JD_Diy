@@ -45,7 +45,7 @@ pm2 restart jbot
 /cmd cd /jd/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
 ```
 ### 启动[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)文件
-1. 把文件存储在路径 `/jbot/diy/` 下， 或可以开启cmd功能给机器人发消息 `/cmd wget -p /jd/jbot/diy -O bot.py http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/user.py`
+1. 把文件存储在路径 `/jbot/diy/` 下， 或可以开启cmd功能给机器人发消息 `/cmd cd /jd/jbot/diy && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/user.py`
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 先手动停止机器人，输入命令：`pm2 stop jbot`
 4. 手动前台开启机器人，输入命令：`python3 -m jbot`
