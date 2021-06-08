@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 21:14
+# @Data     : 2021-06-08 21:59
 # @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接；4. 优化
 # @Future   :
 
 
@@ -188,7 +188,6 @@ async def mycheckcookie(event):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(''.join(configs))
             await jdbot.edit_message(msg, text)
-            await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
         else:
             await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
     except Exception as e:
@@ -267,8 +266,11 @@ async def mydownload(event):
                     ufrl = f'http://ghproxy.com/{furl}'
                 fname = ufrl.split('/')[-1]
                 resp = requests.get(furl).text
-                cron = re.findall(r'(?<=cron\s").*(?=")', resp) # 截取 Loon 的 cron 表达式
-                fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp)
+                fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
+                try:
+                    cron = re.search(r'(\d\s|\*\s){4}\*', resp).group()
+                except:
+                    cron = None
                 if fname_cn != []:
                     fname_cn = fname_cn[0]
                 else:
@@ -282,9 +284,6 @@ async def mydownload(event):
                 if resp:
                     write = True
                     cmdtext = None
-                    addcron = None
-                    if cron != []:
-                        addcron = cron[0]
                     msg = await conv.send_message(f'成功下载{fname_cn}脚本\n现在，请做出你的选择：')
                     msg = await jdbot.edit_message(msg, f'成功下载{fname_cn}脚本\n现在，请做出你的选择：', buttons=btn)
                     convdata = await conv.wait_event(press_event(SENDER))
@@ -301,22 +300,23 @@ async def mydownload(event):
                     elif res == f'{_JdbotDir}/diy':
                         path = f'{res}/{fname}'
                         await jdbot.edit_message(msg, f'机器人文件已保存到{res}目录\n请记得使用 /restart 指令重启机器人')
+                        cron = False
                     else:
                         path = f'{res}/{fname}'
                         await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到{res}目录')
-                    if addcron:
+                    if cron:
                         btn = [
                             [Button.inline('是的，请帮我添加定时任务', data='add')],
                             [Button.inline('谢谢，但我暂时不需要', data='cancel')],
                         ]
-                        msg = await conv.send_message(f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？")
-                        await jdbot.edit_message(msg, f"这是我识别出来的 cron 表达式\n{addcron}\n请问需要把它添加进定时任务中吗？", buttons=btn)
+                        msg = await conv.send_message(f"这是我识别出来的 cron 表达式\n{cron}\n请问需要把它添加进定时任务中吗？")
+                        await jdbot.edit_message(msg, f"这是我识别出来的 cron 表达式\n{cron}\n请问需要把它添加进定时任务中吗？", buttons=btn)
                         convdata = await conv.wait_event(press_event(SENDER))
                         res2 = bytes.decode(convdata.data)
                         if res2 == 'add':
                             cronfpath = f'{_ConfigDir}/crontab.list'
                             with open(cronfpath, 'a', encoding='utf-8') as f:
-                                f.write(f'{addcron} mtask {path}\n')
+                                f.write(f'{cron} mtask {path}\n')
                             await jdbot.edit_message(msg, '我已经把它添加进定时任务中了')
                         else:
                             await  jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
