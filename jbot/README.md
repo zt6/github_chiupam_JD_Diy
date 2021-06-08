@@ -30,6 +30,7 @@
 ### user.py功能
 - [x] 监控布道场，关注店铺有礼
 - [ ] 监控龙王庙，领取直播间红包
+- [x] 监控我的脚本频道，自动更新最新的脚本
 ## 使用方法
 ### 启动[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)文件
 1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来，或者进容器操作
