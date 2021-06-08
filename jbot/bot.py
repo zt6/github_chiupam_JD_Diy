@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 19:29
+# @Data     : 2021-06-08 21:14
 # @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 修改完配置后不发送配置文件
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接
 # @Future   :
 
 
@@ -188,6 +188,7 @@ async def mycheckcookie(event):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(''.join(configs))
             await jdbot.edit_message(msg, text)
+            await jdbot.send_file(chat_id, _ConfigFile, caption='配置已更新，请查阅')
         else:
             await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
     except Exception as e:
@@ -293,13 +294,16 @@ async def mydownload(event):
                         msg = await jdbot.edit_message(msg, '对话已取消')
                     elif res == 'run_own':
                         path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
-                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到own文件夹，并成功在后台运行，请稍后自行查看日志')
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到own目录，并成功在后台运行，请稍后自行查看日志')
                     elif res == 'run_scripts':
                         path, cmdtext = f'{_ScriptsDir}/{fname}', f'{jdcmd} {_ScriptsDir}/{fname} now'
-                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到scripts文件夹，并成功在后台运行，请稍后自行查看日志')
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到scripts目录，并成功在后台运行，请稍后自行查看日志')
+                    elif res == f'{_JdbotDir}/diy':
+                        path = f'{res}/{fname}'
+                        await jdbot.edit_message(msg, f'机器人文件已保存到{res}目录\n请记得使用 /restart 指令重启机器人')
                     else:
                         path = f'{res}/{fname}'
-                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到{res}文件夹')
+                        await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到{res}目录')
                     if addcron:
                         btn = [
                             [Button.inline('是的，请帮我添加定时任务', data='add')],
@@ -316,9 +320,6 @@ async def mydownload(event):
                             await jdbot.edit_message(msg, '我已经把它添加进定时任务中了')
                         else:
                             await  jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
-                    else:
-                        msg = await conv.send_message(f"我无法识别到脚本内的 cron 表达式，请手动添加进定时任务中")
-                        await jdbot.edit_message(msg, f"我无法识别到脚本内的 cron 表达式，请手动添加进定时任务中")
                     conv.cancel()
                     if write:
                         backfile(path)
@@ -412,6 +413,7 @@ async def myaddrepo(event):
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
+        await jdbot.send_file(chat_id, _ConfigFile, caption='你可以查阅上面这个文件')
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             btns2 = [
                 [Button.inline(f'是的，请帮我拉取{short_url}这个仓库的脚本', data='jup')],
