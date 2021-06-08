@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 23:10
+# @Data     : 2021-06-09 01:30
 # @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接；4. 优化；5. 混淆
+# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接；4. 更新 /upbot 指令，支持更新 user.py 文件
 # @Future   :
 
 
@@ -218,15 +218,33 @@ async def myupbot(event):
     :return:
     """
     try:
-        msg = await jdbot.send_message(chat_id, '开始下载最新的bot.py文件')
-        furl = 'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/bot.py'
+        SENDER = event.sender_id
+        msg = await jdbot.send_message(chat_id, '开始更新机器人文件')
+        btn = [Button.inline("请帮我更新 bot.py 文件", data='bot')]
+        if os.path.isfile(f'{_JdbotDir}/diy/bot.py'):
+            userbtn = Button.inline("请帮我更新 user.py 文件", data='user')
+            btn.append(userbtn)
+        btns = [no1_btn, [Button.inline("请帮我取消对话", data='cancel')]]
+        async with jdbot.conversation(SENDER, timeout=60) as conv:
+            await jdbot.delete_messages(chat_id, msg)
+            msg = await conv.send_message("请问你需要更新哪个机器人文件？")
+            msg = await jdbot.edit_message(msg, "请问你需要更新哪个机器人文件？", buttons=btns)
+            convdata = await conv.wait_event(press_event(SENDER))
+            res = bytes.decode(convdata.data)
+            if res == 'cancel':
+                msg = await jdbot.edit_message(msg, "对话已取消，感谢你的使用")
+                conv.cancel()
+                return
+            else:
+                fpath = f'{_JdbotDir}/diy/{res}.py'
+                furl = f'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/{res}.py'
+            conv.cancel()
         resp = requests.get(f'http://ghproxy.com/{furl}').text
         if resp:
-            path = f'{_JdbotDir}/diy/bot.py'
-            backfile(path)
-            with open(path, 'w+', encoding='utf-8') as f:
+            backfile(fpath)
+            with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await jdbot.edit_message(msg, '准备重启机器人')
+            await jdbot.edit_message(msg, "准备重启机器人")
             os.system('pm2 restart jbot')
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
@@ -256,7 +274,7 @@ async def mydownload(event):
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
             if res == 'cancel':
-                msg = await jdbot.edit_message(msg, '对话已取消')
+                msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
             else:
                 # 以下代码大部分参照原作者：@MaiKaDe666，并作出一定的修改
@@ -290,7 +308,7 @@ async def mydownload(event):
                     res = bytes.decode(convdata.data)
                     if res == 'cancel':
                         write = False
-                        msg = await jdbot.edit_message(msg, '对话已取消')
+                        msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                     elif res == 'run_own':
                         path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
                         await jdbot.edit_message(msg, f'{fname_cn}脚本已保存到own目录，并成功在后台运行，请稍后自行查看日志')
@@ -378,7 +396,7 @@ async def myaddrepo(event):
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
                 if res == 'cancel':
-                    msg = await jdbot.edit_message(msg, '对话已取消')
+                    msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                     conv.cancel()
                     return
                 elif res == 'input':
