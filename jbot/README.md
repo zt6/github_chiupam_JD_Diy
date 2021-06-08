@@ -25,13 +25,14 @@
 - [x] 发送 `/help` 指令可获取快捷命令
 - [x] 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
 - [x] 监控 `cookie` 过期通知，并及时自动屏蔽
-- [x] 监控到用户发送了 `raw` 链接时下载文件并选择对文件进行操作 
+- [x] 监控到用户发送了已 `raw` 的链接时下载文件并选择对文件进行操作 
+- [x] 监控到用户发送了 `github` 仓库的链接时开启添加仓库会话
 ### user.py功能
 - [x] 监控布道场，关注店铺有礼
 - [ ] 监控龙王庙，领取直播间红包
 ## 使用方法
 ### 启动[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)文件
-1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来
+1. 把文件存储在路径 `/jbot/diy/` 下，如果没有此路径请重新映射出来，或者进容器操作
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 输入命令 `pm2 restart jbot` 重启机器人即可
 ### 部署bot.py快捷命令
