@@ -7,7 +7,7 @@
 # @Future   : 1.
 
 
-from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir
+from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _JdbotDir
 from ..bot.utils import cookies
 from telethon import events, TelegramClient
 import re, json, requests, os
