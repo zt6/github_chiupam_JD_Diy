@@ -220,9 +220,9 @@ async def myupbot(event):
     try:
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, '开始更新机器人文件')
-        btn = [Button.inline("请帮我更新 bot.py 文件", data='bot')]
+        btn = [Button.inline("请更新 bot 文件", data='bot')]
         if os.path.isfile(f'{_JdbotDir}/diy/user.py'):
-            userbtn = Button.inline("请帮我更新 user.py 文件", data='user')
+            userbtn = Button.inline("请更新 user 文件", data='user')
             btn.append(userbtn)
         btns = [btn, [Button.inline("请帮我取消对话", data='cancel')]]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -244,7 +244,7 @@ async def myupbot(event):
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await jdbot.edit_message(msg, "准备重启机器人")
+            await jdbot.edit_message(msg, f"已更新 {res} 机器人文件，准备重启机器人")
             os.system('pm2 restart jbot')
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
