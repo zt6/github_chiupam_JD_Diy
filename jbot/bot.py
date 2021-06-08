@@ -300,6 +300,8 @@ async def mydownload(event):
                 fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp)
                 if fname_cn != []:
                     fname_cn = fname_cn[0]
+                else:
+                    fname_cn = ''
                 btn = [
                     [Button.inline('放入config目录', data=_ConfigDir),Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
                     [Button.inline('放入own目录', data=_DiyDir), Button.inline('放入own并运行', data='run_own')],
