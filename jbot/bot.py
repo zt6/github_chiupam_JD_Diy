@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-09 01:30
-# @Version  : v 2.4
-# @Updata   : 1. 下载 raw 链接后可以识别 cron 表达式并询问是否需要添加；2. 支持 v4-bot 用户在给 /checkcookie 屏蔽后的 cookie可以给面板扫码自动替换；3. 支持发送机器人文件的 raw 链接；4. 更新 /upbot 指令，支持更新 user.py 文件
+# @Data     : 2021-06-09 15:52
+# @Version  : v 2.5
+# @Updata   : 1. 修复下载 raw 链接文件的错误
 # @Future   :
 
 
@@ -220,9 +220,9 @@ async def myupbot(event):
     try:
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, '开始更新机器人文件')
-        btn = [Button.inline("请更新 bot 文件", data='bot')]
+        btn = [Button.inline("请帮我更新 bot.py 文件", data='bot')]
         if os.path.isfile(f'{_JdbotDir}/diy/user.py'):
-            userbtn = Button.inline("请更新 user 文件", data='user')
+            userbtn = Button.inline("请帮我更新 user.py 文件", data='user')
             btn.append(userbtn)
         btns = [btn, [Button.inline("请帮我取消对话", data='cancel')]]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -244,7 +244,7 @@ async def myupbot(event):
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await jdbot.edit_message(msg, f"已更新 {res} 机器人文件，准备重启机器人")
+            await jdbot.edit_message(msg, "准备重启机器人")
             os.system('pm2 restart jbot')
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
@@ -281,8 +281,8 @@ async def mydownload(event):
                 await jdbot.delete_messages(chat_id, msg)
                 furl = event.raw_text
                 if furl.startswith('https://raw.githubusercontent.com'):
-                    ufrl = f'http://ghproxy.com/{furl}'
-                fname = ufrl.split('/')[-1]
+                    furl = f'http://ghproxy.com/{furl}'
+                fname = furl.split('/')[-1]
                 resp = requests.get(furl).text
                 fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
                 try:
