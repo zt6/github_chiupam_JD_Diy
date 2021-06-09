@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-09 15:52
+# @Data     : 2021-06-09 23:38
 # @Version  : v 2.5
-# @Updata   : 1. 修复下载 raw 链接文件的错误
+# @Updata   : 1. 修复下载 raw 链接文件的错误；2. 给机器人发送固定格式的消息可以快捷添加环境变量
 # @Future   :
 
 
@@ -95,6 +95,7 @@ async def myhello(event):
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择（可能不支持青龙）
         2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
         3、接受到 cookie 过期消息自动开启 /checkcookie 指令
+        4、发送 export key="value" 或 export 的格式都可以快捷添加额外的环境变量
 
     仓库：https://github.com/chiupam/JD_Diy.git
     欢迎🌟Star & 提出🙋[isuss](https://github.com/chiupam/JD_Diy/issues/new) & 请勿🚫Fork
@@ -337,7 +338,7 @@ async def mydownload(event):
                                 f.write(f'{cron} mtask {path}\n')
                             await jdbot.edit_message(msg, '我已经把它添加进定时任务中了')
                         else:
-                            await  jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
+                            await jdbot.edit_message(msg, '那好吧，会话结束，感谢你的使用')
                     conv.cancel()
                     if write:
                         backfile(path)
@@ -346,6 +347,7 @@ async def mydownload(event):
                     if cmdtext:
                         await cmd(cmdtext)
                 else:
+                    await jdbot.delete_messages(chat_id, start)
                     msg = await conv.send_message('下载失败，请稍后重试')
                     await jdbot.edit_message(msg, '下载失败，请稍后重试')
                     conv.cancel()
@@ -452,3 +454,83 @@ async def myaddrepo(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^export'))
+async def myaddrepo(event):
+    """
+    快捷添加额外的环境变量
+    :param event:
+    :return:
+    """
+    try:
+        None
+        start = await jdbot.send_message(chat_id, '开始添加环境变量')
+        SENDER = event.sender_id
+        message = event.raw_text
+        kv = message.replace('export', '')
+        if len(kv) <= 1:
+            async with jdbot.conversation(SENDER, timeout=180) as conv:
+                msg = await conv.send_message("检测到你没有设置环境变量的参数\n请回复你需要添加的环境变量的键名是什么？")
+                kname = await conv.get_response()
+                kname = kname.raw_text
+                await jdbot.delete_messages(chat_id, msg)
+                btns = [
+                    [Button.inline("设置为true", data='true'), Button.inline("设置为false", data='false')],
+                    [Button.inline("请让我手动输入", data='input'), Button.inline("请帮我取消对话", data='cancel')]
+                ]
+                msg = await conv.send_message("请问是需要设置Boolean值吗？", buttons=btns)
+                convdata = await conv.wait_event(press_event(SENDER))
+                await jdbot.delete_messages(chat_id, msg)
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    await jdbot.delete_messages(chat_id, start)
+                    await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return 
+                elif res == 'input':
+                    msg = await conv.send_message("那请回复你所需要设置的值")
+                    vname1 = await conv.get_response()
+                    vname = vname1.raw_text
+                else:
+                    vname = res
+                new = f'export {kname}="{vname}"'
+                msg = await conv.send_message(f"好的，请稍等\n你设置值为：{vname}")
+                conv.cancel()
+        else:
+            new = message
+            kv = new.replace("export ", "")
+            kname = kv.split('=')[0]
+            vname1 = kv.split('=')[-1]
+            vname = re.sub(r"\'|\"", "", vname1)
+            async with jdbot.conversation(SENDER, timeout=60) as conv:
+                btns = [
+                    [Button.inline("是的，就是这样", data='yes')],
+                    [Button.inline("错了，取消对话重新设置", data='cancel')]
+                ]
+                msg = await conv.send_message(f"我检测到你需要添加一个环境变量\n键名：{kname}\n值名：{vname}\n请问是这样吗？", buttons=btns)
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    await jdbot.delete_messages(chat_id, start)
+                    await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                else:
+                    await jdbot.delete_messages(chat_id, msg)
+                    msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}={vname1}")
+                conv.cancel()
+        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        if configs.find(kname) != -1:
+            configs = re.sub(f'{kname}="\S+"', f'{kname}="{vname}"\n', configs)
+            end = "替换环境变量成功"
+        else:
+            configs += f'export {kname}="{vname}"\n'
+            end = "新增环境变量成功"
+        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+            f2.write(configs)
+        await jdbot.delete_messages(chat_id, start)
+        await asyncio.sleep(2)
+        await jdbot.delete_messages(chat_id, msg)
+        await jdbot.send_message(chat_id, end)
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
