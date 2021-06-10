@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-10 23:48
+# @Data     : 2021-06-11 01:33
 # @Version  : v 2.6
-# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误；2. 下载 raw 链接是如果没有识别 cron 表达式可以自行手动添加；3. 如果代理下载失败时会重试一遍，但这次会直接下载
+# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误；2. 下载 raw 链接是如果没有识别 cron 表达式可以自行手动添加；3. 如果代理下载失败时会重试一遍，但这次会直接下载；4. 添加环境变量时不带 export 也可被机器人识别
 # @Future   :
 
 
@@ -489,7 +489,7 @@ async def myaddrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^export'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(^export.*|.*=(\".*\"|\'.*\'))'))
 async def myaddrepo(event):
     """
     快捷添加额外的环境变量
@@ -497,12 +497,11 @@ async def myaddrepo(event):
     :return:
     """
     try:
-        None
         start = await jdbot.send_message(chat_id, '开始添加环境变量')
         SENDER = event.sender_id
         message = event.raw_text
-        kv = message.replace('export', '')
-        if len(kv) <= 1:
+        auto = False
+        if len(message.replace('export', '')) <= 1:
             async with jdbot.conversation(SENDER, timeout=180) as conv:
                 msg = await conv.send_message("检测到你没有设置环境变量的参数\n请回复你需要添加的环境变量的键名是什么？")
                 kname = await conv.get_response()
@@ -530,12 +529,20 @@ async def myaddrepo(event):
                 new = f'export {kname}="{vname}"'
                 msg = await conv.send_message(f"好的，请稍等\n你设置值为：{vname}")
                 conv.cancel()
+        elif (message.find("='") != -1 or message.find('="') != -1) and message.find("export") == -1:
+            new = message
+            kname = new.split('=')[0]
+            vname1 = new.split('=')[-1]
+            vname = re.sub(r"\'|\"", "", vname1)
+            auto = True
         else:
             new = message
             kv = new.replace("export ", "")
             kname = kv.split('=')[0]
             vname1 = kv.split('=')[-1]
             vname = re.sub(r"\'|\"", "", vname1)
+            auto = True
+        if auto:
             async with jdbot.conversation(SENDER, timeout=60) as conv:
                 btns = [
                     [Button.inline("是的，就是这样", data='yes')],
@@ -547,6 +554,8 @@ async def myaddrepo(event):
                 if res == 'cancel':
                     await jdbot.delete_messages(chat_id, start)
                     await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return
                 else:
                     await jdbot.delete_messages(chat_id, msg)
                     msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}={vname1}")
