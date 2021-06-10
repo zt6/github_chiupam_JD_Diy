@@ -3,7 +3,7 @@
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-10 23:48
 # @Version  : v 2.6
-# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误；2. 下载 raw 链接是如果没有识别 cron 表达式可以自行手动添加
+# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误；2. 下载 raw 链接是如果没有识别 cron 表达式可以自行手动添加；3. 如果代理下载失败时会重试一遍，但这次会直接下载
 # @Future   :
 
 
@@ -241,14 +241,16 @@ async def myupbot(event):
                 furl = f'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/{res}.py'
             conv.cancel()
         resp = requests.get(f'http://ghproxy.com/{furl}').text
-        if resp.find('404: Not Found') == -1:
+        if resp.find('#!/usr/bin/env python3') == -1:
+            resp = requests.get(furl).text
+        if resp.find('#!/usr/bin/env python3') != -1:
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
             await jdbot.edit_message(msg, "准备重启机器人")
             os.system('pm2 restart jbot')
         elif resp.find('404: Not Found') != -1:
-            await jdbot.edit_message(msg, "下载失败，库还没开放")
+            await jdbot.edit_message(msg, "下载失败，库未开放或网络问题")
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
     except Exception as e:
