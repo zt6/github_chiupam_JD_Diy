@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-09 23:38
-# @Version  : v 2.5
-# @Updata   : 1. 修复下载 raw 链接文件的错误；2. 给机器人发送固定格式的消息可以快捷添加环境变量
+# @Data     : 2021-06-10 21:05
+# @Version  : v 2.6
+# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误
 # @Future   :
 
 
@@ -241,12 +241,14 @@ async def myupbot(event):
                 furl = f'https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/{res}.py'
             conv.cancel()
         resp = requests.get(f'http://ghproxy.com/{furl}').text
-        if resp:
+        if resp.find('404: Not Found') == -1:
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
             await jdbot.edit_message(msg, "准备重启机器人")
             os.system('pm2 restart jbot')
+        elif resp.find('404: Not Found') != -1:
+            await jdbot.edit_message(msg, "下载失败，库还没开放")
         else:
             await jdbot.edit_message(msg, "下载失败，请稍后重试")
     except Exception as e:
