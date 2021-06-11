@@ -5,7 +5,7 @@
 # @Version  : v 2.2
 # @Updata   : 1. 少写了个参数，已经加上
 # @Future   : 1.
-
+import asyncio
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _JdbotDir
 from ..bot.utils import cookies, cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile
@@ -237,6 +237,30 @@ async def shopbean(event):
 #         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
 
 
+# 监控组队瓜分ID
+@client.on(events.NewMessage(chats=-1001169232926, pattern=r"^export\s"))
+async def myexport(event):
+    """
+    监控组队瓜分ID
+    """
+    try:
+        activityId = event.message.text
+        start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
+        kv = activityId.replace("export ", "")
+        kname = kv.split("=")[0]
+        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', export, configs)
+        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+            f2.write(configs)
+        await asyncio.sleep(1.5)
+        await jdbot.delete_messages(chat_id, start)
+        await jdbot.send_message(chat_id, "替换环境变量成功")
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
 # 监控并更新文件
 @client.on(events.NewMessage(chats=-1001431256850))
 async def myupuser(event):
@@ -248,12 +272,15 @@ async def myupuser(event):
     try:
         if event.message.file:
             fname = event.message.file.name
-            if fname.endswith("bot.py") or fname.endswith("user.py"):
-                path = f'{_JdbotDir}/diy/{fname}'
-                backfile(path)
-                await client.download_file(input_location=event.message, file=path)
-                await jdbot.send_file(chat_id, path, caption='已更新，准备重启')
-                os.system('pm2 restart jbot')
+            try:
+                if fname.endswith("bot.py") or fname.endswith("user.py"):
+                    path = f'{_JdbotDir}/diy/{fname}'
+                    backfile(path)
+                    await client.download_file(input_location=event.message, file=path)
+                    await jdbot.send_file(chat_id, path, caption='已更新，准备重启')
+                    os.system('pm2 restart jbot')
+            except:
+                return
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
