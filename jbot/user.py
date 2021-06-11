@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-08 20:27
-# @Version  : v 2.2
-# @Updata   : 1. 少写了个参数，已经加上
+# @Data     : 2021-06-11 16:42
+# @Version  : v 2.3
+# @Updata   : 1. 新增监控组队瓜分ID功能，自动替换变量
 # @Future   : 1.
 import asyncio
 
