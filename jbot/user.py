@@ -3,7 +3,7 @@
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-11 16:42
 # @Version  : v 2.3
-# @Updata   : 1. 新增监控组队瓜分ID功能，自动替换变量
+# @Updata   : 1. 新增监控组队瓜分ID功能，自动替换变量；2. 修复监控组队瓜分ID的bug
 # @Future   : 1.
 import asyncio
 
@@ -250,7 +250,7 @@ async def myexport(event):
         kname = kv.split("=")[0]
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
-        configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', export, configs)
+        configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', kv, configs)
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await asyncio.sleep(1.5)
