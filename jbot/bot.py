@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-11 01:33
-# @Version  : v 2.6
-# @Updata   : 1. 修复 / upbot 指令变 1kb 的错误；2. 下载 raw 链接是如果没有识别 cron 表达式可以自行手动添加；3. 如果代理下载失败时会重试一遍，但这次会直接下载；4. 添加环境变量时不带 export 也可被机器人识别
+# @Data     : 2021-06-11 12:12
+# @Version  : v 2.7
+# @Updata   : 1. 新增环境变量可以给这个环境变量添加注释
 # @Future   :
 
 
@@ -242,6 +242,8 @@ async def myupbot(event):
             conv.cancel()
         resp = requests.get(f'http://ghproxy.com/{furl}').text
         if resp.find('#!/usr/bin/env python3') == -1:
+            resp = requests.get(f'https://mirror.ghproxy.com/{furl}').text
+        if resp.find('#!/usr/bin/env python3') == -1:
             resp = requests.get(furl).text
         if resp.find('#!/usr/bin/env python3') != -1:
             backfile(fpath)
@@ -288,6 +290,9 @@ async def mydownload(event):
                 if furl.startswith('https://raw.githubusercontent.com'):
                     furl = f'http://ghproxy.com/{furl}'
                 resp = requests.get(furl).text
+                if resp.find("<html>") != -1:
+                    furl = event.raw_text
+                    resp = requests.get(f"https://mirror.ghproxy.com/{furl}").text
                 if resp.find("<html>") != -1:
                     furl = event.raw_text
                     resp = requests.get(furl).text
@@ -490,7 +495,7 @@ async def myaddrepo(event):
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(^export.*|.*=(\".*\"|\'.*\'))'))
-async def myaddrepo(event):
+async def myaddexport(event):
     """
     快捷添加额外的环境变量
     :param event:
@@ -523,6 +528,7 @@ async def myaddrepo(event):
                 elif res == 'input':
                     msg = await conv.send_message("那请回复你所需要设置的值")
                     vname1 = await conv.get_response()
+                    await jdbot.delete_messages(chat_id, msg)
                     vname = vname1.raw_text
                 else:
                     vname = res
@@ -562,18 +568,39 @@ async def myaddrepo(event):
                 conv.cancel()
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
+        await asyncio.sleep(1.5)
+        await jdbot.delete_messages(chat_id, msg)
         if configs.find(kname) != -1:
-            configs = re.sub(f'{kname}="\S+"', f'{kname}="{vname}"\n', configs)
+            configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
             end = "替换环境变量成功"
         else:
-            configs += f'export {kname}="{vname}"\n'
+            async with jdbot.conversation(SENDER, timeout=60) as conv:
+                btns = [
+                    [Button.inline("是的，我需要", data='yes')],
+                    [Button.inline("谢谢，但我暂时不需要", data='cancel')]
+                ]
+                msg = await conv.send_message(f"这个环境变量是新增的，需要我给他添加注释嘛？", buttons=btns)
+                convdata = await conv.wait_event(press_event(SENDER))
+                await jdbot.delete_messages(chat_id, msg)
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    msg = await conv.send_message("那好吧，准备新增变量")
+                    note = ''
+                else:
+                    msg = await conv.send_message("那请回复你所需要添加的注释")
+                    note = await conv.get_response()
+                    await jdbot.delete_messages(chat_id, msg)
+                    note = f" # {note.raw_text}"
+                conv.cancel()
+            configs += f'export {kname}="{vname}"{note}\n'
+            await asyncio.sleep(1.5)
+            await jdbot.delete_messages(chat_id, msg)
             end = "新增环境变量成功"
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await jdbot.delete_messages(chat_id, start)
-        await asyncio.sleep(2)
-        await jdbot.delete_messages(chat_id, msg)
         await jdbot.send_message(chat_id, end)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
