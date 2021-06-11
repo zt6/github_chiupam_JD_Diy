@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-11 20:53
+# @Data     : 2021-06-12 00:12
 # @Version  : v 2.7
-# @Updata   : 1. 新增环境变量可以给这个环境变量添加注释；2. 新增修改第五区域二外的环境变量功能，但触发条件或许需要修改
+# @Updata   : 1. 新增环境变量可以给这个环境变量添加注释；2. 新增修改第五区域二外的环境变量功能，但触发条件或许需要修改；3. 再次修改 /checkcookie 指令的执行逻辑
 # @Future   :
 
 
@@ -137,63 +137,53 @@ async def mycheckcookie(event):
     :return:
     """
     try:
-        await jdbot.send_message(chat_id, "暂停屏蔽功能，正在写BUG……")
-        # msg = await jdbot.send_message(chat_id, '正在检测 cookie 过期情况')
-        # check = checkCookie1()
-        # expireds = check[0]
-        # text, o = '检测结果\n\n', '\n\t   └ '
-        # edit = False
-        # if V4:
-        #     web = '/jd/panel/server.js'
-        #     if os.path.isfile(web):
-        #         web = True
-        #         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-        #             configs = f1.read()
-        #         n = " ".join('%s' % expired for expired in expireds)
-        #         configs = re.sub(r'TempBlockCookie=""', f'TempBlockCookie="{n}"', configs, re.M)
-        #         text += f'【屏蔽情况】{o}TempBlockCookie="{n}"\n\n使用修改 TempBlockCookie 策略'
-        #         edit = True
-        #     else:
-        #         web = False
-        #         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-        #             configs = f1.readlines()
-        #         if configs[-1] == '\n':
-        #             del (configs[-1])
-        #         tip = '此账号的cookie已经失效'
-        #         for expired in expireds:
-        #             for config in configs:
-        #                 if config.find(f'Cookie{expired}') != -1 and config.find('# Cookie') == -1:
-        #                     pt_pin = config.split(';')[-2].split('=')[-1]
-        #                     configs[configs.index(config)] = f'Cookie{expired}="{pt_pin}{tip}"\n'
-        #                     edit = True
-        #                     text += f'【屏蔽情况】 {pt_pin}{o}临时替换第 {expired} 个用户的cookie\n'
-        #                 elif config.find('第二区域') != -1:
-        #                     break
-        # elif QL:
-        #     web = False
-        #     with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-        #         configs = f1.readlines()
-        #     if configs[-1] == '\n':
-        #         del (configs[-1])
-        #     for expired in expireds:
-        #         cookie = configs[int(expired) - 1]
-        #         pt_pin = cookie.split(';')[-2]
-        #         del (configs[int(expired) - 1])
-        #         edit = True
-        #         text += f'【删除情况】{pt_pin}{o}已经删除第 {expired} 个用户的Cookie\n'
-        # else:
-        #     await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
-        #     return
-        # if edit:
-        #     if web:
-        #         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-        #             f2.write(configs)
-        #     else:
-        #         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-        #             f2.write(''.join(configs))
-        #     await jdbot.edit_message(msg, text)
-        # else:
-        #     await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
+        msg = await jdbot.send_message(chat_id, '正在检测 cookie 过期情况')
+        check = checkCookie1()
+        expireds = check[0]
+        text, o = '检测结果\n\n', '\n\t   └ '
+        edit = False
+        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        if V4:
+            for config in configs:
+                i = configs.index(config)
+                if config.find("TempBlockCookie") != -1 and config.find("##") == -1 and configs[i + 1].find(";") == -1:
+                    line = configs.index(config)
+                    Temp = configs[line][:-1]
+                    configs[line] = f"{Temp}program\n"
+                    configs = ''.join(configs)
+                    break
+                elif config.find("AutoDelCron") != -1:
+                    await jdbot.edit_message(msg, "无法寻找到目标行，请使用初始配置")
+                    return
+            n = " ".join('%s' % expired for expired in expireds)
+            configs = re.sub(r'TempBlockCookie=".*"program', f'TempBlockCookie="{n}"', configs, re.M)
+            text += f'【屏蔽情况】{o}TempBlockCookie="{n}"\n'
+            edit = True
+        elif QL:
+            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                configs = f1.readlines()
+            if configs[-1] == '\n':
+                del (configs[-1])
+            for expired in expireds:
+                cookie = configs[int(expired) - 1]
+                pt_pin = cookie.split(';')[-2]
+                del (configs[int(expired) - 1])
+                text += f'【删除情况】{pt_pin}{o}已经删除第 {expired} 个用户的Cookie\n'
+                edit = True
+        else:
+            await jdbot.edit_message(msg, '未知环境的用户，无法使用 /checkcookie 指令')
+            return
+        if V4:
+            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                f2.write(configs)
+            await jdbot.edit_message(msg, text)
+        elif edit and QL:
+            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                f2.write(''.join(configs))
+            await jdbot.edit_message(msg, text)
+        else:
+            await jdbot.edit_message(msg, '配置无需改动，可用cookie中并没有cookie过期')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -271,6 +261,8 @@ async def mydownload(event):
     :return:
     """
     try:
+        if not V4:
+            await jdbot.send_message(chat_id, "警告！请悉知！\n此功能可能不支持非 v4-bot 用户")
         SENDER = event.sender_id
         start = await jdbot.send_message(chat_id, '开启下载文件会话')
         btn = [
@@ -508,37 +500,38 @@ async def myaddexport(event):
         start = await jdbot.send_message(chat_id, '开始添加环境变量')
         SENDER = event.sender_id
         message = event.raw_text
+        _ConfigFile = f"{_ConfigDir}/config.sh"
         auto = False
-        if len(message.replace('export', '')) <= 1:
-            async with jdbot.conversation(SENDER, timeout=180) as conv:
-                msg = await conv.send_message("检测到你没有设置环境变量的参数\n请回复你需要添加的环境变量的键名是什么？")
-                kname = await conv.get_response()
-                kname = kname.raw_text
-                await jdbot.delete_messages(chat_id, msg)
-                btns = [
-                    [Button.inline("设置为true", data='true'), Button.inline("设置为false", data='false')],
-                    [Button.inline("请让我手动输入", data='input'), Button.inline("请帮我取消对话", data='cancel')]
-                ]
-                msg = await conv.send_message("请问是需要设置Boolean值吗？", buttons=btns)
-                convdata = await conv.wait_event(press_event(SENDER))
-                await jdbot.delete_messages(chat_id, msg)
-                res = bytes.decode(convdata.data)
-                if res == 'cancel':
-                    await jdbot.delete_messages(chat_id, start)
-                    await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
-                    conv.cancel()
-                    return
-                elif res == 'input':
-                    msg = await conv.send_message("那请回复你所需要设置的值")
-                    vname1 = await conv.get_response()
-                    await jdbot.delete_messages(chat_id, msg)
-                    vname = vname1.raw_text
-                else:
-                    vname = res
-                new = f'export {kname}="{vname}"'
-                msg = await conv.send_message(f"好的，请稍等\n你设置值为：{vname}")
-                conv.cancel()
-        elif (message.find("='") != -1 or message.find('="') != -1) and message.find("export") == -1:
+        # if len(message.replace('export', '')) <= 1:
+        #     async with jdbot.conversation(SENDER, timeout=180) as conv:
+        #         msg = await conv.send_message("检测到你没有设置环境变量的参数\n请回复你需要添加的环境变量的键名是什么？")
+        #         kname = await conv.get_response()
+        #         kname = kname.raw_text
+        #         await jdbot.delete_messages(chat_id, msg)
+        #         btns = [
+        #             [Button.inline("设置为true", data='true'), Button.inline("设置为false", data='false')],
+        #             [Button.inline("请让我手动输入", data='input'), Button.inline("请帮我取消对话", data='cancel')]
+        #         ]
+        #         msg = await conv.send_message("请问是需要设置Boolean值吗？", buttons=btns)
+        #         convdata = await conv.wait_event(press_event(SENDER))
+        #         await jdbot.delete_messages(chat_id, msg)
+        #         res = bytes.decode(convdata.data)
+        #         if res == 'cancel':
+        #             await jdbot.delete_messages(chat_id, start)
+        #             await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
+        #             conv.cancel()
+        #             return
+        #         elif res == 'input':
+        #             msg = await conv.send_message("那请回复你所需要设置的值")
+        #             vname1 = await conv.get_response()
+        #             await jdbot.delete_messages(chat_id, msg)
+        #             vname = vname1.raw_text
+        #         else:
+        #             vname = res
+        #         new = f'export {kname}="{vname}"'
+        #         msg = await conv.send_message(f"好的，请稍等\n你设置值为：{vname}")
+        #         conv.cancel()
+        if (message.find("='") != -1 or message.find('="') != -1) and message.find("export") == -1:
             new = message
             kname = new.split('=')[0]
             vname1 = new.split('=')[-1]
@@ -569,8 +562,6 @@ async def myaddexport(event):
                     await jdbot.delete_messages(chat_id, msg)
                     msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}={vname1}")
                 conv.cancel()
-        if QL:
-            _ConfigFile = f"{_ConfigDir}/config.sh"
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
         await asyncio.sleep(1.5)
@@ -657,6 +648,7 @@ async def mychangeexport(event):
                 conv.cancel()
                 return
             else:
+                kname = res
                 msg = await conv.send_message("现在请回复你所需要设置的值")
                 vname = await conv.get_response()
                 vname = vname.raw_text
@@ -665,7 +657,7 @@ async def mychangeexport(event):
                     [Button.inline("是的，就是这样", data='yes')],
                     [Button.inline("错了，取消对话重新设置", data='cancel')]
                 ]
-                msg = await conv.send_message(f'好的，请稍等\n键名：{res}\n值名：{vname}\n请问是这样吗？', buttons=btns)
+                msg = await conv.send_message(f'好的，请稍等\n键名：{kname}\n值名：{vname}\n请问是这样吗？', buttons=btns)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
                 if res == 'cancel':
@@ -675,11 +667,11 @@ async def mychangeexport(event):
                     return
                 else:
                     await jdbot.delete_messages(chat_id, msg)
-                    msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{res}="{vname}"')
+                    msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
                 conv.cancel()
                 with open(_ConfigFile, 'r', encoding='utf-8') as f2:
                      configs = f2.read()
-                configs = re.sub(f'{res}=(\"|\')\S+(\"|\')', f'{res}="{vname}"', configs)
+                configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
                 with open(_ConfigFile, 'w', encoding='utf-8') as f3:
                     f3.write(configs)
                 await asyncio.sleep(1.5)
