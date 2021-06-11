@@ -298,7 +298,7 @@ async def mydownload(event):
                     resp = requests.get(furl).text
                 if resp:
                     fname = furl.split('/')[-1]
-                    fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
+                    fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M) # ((\d\s|\*\s){4}\*|(?<=cron\s\").*(?=\*\"))
                     try:
                         cron = re.search(r'(\d\s|\*\s){4}\*', resp).group()
                     except:
