@@ -91,17 +91,18 @@ async def myhello(event):
     /restart 重启机器人
     /upbot 升级此自定义机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
-    /checkcookie 检测失效Cookie并把它屏蔽（暂有缺陷）
+    /checkcookie 检测失效Cookie并把它屏蔽
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择（可能不支持青龙）
         2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
-        3、接受到 cookie 过期消息自动开启 /checkcookie 指令
-        4、发送 export key="value" 或 export 的格式可添加额外的环境变量
+        3、接收到 cookie 过期消息自动执行 /checkcookie 指令
+        4、发送 export key="value" 或 key="value" 的格式可添加额外的环境变量
+        5、发送 export 或 exp 可修改额外的环境变量的值
+        
     对于青龙用户，如需要支持一些功能，请和我说明白青龙的实现步骤，因为我不使用青龙，谢谢
 
     仓库：https://github.com/chiupam/JD_Diy.git
     欢迎🌟Star & 提出🙋[isuss](https://github.com/chiupam/JD_Diy/issues/new) & 请勿🚫Fork
     频道：[👬和东哥做兄弟](https://t.me/joinchat/jVMMKYCMe_VkZDQ1) （限时开放以控制人数）
-    
 """
         await asyncio.sleep(0.5)
         await jdbot.send_message(chat_id, diy_hello)
