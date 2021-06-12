@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-12 17:35
+# @Data     : 2021-06-12 18:08
 # @Version  : v 2.8
-# @Updata   : 1. 尝试支持青龙用户添加额外的环境变量；2. 修改添加环境变量函数的执行逻辑；3. 自动删除第五区域不必要的注释行
+# @Updata   : 1. 尝试支持青龙用户添加额外的环境变量；2. 修改添加环境变量函数的执行逻辑；3. 不读取用户自定义的第六区域额外的环境变量
 # @Future   :
 
 
@@ -12,7 +12,6 @@ from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _Con
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
-
 
 bot_id = int(TOKEN.split(':')[0])
 
@@ -97,7 +96,7 @@ async def myhello(event):
         2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
         3、接收到 cookie 过期消息自动执行 /checkcookie 指令
         4、发送 export key="value" 或 key="value" 的格式可添加额外的环境变量
-        
+
     对于青龙用户，如需要支持一些功能，请和我说明白青龙的实现步骤，因为我不使用青龙，谢谢
 
     仓库：https://github.com/chiupam/JD_Diy.git
@@ -294,7 +293,8 @@ async def mydownload(event):
                     resp = requests.get(furl).text
                 if resp:
                     fname = furl.split('/')[-1]
-                    fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M) # ((\d\s|\*\s){4}\*|(?<=cron\s\").*(?=\*\"))
+                    fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp,
+                                          re.M)  # ((\d\s|\*\s){4}\*|(?<=cron\s\").*(?=\*\"))
                     try:
                         cron = re.search(r'(\d\s|\*\s){4}\*', resp).group()
                     except:
@@ -304,9 +304,11 @@ async def mydownload(event):
                     else:
                         fname_cn = ''
                     btn = [
-                        [Button.inline('放入config目录', data=_ConfigDir),Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
+                        [Button.inline('放入config目录', data=_ConfigDir),
+                         Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy')],
                         [Button.inline('放入own目录', data=_DiyDir), Button.inline('放入own并运行', data='run_own')],
-                        [Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('放入scripts并运行', data='run_scripts')],
+                        [Button.inline('放入scripts目录', data=_ScriptsDir),
+                         Button.inline('放入scripts并运行', data='run_scripts')],
                         [Button.inline('请帮我取消对话', data='cancel')]
                     ]
                     write, cmdtext, addcron = True, None, True
@@ -318,7 +320,7 @@ async def mydownload(event):
                         await jdbot.delete_messages(chat_id, start)
                         msg = await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
                         conv.cancel()
-                        return 
+                        return
                     elif res == 'run_own':
                         path, cmdtext = f'{_DiyDir}/{fname}', f'{jdcmd} {_DiyDir}/{fname} now'
                         await jdbot.send_message(chat_id, f'我已经把{fname_cn}脚本已保存到own目录\n再进行一些操作，我将运行它')
@@ -490,7 +492,8 @@ async def myaddrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(export\s)?\w*=(".*"|\'.*\')')) # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
+@jdbot.on(events.NewMessage(from_users=chat_id,
+                            pattern=r'(export\s)?\w*=(".*"|\'.*\')'))  # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
 async def myaddexport(event):
     """
     快捷添加额外的环境变量
@@ -574,10 +577,7 @@ async def mychangeexport(event):
             configs = f1.readlines()
         for config in configs:
             if config.find("第五区域") != -1 and config.find("↓") != -1:
-                line = configs.index(config)
-            elif config.find("第五区域") != -1 and config.find("↑") != -1:
-                del(configs[configs.index(config)])
-                break
+                line = configs.index(config) + 1
         knames, vnames, notes = [], [], []
         for config in configs[line:]:
             if config.find("export") != -1 and config.find("##") == -1:
@@ -589,6 +589,8 @@ async def mychangeexport(event):
                 else:
                     note = 'none'
                 knames.append(kname), vnames.append(vname), notes.append(note)
+            elif config.find("↓") != -1:
+                break
         btns = []
         for i in range(len(knames)):
             if notes[i] != 'none':
@@ -631,7 +633,7 @@ async def mychangeexport(event):
                     msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
                 conv.cancel()
                 with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                     configs = f2.read()
+                    configs = f2.read()
                 configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
                 with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                     f3.write(configs)
@@ -642,4 +644,3 @@ async def mychangeexport(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
-
