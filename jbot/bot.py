@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-12 00:12
-# @Version  : v 2.7
-# @Updata   : 1. 新增环境变量可以给这个环境变量添加注释；2. 新增修改第五区域二外的环境变量功能，但触发条件或许需要修改；3. 再次修改 /checkcookie 指令的执行逻辑
+# @Data     : 2021-06-12 17:35
+# @Version  : v 2.8
+# @Updata   : 1. 尝试支持青龙用户添加额外的环境变量；2. 修改添加环境变量函数的执行逻辑；3. 自动删除第五区域不必要的注释行
 # @Future   :
 
 
@@ -92,11 +92,11 @@ async def myhello(event):
     /upbot 升级此自定义机器人
     /help 获取机器人所有快捷命令，可直接发送至botfather
     /checkcookie 检测失效Cookie并把它屏蔽
+    /export 读取第五区域额外的环境变量并进行修改
     此外 1、发送已 raw 的链接会下载文件，并让用户做出选择（可能不支持青龙）
         2、发送仓库链接会开始添加仓库，用户按要求回复即可（不支持青龙）
         3、接收到 cookie 过期消息自动执行 /checkcookie 指令
         4、发送 export key="value" 或 key="value" 的格式可添加额外的环境变量
-        5、发送 export 或 exp 可修改额外的环境变量的值
         
     对于青龙用户，如需要支持一些功能，请和我说明白青龙的实现步骤，因为我不使用青龙，谢谢
 
@@ -344,6 +344,7 @@ async def mydownload(event):
                         res2 = bytes.decode(convdata.data)
                         if res2 == 'cancel':
                             msg = await conv.send_message('那好吧，感谢你的使用')
+                            conv.cancel()
                             await asyncio.sleep(2)
                             addcron = False
                         elif res2 == 'input':
@@ -489,7 +490,7 @@ async def myaddrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'.*=(\".*\"|\'.*\')')) # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(export\s)?\w*=(".*"|\'.*\')')) # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
 async def myaddexport(event):
     """
     快捷添加额外的环境变量
@@ -500,17 +501,9 @@ async def myaddexport(event):
         start = await jdbot.send_message(chat_id, '开始添加环境变量')
         SENDER = event.sender_id
         message = event.raw_text
-        if (message.find("='") != -1 or message.find('="') != -1) and message.find("export") == -1:
-            new = message
-            kname = new.split('=')[0]
-            vname1 = new.split('=')[-1]
-            vname = re.sub(r"\'|\"", "", vname1)
-        else:
-            new = message
-            kv = new.replace("export ", "")
-            kname = kv.split('=')[0]
-            vname1 = kv.split('=')[-1]
-            vname = re.sub(r"\'|\"", "", vname1)
+        kv = message.replace("export ", "")
+        kname = kv.split("=")[0]
+        vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             btns = [
                 [Button.inline("是的，就是这样", data='yes')],
@@ -526,14 +519,14 @@ async def myaddexport(event):
                 return
             else:
                 await jdbot.delete_messages(chat_id, msg)
-                msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}={vname1}")
+                msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}=\"{vname}\"")
             conv.cancel()
         with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
         if configs.find(kname) != -1:
-            configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
+            configs = re.sub(f'{kname}=(\"|\').*(\"|\')', f'{kname}="{vname}"', configs)
             end = "替换环境变量成功"
         else:
             async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -567,7 +560,7 @@ async def myaddexport(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^exp$|^export$'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/export$'))
 async def mychangeexport(event):
     """
     修改第五区域额外的环境变量
@@ -580,8 +573,10 @@ async def mychangeexport(event):
         with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         for config in configs:
-            if config.find("第五区域") != -1:
+            if config.find("第五区域") != -1 and config.find("↓") != -1:
                 line = configs.index(config)
+            elif config.find("第五区域") != -1 and config.find("↑") != -1:
+                del(configs[configs.index(config)])
                 break
         knames, vnames, notes = [], [], []
         for config in configs[line:]:
