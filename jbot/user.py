@@ -3,7 +3,7 @@
 # @Author   : Chiupam (https://t.me/chiupam)
 # @Data     : 2021-06-12 12:14
 # @Version  : v 2.4
-# @Updata   : 1. 修复监控组队瓜分ID的bug
+# @Updata   : 1. 修复监控组队瓜分ID的bug；2. 修改监控组队瓜分ID的正则表达式
 # @Future   : 1.
 
 
@@ -180,68 +180,12 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-# @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
-# async def myredrain(event):
-#     """
-#     截取RRA
-#     :param event:
-#     :return:
-#     """
-#     RRA = re.findall(r"RRA.*", event.message.text)
-#     input_RRA = '&'.join(RRA)
-#     start_time = re.findall(re.compile(r"开.*"), event.message.text)
-#     file = '-'.join(start_time[0].split(' ')[1].split(':')[:-1])
-#     with open(f'{_LogDir}/{file}.txt', 'w', encoding='utf-8') as f:
-#         print(input_RRA, file=f)
-
-
-# @client.on(events.NewMessage(chats=-1001159808620, pattern=r'.*雨'))
-# async def redrain(event):
-#     """
-#     替换修改 redrain.js 的 RRA
-#     :param event:
-#     :return:
-#     """
-#     try:
-#         fname = '整点京豆雨'
-#         fpath = f'{_ScriptsDir}/redrain_chiupam.js'
-#         if not os.path.isfile(fpath):
-#             f_url = 'https://raw.githubusercontent.com/chiupam/JD_Diy/main/redrain_chiupam.js'
-#             cmdtext = f'cd {_ScriptsDir} && wget -t 3 {f_url}'
-#             os.system(cmdtext)
-#         checkCrontab("0 0 5 1 *", "otask", fname, fpath)
-#         messages = event.raw_text.split('\n')
-#         rras = []
-#         times = []
-#         for message in messages:
-#             if "RRA" in message:
-#                 rra = re.findall(r'RRA.*', message)[0]
-#                 rras.append(rra)
-#                 str_time = messages[messages.index(message) + 2].split(' ')[1].split(':')[0]
-#                 if str_time.startswith('0'):
-#                     str_time = str_time[1:]
-#                 times.append(str_time)
-#         with open(fpath, 'r', encoding='utf-8') as f1:
-#             js = f1.readlines()
-#         for line in js:
-#             if line.find(f"'{times[0]}': 'RRA") != -1:
-#                 js[js.index(line)] = f"  '{times[0]}': '{rras[0]}',\n"
-#                 del(times[0])
-#                 del(rras[0])
-#             if rras == []:
-#                 break
-#         with open(fpath, 'w', encoding='utf-8') as f2:
-#             f2.write(''.join(js))
-#         await jdbot.send_message(chat_id, '已完成替换咯')
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n'+str(e))
-
-
 # 监控组队瓜分ID
 @client.on(events.NewMessage(chats=-1001169232926, pattern=r"^export\s"))
 async def myexport(event):
     """
     监控组队瓜分ID
+    关注频道：https://t.me/zuduifendou
     """
     try:
         message = event.message.text
@@ -251,11 +195,18 @@ async def myexport(event):
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
         if configs.find(kname) != -1:
-            configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', kv, configs)
+            configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
             end = "替换环境变量成功"
         else:
-            configs += f'export {kv} # 组队瓜分\n'
+            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                configs = f1.readlines()
+            for config in configs:
+                if config.find("第五区域") != -1 and config.find("↑") != -1:
+                    end_line = configs.index(config)
+                    break
+            configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
             end = "新增环境变量成功"
+            configs = ''.join(configs)
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await asyncio.sleep(1.5)
