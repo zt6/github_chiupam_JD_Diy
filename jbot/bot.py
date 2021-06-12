@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-12 18:08
+# @Data     : 2021-06-12 18:24
 # @Version  : v 2.8
-# @Updata   : 1. 尝试支持青龙用户添加额外的环境变量；2. 修改添加环境变量函数的执行逻辑；3. 不读取用户自定义的第六区域额外的环境变量
+# @Updata   : 1. 尝试支持青龙用户添加额外的环境变量；2. 修改添加环境变量函数的执行逻辑；3. 不读取用户自定义的第六区域额外的环境变量；4. 使用标准config模版才可以使某些函数运行，因为某些函数需要标准模板的定位标志
 # @Future   :
 
 
@@ -550,12 +550,18 @@ async def myaddexport(event):
                     await jdbot.delete_messages(chat_id, msg)
                     note = f" # {note.raw_text}"
                 conv.cancel()
-            configs += f'export {kname}="{vname}"{note}\n'
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                configs = f3.readlines()
+            for config in configs:
+                if config.find("第五区域") != -1 and config.find("↑") != -1:
+                    end_line = configs.index(config)
+                    break
+            configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
             await asyncio.sleep(1.5)
             await jdbot.delete_messages(chat_id, msg)
             end = "新增环境变量成功"
         with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-            f2.write(configs)
+            f2.write(''.join(configs))
         await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, end)
     except Exception as e:
@@ -577,9 +583,11 @@ async def mychangeexport(event):
             configs = f1.readlines()
         for config in configs:
             if config.find("第五区域") != -1 and config.find("↓") != -1:
-                line = configs.index(config) + 1
+                start_line = configs.index(config) + 1
+            elif config.find("第五区域") != -1 and config.find("↑") != -1:
+                end_line = configs.index(config)
         knames, vnames, notes = [], [], []
-        for config in configs[line:]:
+        for config in configs[start_line:end_line]:
             if config.find("export") != -1 and config.find("##") == -1:
                 kv = config.replace("export ", "")
                 kname = kv.split("=")[0]
