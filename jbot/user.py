@@ -246,7 +246,7 @@ async def myexport(event):
     try:
         message = event.message.text
         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
-        kv = message.replace("export ", "")
+        kv = message.replace("export ", "").replace("*", "")
         kname = kv.split("=")[0]
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
