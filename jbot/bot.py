@@ -492,8 +492,7 @@ async def myaddrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id,
-                            pattern=r'(export\s)?\w*=(".*"|\'.*\')'))  # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(export\s)?\w*=(".*"|\'.*\')'))  # 旧的表达式：(^export\s.*|.*=(\".*\"|\'.*\'))
 async def myaddexport(event):
     """
     快捷添加额外的环境变量
