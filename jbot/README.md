@@ -23,6 +23,7 @@
 - [x] 发送 `/restart` 指令可重启机器人
 - [x] 发送 `/help` 指令可获取快捷命令
 - [x] 发送 `/checkcookie` 指令可临时屏蔽失效 `cookie`
+- [x] 发送 `/export` 指令可修改第五区域额外的环境变量
 - [x] 监控 `cookie` 过期通知，并及时自动屏蔽
 - [x] 监控到用户发送了已 `raw` 的链接时下载文件并选择对文件进行操作 
 - [x] 监控到用户发送了 `github` 仓库的链接时开启添加仓库会话
@@ -52,11 +53,12 @@ pm2 restart jbot
 2. 进入容器，使用命令 `docker exec -it jd bash`
 3. 先手动停止机器人，输入命令：`pm2 stop jbot`
 4. 手动前台开启机器人，输入命令：`python3 -m jbot`
-5. 可能需要输入手机号和telegram验证码进行登录，如果没有要求输入，请给机器人发送 `/start`，看到第二条消息后可进行第下一步
+5. 可能需要输入手机号和 `telegram` 验证码进行登录，如果没有要求输入，请给机器人发送 `/start`，看到机器人回复两条消息后可进行第下一步
 6. 按 `Ctrl`+`C` 退出前台运行，然后输入命令 `pm2 start jbot` 启动机器人
 ## 常见问题
-1. Question: 使用 `user.py` 后发送机器人自带指令没有反应
-> Answer: 尝试进入容器后，删除位于 `/jd` 目录下的 `diy.session` 文件，然后重新按上述使用方法重新操作
-## 注意事项
-- 如果有使用旧的[diy.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/backup/diy.py)请删除后再使用以上两个脚本，因为大部分功能重复
-- 首次使用[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)需要按说明登录 `telegram`，因为 `.session` 文件名已经修改
+1. Question: 部署 `user.py` 进行到第 5 步没有反应
+> Answer: I am worried that you cannot read Chinese, so I will answer you in English. This is because step 5 says that you may need to enter your phone number and telegram verification code to log in. If you are not required to enter it, please send `/start` to the robot. After you see the second message, you can proceed to the next step.
+2. Question：部署 `bot.py` 的步骤正确做完后 `/start` 也无法看到两条消息
+> Answer：查看 `log/bot/run.log` 的报错自行解决，一般是自己的镜像过老的问题
+3. Question：我是青龙用户，部署@￥%%#￥@%
+> Answer：我不用青龙，部署有问题请自行解决
