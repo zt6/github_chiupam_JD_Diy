@@ -98,10 +98,7 @@ async def myhello(event):
         4、发送 export key="value" 或 key="value" 的格式可添加额外的环境变量
 
     对于青龙用户，如需要支持一些功能，请和我说明白青龙的实现步骤，因为我不使用青龙，谢谢
-
-    仓库：https://github.com/chiupam/JD_Diy.git
-    欢迎🌟Star & 提出🙋[isuss](https://github.com/chiupam/JD_Diy/issues/new) & 请勿🚫Fork
-    频道：[👬和东哥做兄弟](https://t.me/joinchat/jVMMKYCMe_VkZDQ1) （限时开放以控制人数）
+    频道：[👬和东哥做兄弟](https://t.me/joinchat/kTJGWeHx5aAyYjBl) （限量进入以控制人数）
 """
         await asyncio.sleep(0.5)
         await jdbot.send_message(chat_id, diy_hello)
