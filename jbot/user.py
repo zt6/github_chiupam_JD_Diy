@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-11 16:42
-# @Version  : v 2.3
-# @Updata   : 1. 新增监控组队瓜分ID功能，自动替换变量；2. 修复监控组队瓜分ID的bug
+# @Data     : 2021-06-12 12:14
+# @Version  : v 2.4
+# @Updata   : 1. 修复监控组队瓜分ID的bug
 # @Future   : 1.
-import asyncio
+
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _JdbotDir
 from ..bot.utils import cookies, cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile
 from telethon import events, TelegramClient
-import re, json, requests, os
+import re, json, requests, os, asyncio
 
 
 if proxystart:
@@ -244,18 +244,23 @@ async def myexport(event):
     监控组队瓜分ID
     """
     try:
-        activityId = event.message.text
+        message = event.message.text
         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
-        kv = activityId.replace("export ", "")
+        kv = message.replace("export ", "")
         kname = kv.split("=")[0]
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
-        configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', kv, configs)
+        if configs.find(kname) != -1:
+            configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', kv, configs)
+            end = "替换环境变量成功"
+        else:
+            configs += f'export {kv} # 组队瓜分\n'
+            end = "新增环境变量成功"
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, start)
-        await jdbot.send_message(chat_id, "替换环境变量成功")
+        await jdbot.send_message(chat_id, end)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
