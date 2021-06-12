@@ -120,6 +120,7 @@ async def myhelp(event):
     try:
         diy_help = """restart - 重启机器人
 upbot - 升级自定义机器人
+export - 修改额外的环境变量
 checkcookie - 检测cookie过期
 """
         await asyncio.sleep(0.5)
