@@ -528,8 +528,7 @@ async def myaddexport(event):
                 await jdbot.delete_messages(chat_id, msg)
                 msg = await conv.send_message(f"好的，请稍等\n你设置变量为：{kname}={vname1}")
             conv.cancel()
-        _ConfigFile = f"{_ConfigDir}/config.sh"
-        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
@@ -559,7 +558,7 @@ async def myaddexport(event):
             await asyncio.sleep(1.5)
             await jdbot.delete_messages(chat_id, msg)
             end = "新增环境变量成功"
-        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, end)
@@ -578,7 +577,7 @@ async def mychangeexport(event):
     try:
         SENDER = event.sender_id
         start = await jdbot.send_message(chat_id, "开始读取你额外的环境变量")
-        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         for config in configs:
             if config.find("第五区域") != -1:
@@ -636,10 +635,10 @@ async def mychangeexport(event):
                     await jdbot.delete_messages(chat_id, msg)
                     msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
                 conv.cancel()
-                with open(_ConfigFile, 'r', encoding='utf-8') as f2:
+                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
                      configs = f2.read()
                 configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
-                with open(_ConfigFile, 'w', encoding='utf-8') as f3:
+                with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                     f3.write(configs)
                 await asyncio.sleep(1.5)
                 await jdbot.delete_messages(chat_id, msg)
