@@ -81,6 +81,7 @@ async def myinstall(event):
                 Button.inline("添加仓库", data="addrepo.py"),
                 Button.inline("添加环境变量", data="addexport.py"),
                 Button.inline("修改环境变量", data="editexport.py"),
+                Button.inline("我全都要", data="All"),
                 Button.inline("帮我取消对话", data='cancel')
         ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
@@ -92,6 +93,8 @@ async def myinstall(event):
                 await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
+            elif fname == 'All':
+
             conv.cancel()
         msg = await jdbot.send_message(chat_id, "开始下载文件")
         speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False

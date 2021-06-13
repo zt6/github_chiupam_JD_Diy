@@ -12,7 +12,7 @@ from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _Con
 from telethon import events, TelegramClient
 import re, json, requests, os, asyncio
 
-f
+
 if proxystart:
     client = TelegramClient("user", api_id, api_hash, proxy=proxy, connection_retries=None).start()
 else:
