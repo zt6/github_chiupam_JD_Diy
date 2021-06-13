@@ -134,7 +134,7 @@ async def myexport(event):
         kv = message.replace("export ", "").replace("*", "")
         kname = kv.split("=")[0]
         vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-        with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         if configs.find(kname) != -1:
             configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
