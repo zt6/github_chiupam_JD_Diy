@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-12 12:14
+# @Data     : 2021-06-13 23:59
 # @Version  : v 2.4
 # @Updata   : 1.
 # @Future   : 1.
@@ -23,9 +23,13 @@ with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
     bot_id = int(json.load(botf)['bot_token'].split(':')[0])
 
 
-if not os.path.isfile('/jd/jbot/diy/bot.py'):
+if not os.path.isfile('/jd/jbot/diy/bot.py') and V4:
     os.system(f'cd /jd/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
     if os.path.isfile('/jd/jbot/diy/bot.py'):
+        os.system('pm2 restart jbot')
+elif not os.path.isfile('/ql/jbot/diy/bot.py') and QL:
+    os.system(f'cd /ql/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
+    if os.path.isfile('/ql/jbot/diy/bot.py'):
         os.system('pm2 restart jbot')
 
 
