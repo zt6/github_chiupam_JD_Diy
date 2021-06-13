@@ -28,11 +28,15 @@ async def mychangeexport(event):
                     start_line = configs.index(config) + 1
                 elif config.find("第五区域") != -1 and config.find("↑") != -1:
                     end_line = configs.index(config)
+                    break
             for config in configs[start_line:end_line]:
                 if config.find("export") != -1 and config.find("##") == -1:
                     kv = config.replace("export ", "")
                     kname = kv.split("=")[0]
-                    vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
+                    try:
+                        vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
+                    except:
+                        vname = 'none'
                     if kv.find(" # ") != -1:
                         note = re.findall(r"(?<=#\s).*", kv)[0]
                     else:
@@ -45,7 +49,10 @@ async def mychangeexport(event):
                 if config.find("export") != -1:
                     kv = config.replace("export ", "")
                     kname = kv.split("=")[0]
-                    vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
+                    try:
+                        vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
+                    except:
+                        vname = 'none'
                     if kv.find(" # ") != -1:
                         note = re.findall(r"(?<=#\s).*", kv)[0]
                     else:
@@ -58,18 +65,29 @@ async def mychangeexport(event):
                 btn = Button.inline(knames[i], data=knames[i])
             btns.append(btn)
         btns.append(Button.inline("帮我取消对话", data='cancel'))
+        await jdbot.delete_messages(chat_id, start)
         async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message("这是我查询到的环境变量名称\n请问你需要修改哪一个？", buttons=split_list(btns, row))
+            msg = await conv.send_message("这是我查询到的环境变量名称\n请问你需要查看哪一个？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             await jdbot.delete_messages(chat_id, msg)
             res = bytes.decode(convdata.data)
             if res == 'cancel':
                 await jdbot.delete_messages(chat_id, msg)
-                await jdbot.edit_message(start, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
+            valuedata = vnames[knames.index(res)]
+            btns = [Button.inline("是", data=res),Button.inline("否", data="cancel")]
+            msg = await jdbot.send_message(chat_id, f"这是{res}键对应的值\n```{valuedata}```\n请问你需要修改吗？", buttons=split_list(btns, row))
+            convdata = await conv.wait_event(press_event(SENDER))
+            await jdbot.delete_messages(chat_id, msg)
+            res = bytes.decode(convdata.data)
+            if res == 'cancel':
+                await jdbot.delete_messages(chat_id, msg)
+                conv.cancel()
+                return
+            valuedatamsg = await jdbot.send_message(chat_id, str(f"```{valuedata}```"))
             kname = res
-            msg = await conv.send_message("现在请回复你所需要设置的值")
+            msg = await conv.send_message("上一条消息为待修改的值\n现在请回复你所需要设置的新值")
             vname = await conv.get_response()
             vname = vname.raw_text
             await jdbot.delete_messages(chat_id, msg)
@@ -81,10 +99,10 @@ async def mychangeexport(event):
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
             if res == 'cancel':
-                await jdbot.delete_messages(chat_id, start)
                 await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
+            await jdbot.delete_messages(chat_id, valuedatamsg)
             await jdbot.delete_messages(chat_id, msg)
             msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
             conv.cancel()
@@ -95,7 +113,6 @@ async def mychangeexport(event):
             f3.write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
-        await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, "修改环境变量成功")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
