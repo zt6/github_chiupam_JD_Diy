@@ -102,7 +102,7 @@ async def myinstall(event):
         if All:
             dltasks = ["upbot.py", "checkcookie.py", "download.py", "addrepo.py", "addexport.py", "editexport.py"]
         else:
-            dltasks = [res]
+            dltasks = [fname]
         msg = await jdbot.send_message(chat_id, "开始下载文件")
         speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False
         text = ''
