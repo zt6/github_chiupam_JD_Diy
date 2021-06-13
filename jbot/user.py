@@ -103,6 +103,19 @@ def getbean(i, cookie, url):
     return f"\n京东账号{i}{result}\n"
 
 
+# user?
+@client.on(events.NewMessage(chats=bot_id, from_users=chat_id, pattern=r"^user\?$"))
+async def fortest(event):
+    """
+    发 user? 给机器人
+    """
+    try:
+        await jdbot.send_message(chat_id, '你好无聊。。。\n我在监控了。。。\n不要问了。。。')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
 # 监控布道场频道
 @client.on(events.NewMessage(chats=-1001197524983, pattern=r'.*店'))
 async def shopbean(event):
