@@ -104,7 +104,7 @@ async def mydownload(event):
                                 f2.write(''.join(configs))
                         elif config.find("第五区域") != -1:
                             break
-                    await cmd("jup")
+                    await cmd("jup own")
                 else:
                     fpath = f"{res1}/{fname}"
                     await jdbot.send_message(chat_id, f"文件将保存到{res1}目录")
