@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _JdbotDir
-from ..bot.utils import cookies, cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile
+from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile
 from telethon import events, TelegramClient
 import re, json, requests, os, asyncio
 
@@ -192,22 +192,27 @@ async def myexport(event):
         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
         kv = message.replace("export ", "").replace("*", "")
         kname = kv.split("=")[0]
+        vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.read()
         if configs.find(kname) != -1:
             configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
             end = "替换环境变量成功"
         else:
-            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-                configs = f1.readlines()
-            for config in configs:
-                if config.find("第五区域") != -1 and config.find("↑") != -1:
-                    end_line = configs.index(config)
-                    break
-            configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
-            end = "新增环境变量成功"
-            configs = ''.join(configs)
-        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+            if V4:
+                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                    configs = f3.readlines()
+                for config in configs:
+                    if config.find("第五区域") != -1 and config.find("↑") != -1:
+                        end_line = configs.index(config)
+                        break
+                configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
+                configs = ''.join(configs)
+            else:
+                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
+                    configs = f4.read()
+                configs += f'export {kname}="{vname}"{note}\n'
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
             f2.write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, start)
