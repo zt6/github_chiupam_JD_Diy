@@ -106,6 +106,7 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
+            await jdbot.send_message(chat_id, f"下载{fname}成功")
             await restart()
         else:
             await jdbot.delete_messages(chat_id, msg)
