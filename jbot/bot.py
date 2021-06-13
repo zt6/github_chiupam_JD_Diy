@@ -30,7 +30,9 @@ async def myhello(event):
         if os.path.isfile(f"{_JdbotDir}/diy/checkcookie.py"):
             hello.append("\t/checkcookie 检查cookie过期情况")
         if os.path.isfile(f"{_JdbotDir}/diy/addrepo.py"):
-            hello.append("发送以.git结尾的链接开始添加仓库")
+            hello.append("发送以 .git 结尾的链接开始添加仓库")
+        if os.path.isfile(f"{_JdbotDir}/diy/download.py"):
+            hello.append("发送以 .js .sh .py结尾的已raw链接开始下载文件")
         if os.path.isfile(f"{_JdbotDir}/diy/addexport.py"):
             hello.append("发送格式为 key=\"value\" 或者 key='value' 的消息开始添加环境变量")
         # hello.append("\n频道：[👬和东哥做兄弟](https://t.me/joinchat/kTJGWeHx5aAyYjBl)")
@@ -75,8 +77,8 @@ async def myinstall(event):
         SENDER = event.sender_id
         furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
         btns = [
-                Button.inline("检查cookie过期", data="checkcookie.py"),
                 Button.inline("升级机器人", data="upbot.py"),
+                Button.inline("检查账号过期", data="checkcookie.py"),
                 Button.inline("下载文件", data="download.py"),
                 Button.inline("添加仓库", data="addrepo.py"),
                 Button.inline("添加环境变量", data="addexport.py"),
@@ -85,7 +87,7 @@ async def myinstall(event):
                 Button.inline("帮我取消对话", data='cancel')
         ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message("请问你需要下载什么功能的机器人文件？", buttons=split_list(btns, row))
+            msg = await conv.send_message("请问你需要拓展什么功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             await jdbot.delete_messages(chat_id, msg)
             fname = bytes.decode(convdata.data)
@@ -94,26 +96,34 @@ async def myinstall(event):
                 conv.cancel()
                 return
             elif fname == 'All':
-                None
+                All = True
             conv.cancel()
+        if All:
+            dltasks = ["upbot.py", "checkcookie.py", "download.py", "addrepo.py", "addexport.py", "editexport.py"]
+        else:
+            dltasks = [res]
         msg = await jdbot.send_message(chat_id, "开始下载文件")
         speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False
-        for speed in speeds:
-            resp = requests.get(f"{speed}{furl_startswith}{fname}").text
-            if "#!/usr/bin/env python3" in resp:
-                botresp = resp
-                break
-        if botresp:
-            await jdbot.delete_messages(chat_id, msg)
-            path = f"{_JdbotDir}/diy/{fname}"
-            backfile(path)
-            with open(path, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-            await jdbot.send_message(chat_id, f"下载{fname}成功")
-            await restart()
-        else:
-            await jdbot.delete_messages(chat_id, msg)
-            await jdbot.send_message(chat_id, "下载失败，请自行拉取文件进/jbot/diy目录")
+        text = ''
+        for dltask in dltasks:
+            for speed in speeds:
+                resp = requests.get(f"{speed}{furl_startswith}{dltask}").text
+                if "#!/usr/bin/env python3" in resp:
+                    botresp = resp
+                    break
+            if botresp:
+                path = f"{_JdbotDir}/diy/{dltask}"
+                backfile(path)
+                with open(path, 'w+', encoding='utf-8') as f:
+                    f.write(resp)
+                if os.path.isfile(path):
+                    text += f"下载{dltask}成功\n"
+                else:
+                    text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n"
+            else:
+                text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n"
+        await jdbot.edit_message(msg, text)
+        await restart()
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -124,7 +134,7 @@ async def myuninstall(event):
     try:
         SENDER = event.sender_id
         mydiy = {
-            "checkcookie.py": "检查cookie过期",
+            "checkcookie.py": "检查账号过期",
             "upbot.py": "升级机器人",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
@@ -139,7 +149,7 @@ async def myuninstall(event):
                 btns.append(Button.inline(mydiy[f'{dir}'], data=dir))
         btns.append(Button.inline("帮我取消对话", data='cancel'))
         async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message("请问你需要删除机器人的哪个功能？", buttons=split_list(btns, row))
+            msg = await conv.send_message("请问你需要删除哪个功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             await jdbot.delete_messages(chat_id, msg)
             fname = bytes.decode(convdata.data)
@@ -157,6 +167,30 @@ async def myuninstall(event):
             await jdbot.send_message(chat_id, "删除成功")
         else:
             await jdbot.send_message(chat_id, f"删除失败，请手动删除{fpath}文件")
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/list'))
+async def mylist(event):
+    try:
+        lists = []
+        mydiy = {
+            "checkcookie.py": "检查账号过期",
+            "upbot.py": "升级机器人",
+            "download.py": "下载文件",
+            "addrepo.py": "添加仓库",
+            "addexport.py": "添加环境变量",
+            "editexport.py": "修改环境变量",
+            "user.py": "user.py"
+        }
+        dirs = os.listdir(f"{_JdbotDir}/diy")
+        for dir in dirs:
+            if dir in mydiy:
+                lists.append(mydiy[f'{dir}'])
+        lists = '\n'.join(lists)
+        await jdbot.send_message(chat_id, f"目前你拓展的功能有：\n\n{lists}")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
