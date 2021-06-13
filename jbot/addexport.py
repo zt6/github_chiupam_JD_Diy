@@ -66,18 +66,24 @@ async def myaddexport(event):
                     await jdbot.delete_messages(chat_id, msg)
                     note = f" # {note.raw_text}"
                 conv.cancel()
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
-                configs = f3.readlines()
-            for config in configs:
-                if config.find("第五区域") != -1 and config.find("↑") != -1:
-                    end_line = configs.index(config)
-                    break
-            configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
+            if V4:
+                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                    configs = f3.readlines()
+                for config in configs:
+                    if config.find("第五区域") != -1 and config.find("↑") != -1:
+                        end_line = configs.index(config)
+                        break
+                configs.insert(end_line - 2, f'export {kname}="{vname}"{note}\n')
+                configs = ''.join(configs)
+            else:
+                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
+                    configs = f4.read()
+                configs += f'export {kname}="{vname}"{note}\n'
             await asyncio.sleep(1.5)
             await jdbot.delete_messages(chat_id, msg)
             end = "新增环境变量成功"
         with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-            f2.write(''.join(configs))
+            f2.write(configs)
         await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, end)
     except Exception as e:
