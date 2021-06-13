@@ -94,7 +94,7 @@ async def myinstall(event):
                 conv.cancel()
                 return
             elif fname == 'All':
-
+                None
             conv.cancel()
         msg = await jdbot.send_message(chat_id, "开始下载文件")
         speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False
