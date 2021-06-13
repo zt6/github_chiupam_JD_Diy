@@ -91,6 +91,7 @@ async def myinstall(event):
             convdata = await conv.wait_event(press_event(SENDER))
             await jdbot.delete_messages(chat_id, msg)
             fname = bytes.decode(convdata.data)
+            All = False
             if fname == 'cancel':
                 await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
                 conv.cancel()
