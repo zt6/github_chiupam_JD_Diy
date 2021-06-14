@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-13 23:59
+# @Data     : 2021-06-14 22:54
 # @Version  : v 2.4
-# @Updata   : 1.
-# @Future   : 1.
+# @Updata   :
+# @Future   :
 
 
-from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _JdbotDir
+from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
 from telethon import events, TelegramClient
 import re, json, requests, os, asyncio
@@ -18,22 +18,28 @@ if proxystart:
 else:
     client = TelegramClient("user", api_id, api_hash, connection_retries=None).start()
 
-
-with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
-    bot_id = int(json.load(botf)['bot_token'].split(':')[0])
-
-
 if not os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
     os.system(f'cd {_JdbotDir}/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
     if os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
         os.system('pm2 restart jbot')
-# if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-#     os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/diybotset.json')
+if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
+    msg = await jdbot.send_message(chat_id, "config目录没有diybotset.json文件，正在下载")
+    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/diybotset.json')
+    if os.path.isfile(f"{_ConfigDir}/diybotset.json"):
+        await jdbot.edit_message(msg, "下载成功，具体需修改设置请查看config目录下的diybotset.json文件")
+
+
+with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+    diybotset = json.load(f)
+my_chat_id = int(diybotset['my_chat_id'])
+
+
+bot_id = int(TOKEN.split(':')[0])
 
 
 def checkCookie1():
     expired = []
-    cookies = myck()
+    cookies = myck(_ConfigFile)
     for cookie in cookies:
         cknum = cookies.index(cookie) + 1
         if checkCookie2(cookie):
@@ -54,13 +60,9 @@ def checkCookie2(cookie):
         "Accept-Encoding": "gzip, deflate, br"
     }
     try:
-        r = requests.get(url, headers=headers)
-        if r.ok:
-            res = r.json()
-            if res['retcode'] == '1001':
-                return True
-            else:
-                return False
+        r = requests.get(url, headers=headers).json()
+        if r['retcode'] == '1001':
+            return True
         else:
             return False
     except:
@@ -102,26 +104,19 @@ def getbean(i, cookie, url):
 
 
 # user?
-@client.on(events.NewMessage(chats=bot_id, from_users=chat_id, pattern=r"^user\?$"))
+@client.on(events.NewMessage(chats=[bot_id, my_chat_id], from_users=chat_id, pattern=r"^user\?$"))
 async def fortest(event):
-    """
-    发 user? 给机器人
-    """
     try:
-        await jdbot.send_message(chat_id, '你好无聊。。。\n我在监控了。。。\n不要问了。。。')
+        msg = await jdbot.send_message(chat_id, '你好无聊。。。\n我在监控。。。\n不要烦我。。。')
+        await asyncio.sleep(2)
+        await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 监控布道场频道
-@client.on(events.NewMessage(chats=-1001197524983, pattern=r'.*店'))
+@client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
 async def shopbean(event):
-    """
-    监控布道场
-    :param event:
-    :return:
-    """
     cookies = myck()
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
@@ -137,8 +132,7 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-# 监控组队瓜分ID
-@client.on(events.NewMessage(chats=-1001169232926, pattern=r"^export\s"))
+@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
 async def myexport(event):
     """
     监控组队瓜分ID
@@ -158,8 +152,8 @@ async def myexport(event):
                 end = "替换环境变量成功"
             else:
                 if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
-                        configs = f3.readlines()
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.readlines()
                     for config in configs:
                         if config.find("第五区域") != -1 and config.find("↑") != -1:
                             end_line = configs.index(config)
@@ -167,12 +161,12 @@ async def myexport(event):
                     configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
                     configs = ''.join(configs)
                 else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
-                        configs = f4.read()
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.read()
                     configs += f'export {kname}="{vname}"\n'
                 end = "新增环境变量成功"
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-                f2.write(configs)
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+                f3.write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, end)
@@ -181,13 +175,10 @@ async def myexport(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# 监控并更新文件
-@client.on(events.NewMessage(chats=-1001431256850))
+@client.on(events.NewMessage(chats=[-1001431256850, my_chat_id]))
 async def myupuser(event):
     """
     关注频道：https://t.me/jd_diy_bot_channel
-    :param event:
-    :return:
     """
     try:
         if event.message.file:
@@ -197,11 +188,47 @@ async def myupuser(event):
                     path = f'{_JdbotDir}/diy/{fname}'
                     backfile(path)
                     await client.download_file(input_location=event.message, file=path)
-                    await jdbot.send_file(chat_id, path, caption='已更新，准备重启')
-                    os.system('pm2 restart jbot')
+                    await restart()
             except:
                 return
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+
+async def restart():
+    try:
+        if V4:
+            await jdbot.send_message(chat_id, "v4用户，准备重启机器人")
+            os.system("pm2 restart jbot")
+        elif QL:
+            await jdbot.send_message(chat_id, "青龙用户，准备重启机器人")
+            os.system("ql bot")
+        else:
+            await jdbot.send_message(chat_id, "未知用户，自行重启机器人")
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+async def upuser(fname, msg):
+    try:
+        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
+        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
+        msg = await jdbot.edit_message(msg, "开始下载文件")
+        for speed in speeds:
+            resp = requests.get(f"{speed}{furl_startswith}{fname}").text
+            if "#!/usr/bin/env python3" in resp:
+                break
+        if resp:
+            msg = await jdbot.edit_message(msg, f"下载{fname}成功")
+            path = f"{_JdbotDir}/diy/user.py"
+            backfile(path)
+            with open(path, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+            await restart()
+        else:
+            await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
