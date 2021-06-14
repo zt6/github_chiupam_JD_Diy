@@ -99,7 +99,7 @@ async def mydownload(event):
                     for config in configs:
                         if config.find("OwnRawFile") != -1 and config.find("## ") == -1:
                             line = configs.index(config) + 1
-                            configs.insert(line, f"\t{event.raw_text}")
+                            configs.insert(line, f"\t{event.raw_text}\n")
                             with open(_ConfigFile, 'w', encoding="utf-8") as f2:
                                 f2.write(''.join(configs))
                         elif config.find("第五区域") != -1:
@@ -108,7 +108,7 @@ async def mydownload(event):
                 else:
                     fpath = f"{res1}/{fname}"
                     await jdbot.send_message(chat_id, f"文件将保存到{res1}目录")
-                conv.cancel()
+            conv.cancel()
         backfile(fpath)
         with open(fpath, 'w+', encoding='utf-8') as f:
             f.write(resp)
