@@ -114,6 +114,8 @@ async def mydownload(event):
             conv.cancel()
         if cmdtext:
             await cmd(cmdtext)
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))

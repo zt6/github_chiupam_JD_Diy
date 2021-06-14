@@ -50,10 +50,9 @@ async def myupbot(event):
         for speed in speeds:
             resp = requests.get(f"{speed}{furl_startswith}{fname}").text
             if "#!/usr/bin/env python3" in resp:
-                botresp = resp
+                await jdbot.delete_messages(chat_id, msg)
                 break
-        if botresp:
-            await jdbot.delete_messages(chat_id, msg)
+        if resp:
             path = f"{_JdbotDir}/diy/{fname}"
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
@@ -61,8 +60,9 @@ async def myupbot(event):
             await restart()
         else:
             await jdbot.delete_messages(chat_id, start)
-            await jdbot.delete_messages(chat_id, msg)
             await jdbot.send_message(chat_id, "下载失败，请自行拉取文件进/jbot/diy目录")
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))

@@ -114,6 +114,8 @@ async def mychangeexport(event):
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
         await jdbot.send_message(chat_id, "修改环境变量成功")
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
