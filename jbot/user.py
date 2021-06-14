@@ -23,10 +23,7 @@ if not os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
     if os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
         os.system('pm2 restart jbot')
 if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-    msg = await jdbot.send_message(chat_id, "config目录没有diybotset.json文件，正在下载")
     os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json')
-    if os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-        await jdbot.edit_message(msg, "下载成功，具体需修改设置请查看config目录下的diybotset.json文件")
 
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
