@@ -143,5 +143,5 @@ async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
         qlcron('add', crondata, auth['token'])
     else:
         upcron(f'{cron} mtask {path}/{filename}')
-    await jdbot.edit_message(msg, '添加定时任务成功')
+    await jdbot.send_message(chat_id, '添加定时任务成功')
 
