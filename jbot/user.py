@@ -23,14 +23,12 @@ with open(f'{_ConfigDir}/bot.json', 'r', encoding='utf-8') as botf:
     bot_id = int(json.load(botf)['bot_token'].split(':')[0])
 
 
-if not os.path.isfile('/jd/jbot/diy/bot.py') and V4:
-    os.system(f'cd /jd/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
-    if os.path.isfile('/jd/jbot/diy/bot.py'):
+if not os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
+    os.system(f'cd {_JdbotDir}/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
+    if os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
         os.system('pm2 restart jbot')
-elif not os.path.isfile('/ql/jbot/diy/bot.py') and QL:
-    os.system(f'cd /ql/jbot/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
-    if os.path.isfile('/ql/jbot/diy/bot.py'):
-        os.system('pm2 restart jbot')
+# if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
+#     os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/diybotset.json')
 
 
 def checkCookie1():
@@ -147,33 +145,34 @@ async def myexport(event):
     关注频道：https://t.me/zuduifendou
     """
     try:
-        message = event.message.text
+        messages = event.message.text.split("\n")
         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
-        kv = message.replace("export ", "").replace("*", "")
-        kname = kv.split("=")[0]
-        vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-            configs = f1.read()
-        if configs.find(kname) != -1:
-            configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-            end = "替换环境变量成功"
-        else:
-            if V4:
-                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
-                    configs = f3.readlines()
-                for config in configs:
-                    if config.find("第五区域") != -1 and config.find("↑") != -1:
-                        end_line = configs.index(config)
-                        break
-                configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
-                configs = ''.join(configs)
+        for message in messages:
+            kv = message.replace("export ", "").replace("*", "")
+            kname = kv.split("=")[0]
+            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+                configs = f1.read()
+            if configs.find(kname) != -1:
+                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+                end = "替换环境变量成功"
             else:
-                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
-                    configs = f4.read()
-                configs += f'export {kname}="{vname}"\n'
-            end = "新增环境变量成功"
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-            f2.write(configs)
+                if V4:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                        configs = f3.readlines()
+                    for config in configs:
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
+                            break
+                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs = ''.join(configs)
+                else:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
+                        configs = f4.read()
+                    configs += f'export {kname}="{vname}"\n'
+                end = "新增环境变量成功"
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
+                f2.write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, start)
         await jdbot.send_message(chat_id, end)
