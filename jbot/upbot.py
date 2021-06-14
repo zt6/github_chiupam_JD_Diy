@@ -21,12 +21,13 @@ async def myupbot(event):
         start = await jdbot.send_message(chat_id, '开始更新机器人文件')
         furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
         mydiy = {
-            "checkcookie.py": "检查cookie过期",
+            "bot.py": "更新机器人文件",
+            "checkcookie.py": "检查账号过期",
             "upbot.py": "升级机器人",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
             "addexport.py": "添加环境变量",
-            "editexport.py": "修改环境变量"
+            "editexport.py": "修改环境变量",
         }
         btns = []
         dirs = os.listdir(f"{_JdbotDir}/diy")
