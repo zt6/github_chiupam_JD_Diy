@@ -124,6 +124,7 @@ async def shopbean(event):
     :param event:
     :return:
     """
+    cookies = myck()
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
     if url != [] and len(cookies) > 0:
