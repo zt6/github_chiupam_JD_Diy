@@ -73,11 +73,11 @@ async def mychangeexport(event):
                 conv.cancel()
                 return
             valuedata = vnames[knames.index(res)]
-            btns = [Button.inline("是", data=res), Button.inline("否", data="cancel")]
+            btns = [Button.inline("是", data=res), Button.inline("否", data="no")]
             msg = await jdbot.edit_message(msg, f"这是{res}键对应的值\n```{valuedata}```\n请问你需要修改吗？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
-            if res == 'cancel':
+            if res == 'no':
                 await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
