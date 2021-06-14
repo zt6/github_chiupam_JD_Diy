@@ -108,10 +108,10 @@ async def mydownload(event):
                 else:
                     fpath = f"{res1}/{fname}"
                     await jdbot.send_message(chat_id, f"文件将保存到{res1}目录")
+                backfile(fpath)
+                with open(fpath, 'w+', encoding='utf-8') as f:
+                    f.write(resp)
             conv.cancel()
-        backfile(fpath)
-        with open(fpath, 'w+', encoding='utf-8') as f:
-            f.write(resp)
         if cmdtext:
             await cmd(cmdtext)
     except Exception as e:
