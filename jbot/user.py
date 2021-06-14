@@ -114,7 +114,7 @@ async def fortest(event):
 
 @client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
 async def shopbean(event):
-    cookies = myck()
+    cookies = myck(_ConfigFile)
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
     if url != [] and len(cookies) > 0:
