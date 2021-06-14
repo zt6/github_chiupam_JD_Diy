@@ -18,7 +18,6 @@ import requests, re, os, asyncio
 async def mychangeexport(event):
     try:
         SENDER = event.sender_id
-        start = await jdbot.send_message(chat_id, "开始读取你额外的环境变量")
         with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         knames, vnames, notes, btns = [], [], [], []
@@ -36,7 +35,7 @@ async def mychangeexport(event):
                     try:
                         vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
                     except:
-                        vname = 'none'
+                        vname = '你没有设置任何值'
                     if kv.find(" # ") != -1:
                         note = re.findall(r"(?<=#\s).*", kv)[0]
                     else:
@@ -52,7 +51,7 @@ async def mychangeexport(event):
                     try:
                         vname = re.findall(r"[^\"']+(?=\"|')", kv)[1]
                     except:
-                        vname = 'none'
+                        vname = '你没有设置任何值'
                     if kv.find(" # ") != -1:
                         note = re.findall(r"(?<=#\s).*", kv)[0]
                     else:
@@ -65,47 +64,47 @@ async def mychangeexport(event):
                 btn = Button.inline(knames[i], data=knames[i])
             btns.append(btn)
         btns.append(Button.inline("帮我取消对话", data='cancel'))
-        await jdbot.delete_messages(chat_id, start)
         async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message("这是我查询到的环境变量名称\n请问你需要查看哪一个？", buttons=split_list(btns, row))
-            convdata = await conv.wait_event(press_event(SENDER))
-            await jdbot.delete_messages(chat_id, msg)
-            res = bytes.decode(convdata.data)
-            if res == 'cancel':
-                await jdbot.delete_messages(chat_id, msg)
-                conv.cancel()
-                return
-            valuedata = vnames[knames.index(res)]
-            btns = [Button.inline("是", data=res),Button.inline("否", data="cancel")]
-            msg = await jdbot.send_message(chat_id, f"这是{res}键对应的值\n```{valuedata}```\n请问你需要修改吗？", buttons=split_list(btns, row))
-            convdata = await conv.wait_event(press_event(SENDER))
-            await jdbot.delete_messages(chat_id, msg)
-            res = bytes.decode(convdata.data)
-            if res == 'cancel':
-                await jdbot.delete_messages(chat_id, msg)
-                conv.cancel()
-                return
-            valuedatamsg = await jdbot.send_message(chat_id, str(f"```{valuedata}```"))
-            kname = res
-            msg = await conv.send_message("上一条消息为待修改的值\n现在请回复你所需要设置的新值")
-            vname = await conv.get_response()
-            vname = vname.raw_text
-            await jdbot.delete_messages(chat_id, msg)
-            btns = [
-                [Button.inline("是的，就是这样", data='yes')],
-                [Button.inline("错了，取消对话重新设置", data='cancel')]
-            ]
-            msg = await conv.send_message(f'好的，请稍等\n键名：{kname}\n值名：{vname}\n请问是这样吗？', buttons=btns)
+            msg = await jdbot.send_message(chat_id, "这是我查询到的环境变量名称\n请问你需要查看哪一个？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
             if res == 'cancel':
                 await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
-            await jdbot.delete_messages(chat_id, valuedatamsg)
+            valuedata = vnames[knames.index(res)]
+            btns = [Button.inline("是", data=res),Button.inline("否", data="no")]
+            msg = await jdbot.edit_message(msg, f"这是{res}键对应的值\n```{valuedata}```\n请问你需要修改吗？", buttons=split_list(btns, row))
+            convdata = await conv.wait_event(press_event(SENDER))
+            res = bytes.decode(convdata.data)
+            if res == 'cancel':
+                await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                conv.cancel()
+                return
+            kname, loop = res, True
             await jdbot.delete_messages(chat_id, msg)
-            msg = await conv.send_message(f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
-            conv.cancel()
+            btns.append(Button.inline("取消对话", data="cancel"))
+            while loop:
+                valuedatamsg = await jdbot.send_message(chat_id, f"```{valuedata}```")
+                msg = await conv.send_message("上一条消息为待修改的值\n现在请回复你所需要设置的新值")
+                vname = await conv.get_response()
+                vname = vname.raw_text
+                msg = await jdbot.edit_message(msg, f'好的，请稍等\n键名：{kname}\n值名：{vname}\n请问是这样吗？', buttons=btns)
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return
+                elif res == 'no':
+                    await jdbot.delete_messages(chat_id, valuedatamsg)
+                    await jdbot.delete_messages(chat_id, msg)
+                    loop = True
+                else:
+                    await jdbot.delete_messages(chat_id, valuedatamsg)
+                    msg = await jdbot.edit_message(msg, f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
+                    loop = False
+                    conv.cancel()
         with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
             configs = f2.read()
         configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)

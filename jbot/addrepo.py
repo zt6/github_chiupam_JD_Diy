@@ -20,7 +20,6 @@ async def myaddrepo(event):
         if QL:
             await jdbot.send_message(chat_id, "此功能暂不支持青龙")
             return
-        start = await jdbot.send_message(chat_id, '开始添加仓库，请按提示进行选择或操作')
         SENDER = event.sender_id
         url = event.raw_text
         short_url = url.split('/')[-1].replace(".git", "")
@@ -37,13 +36,11 @@ async def myaddrepo(event):
                 [Button.inline('请让我手动输入', data='input'), Button.inline('请帮我取消对话', data='cancel')]
             ]
         ]
-        replies = []
-        nums = []
+        replies, nums = [], []
         async with jdbot.conversation(SENDER, timeout=180) as conv:
             for tip in tips:
                 i = tips.index(tip)
-                msg = await conv.send_message(tip)
-                msg = await jdbot.edit_message(msg, tip, buttons=btns[i])
+                msg = await conv.send_message(tip, buttons=btns[i])
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
                 if res == 'cancel':
@@ -55,9 +52,9 @@ async def myaddrepo(event):
                     msg = await conv.send_message(tips_2[i])
                     reply = await conv.get_response()
                     replies.append(reply.raw_text)
-                    await jdbot.delete_messages(chat_id, msg)
+                    msg = await jdbot.edit_message(msg, f"你输入的值为：{reply.raw_text}")
                 else:
-                    await jdbot.delete_messages(chat_id, msg)
+                    msg = await jdbot.edit_message(msg, f"你设置的值为：{res}")
                     replies.append(res)
             conv.cancel()
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
@@ -81,19 +78,18 @@ async def myaddrepo(event):
         configs.insert(line + 1, f'\n{OwnRepoUrl}\n{OwnRepoBranch}\n{OwnRepoPath}\n')
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
-        await jdbot.delete_messages(chat_id, start)
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             btns2 = [
                 [Button.inline(f'是的，请帮我拉取{short_url}这个仓库的脚本', data='jup')],
                 [Button.inline('谢谢，但我暂时不需要', data='cancel')]
             ]
-            msg = await jdbot.send_message(chat_id, '请问你需要拉取仓库里面的脚本吗？', buttons=btns2)
+            msg = await conv.send_message('请问你需要拉取仓库里面的脚本吗？', buttons=btns2)
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
             if res == 'cancel':
                 msg = await jdbot.edit_message(msg, '配置完成，感谢你的使用')
             else:
-                msg = await jdbot.edit_message(msg, '正在为你拉取仓库脚本，详情请查阅下一条通知')
+                msg = await jdbot.edit_message(msg, '正在为你拉取仓库脚本')
                 await cmd(res)
             conv.cancel()
     except exceptions.TimeoutError:

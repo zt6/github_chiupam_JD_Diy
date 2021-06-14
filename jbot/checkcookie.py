@@ -40,13 +40,9 @@ def checkCookie2(cookie):
         "Accept-Encoding": "gzip, deflate, br"
     }
     try:
-        r = requests.get(url, headers=headers)
-        if r.ok:
-            res = r.json()
-            if res['retcode'] == '1001':
-                return True
-            else:
-                return False
+        r = requests.get(url, headers=headers).json()
+        if r['retcode'] == '1001':
+            return True
         else:
             return False
     except:

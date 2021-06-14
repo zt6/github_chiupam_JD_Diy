@@ -7,7 +7,7 @@
 # @Future   :
 
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir
+from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, split_list, row
 from telethon import events, Button
 from asyncio import exceptions
@@ -15,6 +15,10 @@ import requests, os, asyncio
 
 
 bot_id = int(TOKEN.split(':')[0])
+
+
+if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
+    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/diybotset.json')
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
@@ -91,11 +95,10 @@ async def myinstall(event):
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             msg = await conv.send_message("请问你需要拓展什么功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
-            await jdbot.delete_messages(chat_id, msg)
             fname = bytes.decode(convdata.data)
             All = False
             if fname == 'cancel':
-                await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
+                await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
             elif fname == 'All':
@@ -105,7 +108,7 @@ async def myinstall(event):
             dltasks = ["upbot.py", "checkcookie.py", "download.py", "addrepo.py", "addexport.py", "editexport.py"]
         else:
             dltasks = [fname]
-        msg = await jdbot.send_message(chat_id, "开始下载文件")
+        msg = await jdbot.edit_message(msg, "开始下载文件")
         speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False
         text = ''
         for dltask in dltasks:
@@ -127,6 +130,8 @@ async def myinstall(event):
                 text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n"
         await jdbot.edit_message(msg, text)
         await restart()
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -154,22 +159,23 @@ async def myuninstall(event):
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             msg = await conv.send_message("请问你需要删除哪个功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
-            await jdbot.delete_messages(chat_id, msg)
             fname = bytes.decode(convdata.data)
             if fname == 'cancel':
-                await jdbot.send_message(chat_id, '对话已取消，感谢你的使用')
+                await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
             conv.cancel()
         fpath = f"{_JdbotDir}/diy/{fname}"
-        msg = await jdbot.send_message(chat_id, "开始删除机器人功能")
-        os.system(f'rm {fpath}')
+        msg = await jdbot.edit_message(msg, "开始删除机器人功能")
+        os.system(f'rm -rf {fpath}')
         await asyncio.sleep(1.5)
-        await jdbot.delete_messages(chat_id, msg)
         if not os.path.isfile(fpath):
-            await jdbot.send_message(chat_id, "删除成功")
+            await jdbot.edit_message(msg, "删除成功")
         else:
-            await jdbot.send_message(chat_id, f"删除失败，请手动删除{fpath}文件")
+            await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
+        await restart()
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -197,6 +203,26 @@ async def mylist(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+# @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/diyset'))
+# async def mydiyset(event):
+#     try:
+#         SENDER = event.sender_id
+#         fpath = f"{_ConfigDir}/diybotset.json"
+#         with open(fpath, 'r', encoding='utf-8') as f1:
+#             diybotsets = f1.read()
+#         btns = []
+#         # do somethings
+#         btns.append(Button.inline("取消会话", data="cancel"))
+#         async with jdbot.conversation(SENDER, timeout=60) as conv:
+#             msg = await conv.send_message("xxxx", buttons=split_list(btns, row))
+#             conv.cancel()
+#     except exceptions.TimeoutError:
+#         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+#     except Exception as e:
+#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+#         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
 async def restart():
