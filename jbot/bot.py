@@ -25,7 +25,8 @@ async def myhello(event):
             "\t/start 开始使用此机器人",
             "\t/restart 重启机器人",
             "\t/install 扩展此机器人功能",
-            "\t/uninstall 删除此机器人功能"
+            "\t/uninstall 删除此机器人功能",
+            "\t/list 列出已拓展的功能"
         ]
         if os.path.isfile(f"{_JdbotDir}/diy/checkcookie.py"):
             hello.append("\t/checkcookie 检查cookie过期情况")
@@ -49,7 +50,8 @@ async def myhelp(event):
         diy_help = [
             "restart - 重启机器人",
             "install - 扩展此机器人功能",
-            "uninstall - 删除此机器人功能"
+            "uninstall - 删除此机器人功能",
+            "list - 列出已拓展的功能"
         ]
         if os.path.isfile(f"{_JdbotDir}/diy/checkcookie.py"):
             diy_help.append("checkcookie - 检查cookie过期情况")
