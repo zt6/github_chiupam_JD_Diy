@@ -30,6 +30,7 @@ async def mydownload(event):
                 break
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             fname = furl.split('/')[-1]
+            fname_cn = ''
             if furl.endswith(".js"):
                 fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
                 if fname_cn != []:
