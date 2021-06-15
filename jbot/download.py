@@ -12,6 +12,7 @@ from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, 
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
+import json
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://.*(js|py|sh)$'))

@@ -51,11 +51,11 @@ async def myaddrepo(event):
                     await jdbot.delete_messages(chat_id, msg)
                     msg = await conv.send_message(tips_2[i])
                     reply = await conv.get_response()
-                    replies.append(reply.raw_text)
-                    msg = await jdbot.edit_message(msg, f"你输入的值为：{reply.raw_text}")
+                    res = reply.raw_text
+                    msg = await jdbot.edit_message(msg, f"你输入的值为：{res}")
                 else:
                     msg = await jdbot.edit_message(msg, f"你设置的值为：{res}")
-                    replies.append(res)
+                replies.append(res)
             conv.cancel()
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
@@ -74,7 +74,10 @@ async def myaddrepo(event):
         OwnRepoUrl = f'OwnRepoUrl{nums[-1]}="{url}"'
         OwnRepoBranch = f'OwnRepoBranch{nums[-1]}="{replies[0].replace("root", "")}"'
         Path = replies[1].replace("root", "''")
-        OwnRepoPath = f'OwnRepoPath{nums[-1]}="{Path}"'
+        if Path == "''":
+            OwnRepoPath = f'OwnRepoPath{nums[-1]}=""'
+        else:
+            OwnRepoPath = f'OwnRepoPath{nums[-1]}="{Path}"'
         configs.insert(line + 1, f'\n{OwnRepoUrl}\n{OwnRepoBranch}\n{OwnRepoPath}\n')
         with open(_ConfigFile, 'w', encoding='utf-8') as f2:
             f2.write(''.join(configs))
