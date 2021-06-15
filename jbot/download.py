@@ -37,9 +37,13 @@ async def mydownload(event):
                 fname = furl.split('/')[-1]
                 fname_cn, cron = "", False
                 if furl.endswith(".js"):
-                    fname_cn, cron = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M), mycron(resp)
+                    fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
                     if fname_cn != []:
                         fname_cn = fname_cn[0]
+                    try:
+                        cron = mycron(resp)
+                    except:
+                        cron = '0 0 * * *'
                 if V4:
                     btns = [
                         Button.inline('放入config目录', data=_ConfigDir),
