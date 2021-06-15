@@ -129,47 +129,43 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-# @client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
-# async def myexport(event):
-#     """
-#     监控组队瓜分ID
-#     关注频道：https://t.me/zuduifendou
-#     """
-#     try:
-#         messages = event.message.text.split("\n")
-#         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
-#         for message in messages:
-#             kv = message.replace("export ", "").replace("*", "")
-#             kname = kv.split("=")[0]
-#             vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-#             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-#                 configs = f1.read()
-#             if configs.find(kname) != -1:
-#                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-#                 end = "替换环境变量成功"
-#             else:
-#                 if V4:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-#                         configs = f2.readlines()
-#                     for config in configs:
-#                         if config.find("第五区域") != -1 and config.find("↑") != -1:
-#                             end_line = configs.index(config)
-#                             break
-#                     configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
-#                     configs = ''.join(configs)
-#                 else:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-#                         configs = f2.read()
-#                     configs += f'export {kname}="{vname}"\n'
-#                 end = "新增环境变量成功"
-#             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-#                 f3.write(configs)
-#         await asyncio.sleep(1.5)
-#         await jdbot.delete_messages(chat_id, start)
-#         await jdbot.send_message(chat_id, end)
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
+@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
+async def myexport(event):
+    try:
+        messages = event.message.text.split("\n")
+        start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
+        for message in messages:
+            kv = message.replace("export ", "").replace("*", "")
+            kname = kv.split("=")[0]
+            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+                configs = f1.read()
+            if configs.find(kname) != -1:
+                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+                end = "替换环境变量成功"
+            else:
+                if V4:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.readlines()
+                    for config in configs:
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
+                            break
+                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs = ''.join(configs)
+                else:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.read()
+                    configs += f'export {kname}="{vname}"\n'
+                end = "新增环境变量成功"
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+                f3.write(configs)
+        await asyncio.sleep(1.5)
+        await jdbot.delete_messages(chat_id, start)
+        await jdbot.send_message(chat_id, end)
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
 @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
