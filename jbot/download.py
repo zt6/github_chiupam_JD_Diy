@@ -40,6 +40,8 @@ async def mydownload(event):
                     fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
                     if fname_cn != []:
                         fname_cn = fname_cn[0]
+                    else:
+                        fname_cn = ''
                     try:
                         cron = mycron(resp)
                     except:
