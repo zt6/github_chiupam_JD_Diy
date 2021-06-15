@@ -42,10 +42,6 @@ async def mydownload(event):
                         fname_cn = fname_cn[0]
                     else:
                         fname_cn = ''
-                    try:
-                        cron = mycron(resp)
-                    except:
-                        cron = '0 0 * * *'
                 if V4:
                     btns = [
                         Button.inline('放入config目录', data=_ConfigDir),
