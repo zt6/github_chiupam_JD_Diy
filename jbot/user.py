@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam (https://t.me/chiupam)
-# @Data     : 2021-06-14 22:54
-# @Version  : v 2.4
+# @Data     : 2021-06-15
+# @Version  : v 2.5
 # @Updata   :
 # @Future   :
 
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
-from telethon import events, TelegramClient
+from telethon import events, TelegramClient, Button
 import re, json, requests, os, asyncio
 
 
@@ -105,7 +105,7 @@ def getbean(i, cookie, url):
 async def fortest(event):
     try:
         msg = await jdbot.send_message(chat_id, '你好无聊。。。\n我在监控。。。\n不要烦我。。。')
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
@@ -129,44 +129,98 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
-async def myexport(event):
+# @client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
+# async def myexport(event):
+#     """
+#     监控组队瓜分ID
+#     关注频道：https://t.me/zuduifendou
+#     """
+#     try:
+#         messages = event.message.text.split("\n")
+#         start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
+#         for message in messages:
+#             kv = message.replace("export ", "").replace("*", "")
+#             kname = kv.split("=")[0]
+#             vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+#             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+#                 configs = f1.read()
+#             if configs.find(kname) != -1:
+#                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+#                 end = "替换环境变量成功"
+#             else:
+#                 if V4:
+#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                         configs = f2.readlines()
+#                     for config in configs:
+#                         if config.find("第五区域") != -1 and config.find("↑") != -1:
+#                             end_line = configs.index(config)
+#                             break
+#                     configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+#                     configs = ''.join(configs)
+#                 else:
+#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                         configs = f2.read()
+#                     configs += f'export {kname}="{vname}"\n'
+#                 end = "新增环境变量成功"
+#             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+#                 f3.write(configs)
+#         await asyncio.sleep(1.5)
+#         await jdbot.delete_messages(chat_id, start)
+#         await jdbot.send_message(chat_id, end)
+#     except Exception as e:
+#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+#         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+@client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
+async def myzoo(event):
     """
-    监控组队瓜分ID
-    关注频道：https://t.me/zuduifendou
+    动物园开卡
+    关注频道：https://t.me/zoo_channel
     """
     try:
-        messages = event.message.text.split("\n")
-        start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
-        for message in messages:
-            kv = message.replace("export ", "").replace("*", "")
-            kname = kv.split("=")[0]
-            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-                configs = f1.read()
-            if configs.find(kname) != -1:
-                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-                end = "替换环境变量成功"
+        messages = event.message.text
+        url = re.findall(re.compile(r"[(](https://raw\.githubusercontent\.com.*?)[)]", re.S), messages)
+        if url == []:
+            return
+        else:
+            url = url[0]
+        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
+        for speed in speeds:
+            resp = requests.get(f"{speed}{url}").text
+            if resp:
+                break
+        if resp:
+            fname = url.split('/')[-1]
+            fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
+            if fname_cn != []:
+                fname_cn = fname_cn[0]
             else:
-                if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.readlines()
-                    for config in configs:
-                        if config.find("第五区域") != -1 and config.find("↑") != -1:
-                            end_line = configs.index(config)
-                            break
-                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
-                    configs = ''.join(configs)
+                fname_cn = ''
+            fpath = f"{_OwnDir}/{fname}"
+            backfile(fpath)
+            with open(fpath, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+            cmdtext = False
+            async with jdbot.conversation(int(chat_id), timeout=60) as conv:
+                btns = [Button.inline("是", data="confirm"), Button.inline("否", data="no"), Button.inline("取消对话", data="cancel")]
+                msg = await jdbot.send_message(chat_id, f"是否运行{fname_cn}开卡脚本", buttons=btns)
+                convdata = await conv.wait_event(press_event(int(chat_id)))
+                res = bytes.decode(convdata.data)
+                if res == "cancel":
+                    await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return
+                elif res == "no":
+                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{_ScriptsDir}目录")
                 else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.read()
-                    configs += f'export {kname}="{vname}"\n'
-                end = "新增环境变量成功"
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-                f3.write(configs)
-        await asyncio.sleep(1.5)
-        await jdbot.delete_messages(chat_id, start)
-        await jdbot.send_message(chat_id, end)
+                    cmdtext = f'{jdcmd} {fpath} now'
+                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{_ScriptsDir}目录，且将运行它")
+                conv.cancel()
+            if cmdtext:
+                await cmd(cmdtext)
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, f'选择已超时，对话已停止\n后续如需执行，请发送\n```/cmd {jdcmd} {fpath} now```')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
