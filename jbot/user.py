@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Author   : Chiupam (https://t.me/chiupam)
+# @Author   : Chiupam
 # @Data     : 2021-06-15
 # @Version  : v 2.5
 # @Updata   :
@@ -198,21 +198,37 @@ async def myzoo(event):
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
             cmdtext = False
-            async with jdbot.conversation(int(chat_id), timeout=60) as conv:
+            try:
+                with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+                    diybotset = json.load(f)
+                run = diybotset['zoo开卡自动执行']
+            except:
                 btns = [Button.inline("是", data="confirm"), Button.inline("否", data="no"), Button.inline("取消对话", data="cancel")]
-                msg = await jdbot.send_message(chat_id, f"是否运行{fname_cn}开卡脚本", buttons=btns)
-                convdata = await conv.wait_event(press_event(int(chat_id)))
-                res = bytes.decode(convdata.data)
-                if res == "cancel":
-                    await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                async with jdbot.conversation(int(chat_id), timeout=60) as conv:
+                    msg = await jdbot.send_message(chat_id, f"未设置是否自动执行，请设置是否需要自动执行", buttons=btns)
+                    convdata = await conv.wait_event(press_event(int(chat_id)))
+                    res = bytes.decode(convdata.data)
+                    if res == "cancel":
+                        await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                        conv.cancel()
+                        return
+                    elif res == "no":
+                        run = 'False'
+                    else:
+                        run = 'True'
+                    await jdbot.edit_message(msg, "设置成功")
                     conv.cancel()
-                    return
-                elif res == "no":
-                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{_ScriptsDir}目录")
-                else:
-                    cmdtext = f'{jdcmd} {fpath} now'
-                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{_ScriptsDir}目录，且将运行它")
-                conv.cancel()
+                with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f1:
+                    diybotsets = f1.readlines()
+                diybotsets[-2] = diybotsets[-2][:-1]+',\n'
+                diybotsets.insert(-1, f'  "zoo开卡自动执行": "{run}"\n')
+                with open(f"{_ConfigDir}/diybotset.json", 'w', encoding='utf-8') as f2:
+                    f2.write(''.join(diybotsets))
+            if run == "False":
+                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
+            else:
+                cmdtext = f'{jdcmd} {fpath} now'
+                await jdbot.edit_message(msg, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
             if cmdtext:
                 await cmd(cmdtext)
     except exceptions.TimeoutError:
