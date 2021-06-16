@@ -228,7 +228,7 @@ async def myzoo(event):
                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
             else:
                 cmdtext = f'{jdcmd} {fpath} now'
-                await jdbot.edit_message(msg, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
+                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
             if cmdtext:
                 await cmd(cmdtext)
     except exceptions.TimeoutError:
