@@ -193,7 +193,7 @@ async def myzoo(event):
                 fname_cn = fname_cn[0]
             else:
                 fname_cn = ''
-            fpath = f"{_OwnDir}/{fname}"
+            fpath = f"{_ScriptsDir}/{fname}"
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
