@@ -18,7 +18,7 @@ bot_id = int(TOKEN.split(':')[0])
 
 
 if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/diybotset.json')
+    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json')
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
@@ -40,7 +40,7 @@ async def myhello(event):
             hello.append("发送以 .js .sh .py结尾的已raw链接开始下载文件")
         if os.path.isfile(f"{_JdbotDir}/diy/addexport.py"):
             hello.append("发送格式为 key=\"value\" 或者 key='value' 的消息开始添加环境变量")
-        # hello.append("\n频道：[👬和东哥做兄弟](https://t.me/joinchat/kTJGWeHx5aAyYjBl)")
+        hello.append("\n频道：[👬和东哥做兄弟](https://t.me/JD_Diy_Channel)")
         await asyncio.sleep(0.5)
         await jdbot.send_message(chat_id, str('\n'.join(hello)))
     except Exception as e:
@@ -82,16 +82,28 @@ async def myinstall(event):
     try:
         SENDER = event.sender_id
         furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
-        btns = [
-                Button.inline("升级机器人", data="upbot.py"),
-                Button.inline("检查账号过期", data="checkcookie.py"),
-                Button.inline("下载文件", data="download.py"),
-                Button.inline("添加仓库", data="addrepo.py"),
-                Button.inline("添加环境变量", data="addexport.py"),
-                Button.inline("修改环境变量", data="editexport.py"),
-                Button.inline("我全都要", data="All"),
-                Button.inline("帮我取消对话", data='cancel')
-        ]
+        mydiy = {
+            "bot.py": "bot.py",
+            "checkcookie.py": "检查账号过期",
+            "upbot.py": "upbot.py",
+            "download.py": "下载文件",
+            "addrepo.py": "添加仓库",
+            "addexport.py": "添加环境变量",
+            "editexport.py": "修改环境变量",
+            "user.py": "更新user文件"
+        }
+        btns = []
+        dirs = os.listdir(f"{_JdbotDir}/diy")
+        for dir in dirs:
+            try:
+                if dir not in mydiy:
+                    btns.append(Button.inline(mydiy[f'{dir}'], data=dir))
+            except:
+                continue
+        btns.append(Button.inline("帮我取消对话", data='cancel'))
+        if len(btns) == 1:
+            await jdbot.send_message(chat_id, "你已拓展全部功能，无需继续拓展")
+            return
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             msg = await conv.send_message("请问你需要拓展什么功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))

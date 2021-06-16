@@ -20,14 +20,14 @@ async def myupbot(event):
         SENDER = event.sender_id
         furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
         mydiy = {
-            "bot.py": "机器人文件（bot.py）",
-            "checkcookie.py": "检查账号过期",
-            "upbot.py": "升级机器人（upbot.py）",
+            "bot.py": "更新bot",
+            "checkcookie.py": "检查过期",
+            "upbot.py": "uobot指令",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
-            "addexport.py": "添加环境变量",
-            "editexport.py": "修改环境变量",
-            "user.py": "更新user文件"
+            "addexport.py": "添加变量",
+            "editexport.py": "修改变量",
+            "user.py": "更新user"
         }
         btns = []
         dirs = os.listdir(f"{_JdbotDir}/diy")
