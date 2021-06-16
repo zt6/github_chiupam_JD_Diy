@@ -33,15 +33,10 @@ async def myaddrepo(event):
             tips_2 = [f'回复 main 代表使用 [{short_url}]({url}) 仓库的 "main" 分支\n回复 master 代表使用 [{short_url}]({url}) 仓库的 "master" 分支\n具体分支名称以你所发仓库实际为准\n', f'回复 scripts normal 代表你想使用的脚本在 [{short_url}]({url}) 仓库的 scripts 和 normal文件夹下\n具体目录路径以你所发仓库实际为准\n', f'回复 jd_ jx_ 代表你不想使用开头为 jd_ 和 jx_ 的脚本\n具体文件名以你所发仓库实际、以你个人所需为准\n', f'回复你所需要安装依赖的文件全称\n具体文件名以你所发仓库实际、以你个人所需为准\n'
             ]
             tips_3 = [
-                [Button.inline('"默认" 分支', data='root'), Button.inline('"main" 分支', data='main'),
-                 Button.inline('"master" 分支', data='master'), Button.inline('手动输入', data='input'),
-                 Button.inline('取消对话', data='cancel')],
-                [Button.inline('仓库根目录', data='root'), Button.inline('手动输入', data='input'),
-                 Button.inline('取消对话', data='cancel')],
-                [Button.inline("不设置", data="root"), Button.inline('手动输入', data='input'),
-                 Button.inline('取消对话', data='cancel')],
-                [Button.inline("不设置", data="root"), Button.inline('手动输入', data='input'),
-                 Button.inline('取消对话', data='cancel')]
+                [Button.inline('"默认" 分支', data='root'), Button.inline('"main" 分支', data='main'), Button.inline('"master" 分支', data='master'), Button.inline('手动输入', data='input'), Button.inline('取消对话', data='cancel')],
+                [Button.inline('仓库根目录', data='root'), Button.inline('手动输入', data='input'), Button.inline('取消对话', data='cancel')],
+                [Button.inline("不设置", data="root"), Button.inline('手动输入', data='input'), Button.inline('取消对话', data='cancel')],
+                [Button.inline("不设置", data="root"), Button.inline('手动输入', data='input'), Button.inline('取消对话', data='cancel')]
             ]
         replies = []
         async with jdbot.conversation(SENDER, timeout=60) as conv:
