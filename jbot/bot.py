@@ -205,24 +205,32 @@ async def mylist(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/diyset'))
-# async def mydiyset(event):
-#     try:
-#         SENDER = event.sender_id
-#         fpath = f"{_ConfigDir}/diybotset.json"
-#         with open(fpath, 'r', encoding='utf-8') as f1:
-#             diybotsets = f1.read()
-#         btns = []
-#         # do somethings
-#         btns.append(Button.inline("取消会话", data="cancel"))
-#         async with jdbot.conversation(SENDER, timeout=60) as conv:
-#             msg = await conv.send_message("xxxx", buttons=split_list(btns, row))
-#             conv.cancel()
-#     except exceptions.TimeoutError:
-#         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/beta$'))
+async def mydiyset(event):
+    try:
+        SENDER = event.sender_id
+        btns = [
+            Button.inline("内测功能1", data="install_getcookie.py"),
+            Button.inline("内测功能2", data="install_web.py"),
+            Button.inline("取消对话", data='cancel')
+        ]
+        async with jdbot.conversation(SENDER, timeout=60) as conv:
+            msg = await conv.send_message("请做出你的选择", buttons=split_list(btns, row))
+            convdata = await conv.wait_event(press_event(SENDER))
+            fname = bytes.decode(convdata.data)
+            if fname == 'cancel':
+                await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                conv.cancel()
+                return
+            conv.cancel()
+            await jdbot.edit_message(msg, "正在安装内测功能")
+            cmdtext = f"python {_JdbotDir}/diy/{fname}"
+            os.system(cmdtext)
+    except exceptions.TimeoutError:
+        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
 async def restart():
