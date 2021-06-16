@@ -45,6 +45,10 @@ async def mychangeexport(event):
                     break
         elif QL:
             for config in configs:
+                if config.find("## 其他需要的变量") != -1:
+                    line = configs.index(config)
+                    break
+            for config in configs[line:]:
                 if config.find("export") != -1:
                     kv = config.replace("export ", "")
                     kname = kv.split("=")[0]
