@@ -165,13 +165,22 @@ def myqladdrepo2(name, command, schedule):
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/repo$'))
 async def myqladdrepo(event):
     try:
-        btns = [
-            Button.inline("启动", data="start"),
-            Button.inline("停止", data="stop"),
-            Button.inline("删除", data="delete"),
-            Button.inline("取消会话", data="cancel")
-        ]
         SENDER = event.sender_id
+        if V4:
+            btns = [
+                Button.inline("启动", data="start"),
+                Button.inline("停止", data="stop"),
+                Button.inline("删除", data="delete"),
+                Button.inline("取消会话", data="cancel")
+            ]
+        else:
+            btns = [
+                Button.inline("启用", data="enable"),
+                Button.inline("禁用", data="disable"),
+                Button.inline("运行", data="run"),
+                Button.inline("删除", data="del"),
+                Button.inline("取消会话", data="cancel")
+            ]
         if V4:
             with open(_ConfigFile, 'r', encoding='utf-8') as f:
                 configs = f.readlines()
@@ -253,6 +262,63 @@ async def myqladdrepo(event):
                     configs = re.sub(f"OwnRepoPath{num}=.*", "", configs)
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(configs)
+        else:
+            crontabfpaht = "/ql/db/crontab.db"
+            with open(crontabfpaht, 'r', encoding='utf-8') as f:
+                crontabs = f.readlines()
+            datas, other = [], []
+            for crontab in crontabs:
+                if crontab.find("ql rope ") != -1:
+                    other.append([data['name'], crontabs.index(crontab)])
+            btns_1 = []
+            for nl in other:
+                names.append(nl[0])
+                btns_1.append(Button.inline(nl[0], data=nl[1]))
+            btns_1.append(Button.inline("取消会话", data="cancel"))
+            async with jdbot.conversation(SENDER, timeout=60) as conv:
+                msg = await conv.send_message("这是你目前添加的仓库", buttons=split_list(btns_1, row))
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                if res == 'cancel':
+                    msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return
+                data = json.loads(crontabs[res][:-1])
+                name = data['name']
+                command = data['command'].replace("ql repo ", "")
+                url = command.split(" ")[0]
+                branch = command.split(" ")[-1]
+                schedule = data['schedule']
+                status = data['isDisabled']
+                _id = data['_id']
+                info = f'任务名：{name}\n仓库链接：{url}仓库分支：{branch}状态：{status}\n'
+                msg = await conv.send_message("这是你目前添加的仓库", buttons=split_list(btns_1, row))
+                msg = await jdbot.edit_message(msg, f'{data}请做出你的选择', buttons=split_list(btns, row))
+                convdata = await conv.wait_event(press_event(SENDER))
+                res = bytes.decode(convdata.data)
+                with open(_Auth, 'r', encoding='utf-8') as f:
+                    Auto = json.load(f)
+                url = 'http://127.0.0.1:5600/api/crons'
+                headers = {
+                    "Authorization": f"Bearer {Auto['token']}"
+                }
+                body = [_id]
+                if res == 'cancel':
+                    msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
+                    conv.cancel()
+                    return
+                elif res == 'run':
+                    msg = await jdbot.edit_message(msg, "正在拉取仓库")
+                    res = requests.put(f'{url}/run', json=body, headers=headers).json()
+                elif res == 'enable':
+                    msg = await jdbot.edit_message(msg, "启用拉取仓库任务")
+                    res = requests.put(f'{url}/enable', json=body, headers=headers).json()
+                elif res == 'disable':
+                    msg = await jdbot.edit_message(msg, "禁用拉取仓库任务")
+                    res = requests.put(f'{url}/disable', json=body, headers=headers).json()
+                elif res == 'del':
+                    msg = await jdbot.edit_message(msg, "删除拉取仓库任务")
+                    res = requests.delete(f'{url}/del', json=body, headers=headers).json()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
