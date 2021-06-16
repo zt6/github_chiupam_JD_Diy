@@ -184,10 +184,11 @@ async def myqladdrepo(event):
         if V4:
             with open(_ConfigFile, 'r', encoding='utf-8') as f:
                 configs = f.readlines()
-            r_names, r_namesline, r_branchs, r_branchsline, r_paths, r_pathsline, r_status, r_nums = [], [], [], [], [], [], [], []
+            r_names, r_urls, r_namesline, r_branchs, r_branchsline, r_paths, r_pathsline, r_status, r_nums = [], [], [], [], [], [], [], [], []
             for config in configs:
                 if config.find("OwnRepoUrl") != -1 and config.find("## ") == -1:
                     url = config.split("=")[-1].replace('"', "")
+                    r_urls.append(url)
                     reponum = re.findall(r"\d", config.split("=")[0])[0]
                     r_nums.append(reponum)
                     r_names.append(url.split("/")[-2])
@@ -230,7 +231,7 @@ async def myqladdrepo(event):
                     conv.cancel()
                     return
                 i = r_names.index(res)
-                name, branch, path, status, num = r_names[i], r_branchs[i], r_paths[i], r_status[i], r_nums[i]
+                name, url, branch, path, status, num = r_names[i], r_urls[i], r_branchs[i], r_paths[i], r_status[i], r_nums[i]
                 nameline, branchline, pathline = r_namesline[i], r_branchsline[i], r_pathsline[i]
                 data = f'仓库名：{name}\n仓库链接：{url}仓库分支：{branch}文件路径：{path}状态：{status}\n'
                 msg = await jdbot.edit_message(msg, f'{data}请做出你的选择', buttons=split_list(btns, row))
