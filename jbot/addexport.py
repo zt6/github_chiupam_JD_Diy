@@ -38,7 +38,7 @@ async def myaddexport(event):
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
             await asyncio.sleep(1.5)
-            if configs.find(kname) != -1:
+            if configs.find(f"export {kname}=") != -1:
                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', f'{kname}="{vname}"', configs)
                 end = "替换环境变量成功"
             else:
