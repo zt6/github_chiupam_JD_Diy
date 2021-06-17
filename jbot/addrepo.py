@@ -258,7 +258,6 @@ async def myqladdrepo(event):
                     await jdbot.edit_message(msg, "删除仓库")
                     with open(_ConfigFile, 'r', encoding='utf-8') as f:
                         configs = f.read()
-                    await jdbot.send_message(chat_id, str(num))
                     configs = re.sub(f"OwnRepoUrl{num}=.*", "", configs)
                     configs = re.sub(f"OwnRepoBranch{num}=.*", "", configs)
                     configs = re.sub(f"OwnRepoPath{num}=.*", "", configs)
