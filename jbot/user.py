@@ -246,7 +246,7 @@ async def myzoo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@client.on(events.NewMessage(chats=[-1001431256850, my_chat_id]))
+@client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
 async def myupuser(event):
     """
     关注频道：https://t.me/jd_diy_bot_channel
