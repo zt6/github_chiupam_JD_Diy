@@ -71,10 +71,10 @@ async def mydownload(event):
                 convdata = await conv.wait_event(press_event(SENDER))
                 res2 = bytes.decode(convdata.data)
                 if res2 == "confirm":
-                    await jdbot.edit_message(msg, f'文件将保存到{res1}目录，且已写入配置中，准备拉取单个脚本，请耐心等待')
-                else:
                     cmdtext = f'{jdcmd} {fpath} now'
                     await jdbot.edit_message(msg, f"文件将保存到{res1}目录，且已写入配置中，准备执行脚本")
+                else:
+                    await jdbot.edit_message(msg, f'文件将保存到{res1}目录，且已写入配置中，准备拉取单个脚本，请耐心等待')
                 with open(_ConfigFile, 'r', encoding="utf-8") as f1:
                     configs = f1.readlines()
                 for config in configs:

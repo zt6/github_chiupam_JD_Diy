@@ -133,7 +133,7 @@ async def shopbean(event):
 async def myexport(event):
     try:
         messages = event.message.text.split("\n")
-        start = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
+        msg = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
         for message in messages:
             kv = message.replace("export ", "").replace("*", "")
             kname = kv.split("=")[0]
@@ -160,9 +160,7 @@ async def myexport(event):
                 end = "新增环境变量成功"
             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                 f3.write(configs)
-        await asyncio.sleep(1.5)
-        await jdbot.delete_messages(chat_id, start)
-        await jdbot.send_message(chat_id, end)
+        await jdbot.edit_message(msg, end)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
