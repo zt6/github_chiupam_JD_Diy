@@ -171,24 +171,25 @@ async def myaddrepo(event):
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^ql repo'))
 async def myqladdrepo(event):
     try:
-        SENDER = event.sender_id
-        message = event.message.text
-        repo = message.replace("ql repo", "")
-        if len(repo) <= 1:
-            await jdbot.send_message(chat_id, "没有设置仓库链接")
-            return
-        async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message("请设置任务名称")
-            reply = await conv.get_response()
-            taskname = reply.raw_text
-            await jdbot.delete_messages(chat_id, msg)
-            msg = await conv.send_message("请设置 cron 表达式")
-            reply = await conv.get_response()
-            cron = reply.raw_text
-            await jdbot.delete_messages(chat_id, msg)
-        myqladdrepo2(taskname, message, cron)
-        await jdbot.send_message(chat_id, "开始拉取仓库，稍后请自行查看结果")
-        await cmd(message)
+        if QL:
+            SENDER = event.sender_id
+            message = event.message.text
+            repo = message.replace("ql repo", "")
+            if len(repo) <= 1:
+                await jdbot.send_message(chat_id, "没有设置仓库链接")
+                return
+            async with jdbot.conversation(SENDER, timeout=60) as conv:
+                msg = await conv.send_message("请设置任务名称")
+                reply = await conv.get_response()
+                taskname = reply.raw_text
+                await jdbot.delete_messages(chat_id, msg)
+                msg = await conv.send_message("请设置 cron 表达式")
+                reply = await conv.get_response()
+                cron = reply.raw_text
+                await jdbot.delete_messages(chat_id, msg)
+            myqladdrepo2(taskname, message, cron)
+            await jdbot.send_message(chat_id, "开始拉取仓库，稍后请自行查看结果")
+            await cmd(message)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
