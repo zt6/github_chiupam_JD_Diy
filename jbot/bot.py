@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir
-from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, split_list, row
+from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, split_list, row, mybot
 from telethon import events, Button
 from asyncio import exceptions
 import requests, os, asyncio
@@ -109,25 +109,23 @@ async def myinstall(event):
         else:
             dltasks = [fname]
         msg = await jdbot.edit_message(msg, "开始下载文件")
-        speeds, botresp = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""], False
         text = ''
         for dltask in dltasks:
-            for speed in speeds:
-                resp = requests.get(f"{speed}{furl_startswith}{dltask}").text
-                if "#!/usr/bin/env python3" in resp:
-                    botresp = resp
-                    break
+            furl = f"{furl_startswith}{dltask}"
+            if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
+                furl = f'{str(mybot["下载代理"])}/{furl}'
+            try:
+                resp = requests.get(furl).text
+                text += f"下载{dltask}成功\n"
+                botresp = True
+            except Exception as e:
+                text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n尝试 /set 更换下载代理"
+                botresp = False
             if botresp:
                 path = f"{_JdbotDir}/diy/{dltask}"
                 backfile(path)
                 with open(path, 'w+', encoding='utf-8') as f:
                     f.write(resp)
-                if os.path.isfile(path):
-                    text += f"下载{dltask}成功\n"
-                else:
-                    text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n"
-            else:
-                text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n"
         await jdbot.edit_message(msg, text)
         await restart()
     except exceptions.TimeoutError:

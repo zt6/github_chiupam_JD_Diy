@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, logger, _JdbotDir
-from ..bot.utils import press_event, V4, QL, split_list, row, backfile
+from ..bot.utils import press_event, V4, QL, split_list, row, backfile, mybot
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
@@ -22,7 +22,7 @@ async def myupbot(event):
         mydiy = {
             "bot.py": "更新bot",
             "checkcookie.py": "检查过期",
-            "upbot.py": "uobot指令",
+            "upbot.py": "upbot指令",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
             "addexport.py": "添加变量",
@@ -48,20 +48,19 @@ async def myupbot(event):
                 await upuser(fname, msg)
             conv.cancel()
         msg = await jdbot.edit_message(msg, "开始下载文件")
-        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-        for speed in speeds:
-            resp = requests.get(f"{speed}{furl_startswith}{fname}").text
-            if "#!/usr/bin/env python3" in resp:
-                break
-        if resp:
-            msg = await jdbot.edit_message(msg, f"下载{fname}成功")
-            path = f"{_JdbotDir}/diy/{fname}"
-            backfile(path)
-            with open(path, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-            await restart()
-        else:
-            await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
+        if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
+            furl = f'{str(mybot["下载代理"])}/{furl_startswith}{fname}'
+        try:
+            resp = requests.get(furl).text
+        except Exception as e:
+            await jdbot.send_message(chat_id, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
+            return
+        msg = await jdbot.edit_message(msg, f"下载{fname}成功")
+        path = f"{_JdbotDir}/diy/{fname}"
+        backfile(path)
+        with open(path, 'w+', encoding='utf-8') as f:
+            f.write(resp)
+        await restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
