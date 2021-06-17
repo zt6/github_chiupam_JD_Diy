@@ -54,11 +54,11 @@ docker exec -it jd bash && cd /jd/jbot/diy && rm -rf bot.py && wget http://ghpro
 ### 青龙用户部署[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)
 #### 方法一、 在终端中使用命令
 ```
-docker exec -it qinglong bash && cd /ql/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
+docker exec -it qinglong bash && cd /ql/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && ql bot
 ```
 #### 方法二、 给机器人发消息
 ```
-/cmd cd /ql/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && pm2 restart jbot
+/cmd cd /ql/jbot/diy && rm -rf bot.py && wget http://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py && ql bot
 ```
 #### 方法三、在终端中手动存储文件
 1. 把文件存储在路径 `/jbot/diy/` 下
