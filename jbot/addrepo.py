@@ -143,16 +143,8 @@ async def myaddrepo(event):
                     configs.insert(configs.index(config) + 1, OwnRepoPath)
             with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                 f2.write(''.join(configs))
-            async with jdbot.conversation(SENDER, timeout=60) as conv:
-                msg = await conv.send_message('请问需要拉取仓库里面的脚本吗？', buttons=btns_yn)
-                convdata = await conv.wait_event(press_event(SENDER))
-                res = bytes.decode(convdata.data)
-                if res == 'no':
-                    msg = await jdbot.edit_message(msg, '配置完成，感谢你的使用')
-                else:
-                    msg = await jdbot.edit_message(msg, '正在为你拉取仓库脚本')
-                    await cmd("jup")
-                conv.cancel()
+            await jdbot.send_message(chat_id, "现在开始拉取仓库，稍后请自行查看结果")
+            os.system("jup own")
         else:
             branch = replies[0].replace("root", "")
             path = replies[1].replace(" ", "|").replace("root", "")
