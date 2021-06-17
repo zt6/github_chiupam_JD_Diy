@@ -122,8 +122,10 @@ async def myaddrepo(event):
                     break
                 elif config.find('OwnRepoUrl') != -1 and config.find("## ") == -1:
                     num = int(re.findall(r'(?<=OwnRepoUrl)[\d]+(?==")', config)[0])
-                    content_data = re.findall(r'(?<==")[\S]+(?=")', config)
                     nums.append(num)
+                elif config.find('启用其他开发者的仓库方式二') != -1:
+                    end_line = configs.index(config)
+                    break
             nums.sort()
             OwnRepoUrl = f'OwnRepoUrl{nums[-1] + 1}="{url}"\n'
             OwnRepoBranch = f'OwnRepoBranch{nums[-1] + 1}="{replies[0].replace("root", "")}"\n'
@@ -132,7 +134,7 @@ async def myaddrepo(event):
                 OwnRepoPath = f'OwnRepoPath{nums[-1] + 1}=""\n'
             else:
                 OwnRepoPath = f'OwnRepoPath{nums[-1] + 1}="{Path}"\n'
-            for config in configs[start_line:]:
+            for config in configs[start_line:end_line]:
                 if config.find(f'OwnRepoUrl{nums[-1]}') != -1 and config.find("## ") == -1:
                     configs.insert(configs.index(config) + 1, OwnRepoUrl)
                 elif config.find(f'OwnRepoBranch{nums[-1]}') != -1 and config.find("## ") == -1:
