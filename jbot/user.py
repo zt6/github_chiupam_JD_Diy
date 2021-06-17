@@ -136,7 +136,7 @@ async def myexport(event):
         messages = event.message.text.split("\n")
         btns = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message(f"监控到新的环境变量\n{event.message.text}", buttons=btns)
+            msg = await conv.send_message(f"监控到新的环境变量，是否需要添加？\n{event.message.text}", buttons=btns)
             convdata = await conv.wait_event(press_event(SENDER))
             fname = bytes.decode(convdata.data)
             if fname == 'no':
