@@ -129,11 +129,21 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r"^export\s"))
+@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
 async def myexport(event):
     try:
+        SENDER = chat_id
         messages = event.message.text.split("\n")
-        msg = await jdbot.send_message(chat_id, "监控到新的 activityId，准备自动替换")
+        btns = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
+        async with jdbot.conversation(SENDER, timeout=60) as conv:
+            msg = await conv.send_message(f"监控到新的环境变量\n{event.message.text}", buttons=btns)
+            convdata = await conv.wait_event(press_event(SENDER))
+            fname = bytes.decode(convdata.data)
+            if fname == 'no':
+                await jdbot.edit_message(msg, '好的，不添加这个环境变量')
+                conv.cancel()
+                return
+            conv.cancel()
         for message in messages:
             kv = message.replace("export ", "").replace("*", "")
             kname = kv.split("=")[0]
