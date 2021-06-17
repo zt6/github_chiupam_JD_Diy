@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir
-from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron
+from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron, mybot
 from telethon import events, Button
 from asyncio import exceptions
 import requests, re, os, asyncio
@@ -20,14 +20,16 @@ async def mydownload(event):
     try:
         SENDER = event.sender_id
         furl = event.raw_text
-        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-        for speed in speeds:
-            resp = requests.get(f"{speed}{furl}").text
+        if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false' and 'github' in furl:
+            furl = f'{str(mybot["下载代理"])}/{furl}'
+        try:
+            resp = requests.get(furl).text
             if "</html>" in resp:
                 await jdbot.send_message(chat_id, f"接收到的[链接]({furl})是一个页面并非raw数据，会话结束")
                 return
-            elif resp:
-                break
+        except Exception as e:
+            await jdbot.send_message(chat_id, f"下载失败\n{e}")
+            return
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             fname = furl.split('/')[-1]
             fname_cn = ''
