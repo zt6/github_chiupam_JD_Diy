@@ -77,7 +77,7 @@ async def myrestart(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))
 async def myinstall(event):
     try:
         SENDER = event.sender_id
@@ -135,7 +135,7 @@ async def myinstall(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/uninstall'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/uninstall$'))
 async def myuninstall(event):
     try:
         SENDER = event.sender_id
@@ -179,7 +179,7 @@ async def myuninstall(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/list'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/list$'))
 async def mylist(event):
     try:
         lists = []
