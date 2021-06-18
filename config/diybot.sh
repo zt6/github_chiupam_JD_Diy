@@ -2,9 +2,9 @@
 # 从 whyour 大佬的 bot.sh 与 E大 的 jup.sh 与 SuMaiKaDe 大佬的 bot.sh 拼凑出来
 ## 导入通用变量与函数
 if [ ! -d "/ql" ];then
-  dir_root=/jd
+    dir_root=/jd
 else
-  dir_root=/ql
+    dir_root=/ql
 fi
 dir_diy=$dir_root/jbot/diy
 dir_repo=$dir_root/repo
@@ -34,13 +34,28 @@ git_clone_scripts() {
     git clone $cmd $url $dir
     exit_status=$?
 }
-
 if [ -d ${repo_path}/.git ]; then
-    diybot_md5sum_old=$(cd $dir_diy; find . -type f \( ! -name "user.*" \) | xargs md5sum)
+    echo -e "1、下载diybot仓库文件\n"
     git_pull_scripts ${repo_path} "master"
     cp -rf $repo_path/jbot/. $dir_diy
-    diybot_md5sum_new=$(cd $dir_diy; find . -type f \( ! -name "user.*" \) | xargs md5sum)
+    rm -rf $dir_diy/user.py
 else
-  git_clone_scripts ${url} ${repo_path} "master"
-  cp -rf $repo_path/jbot/. $dir_diy
+    echo -e "1、更新diybot仓库文件\n"
+    git_clone_scripts ${url} ${repo_path} "master"
+    cp -rf $repo_path/jbot/. $dir_diy
+    rm -rf $dir_diy/user.py
 fi
+echo -e "2、启动bot程序...\n"
+cd $dir_root
+if [ ! -d "/ql/log/bot" ]; then
+      mkdir $dir_root/log/bot
+  if [ -d "/ql" ]; then
+      ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
+      nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
+      echo -e "bot启动成功...\n"
+  else
+      cd $dir_root
+      pm2 restart jbot
+      echo -e "bot启动成功...\n"
+  fi
+exit 0
