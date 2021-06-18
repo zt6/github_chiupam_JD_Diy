@@ -36,10 +36,10 @@ git_clone_scripts() {
 }
 
 if [ -d ${repo_path}/.git ]; then
-    diybot_md5sum_old=$(cd $dir_diy; find . -type f \( -name "*.py" -o -name "user.py" \) | xargs md5sum)
+    diybot_md5sum_old=$(cd $dir_diy; find . -type f \( -name "*.py" -o ! -name "user.*" \) | xargs md5sum)
     git_pull_scripts ${repo_path} "master"
     cp -rf $repo_path/jbot/. $dir_diy
-    diybot_md5sum_new=$(cd $dir_diy; find . -type f \( -name "*.py" -o -name "user.py" \) | xargs md5sum)
+    diybot_md5sum_new=$(cd $dir_diy; find . -type f \( -name "*.py" -o ! -name "user.*" \) | xargs md5sum)
 else
   git_clone_scripts ${url} ${repo_path} "master"
   cp -rf $repo_path/jbot/. $dir_diy
