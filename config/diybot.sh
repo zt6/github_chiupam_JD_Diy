@@ -47,15 +47,13 @@ else
 fi
 echo -e "2、启动bot程序...\n"
 cd $dir_root
-if [ ! -d "/ql/log/bot" ]; then
-      mkdir $dir_root/log/bot
-  if [ -d "/ql" ]; then
-      ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
-      nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
-      echo -e "bot启动成功...\n"
-  else
-      cd $dir_root
-      pm2 restart jbot
-      echo -e "bot启动成功...\n"
-  fi
+if [ -d "/ql" ]; then
+    ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
+    nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
+    echo -e "bot启动成功...\n"
+else
+    cd $dir_root
+    pm2 restart jbot
+    echo -e "bot启动成功...\n"
+fi
 exit 0
