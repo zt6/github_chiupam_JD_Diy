@@ -18,16 +18,12 @@ import requests, re, os, asyncio
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot$'))
 async def myupbot(event):
     try:
+        await jdbot.send_message(chat_id, "准备自动升级并重启")
         if V4:
             cmdtext = "wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh"
-            restart = "pm2 restart jbot"
         else:
             cmdtext = "wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh"
-            restart = "ql bot"
         os.system(cmdtext)
-        if os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
-            await jdbot.send_message(chat_id, "升级完成，准备重启")
-            os.system(restart)
     #     SENDER = event.sender_id
     #     furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
     #     mydiy = {
