@@ -9,6 +9,7 @@
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
+from .diy.bot import restart
 from telethon import events, TelegramClient, Button
 import re, json, requests, os, asyncio
 
@@ -134,22 +135,24 @@ async def myexport(event):
     try:
         SENDER = chat_id
         messages = event.message.text.split("\n")
-        btns = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
-        async with jdbot.conversation(SENDER, timeout=60) as conv:
-            msg = await conv.send_message(f"监控到新的环境变量，是否需要添加？\n{event.message.text}", buttons=btns)
-            convdata = await conv.wait_event(press_event(SENDER))
-            fname = bytes.decode(convdata.data)
-            if fname == 'no':
-                await jdbot.edit_message(msg, '好的，不添加这个环境变量')
-                conv.cancel()
-                return
-            conv.cancel()
+        # btns = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
+        # async with jdbot.conversation(SENDER, timeout=60) as conv:
+        #     msg = await conv.send_message(f"监控到新的环境变量，是否需要添加？\n{event.message.text}", buttons=btns)
+        #     convdata = await conv.wait_event(press_event(SENDER))
+        #     fname = bytes.decode(convdata.data)
+        #     if fname == 'no':
+        #         await jdbot.edit_message(msg, '好的，不添加这个环境变量')
+        #         conv.cancel()
+        #         return
+        #     conv.cancel()
         for message in messages:
             kv = message.replace("export ", "").replace("*", "")
             kname = kv.split("=")[0]
             vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
+            if vname not in configs:
+                continue
             if configs.find(kname) != -1:
                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
                 end = "替换环境变量成功"
@@ -267,39 +270,3 @@ async def myupuser(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-async def restart():
-    try:
-        if V4:
-            await jdbot.send_message(chat_id, "v4用户，准备重启机器人")
-            os.system("pm2 restart jbot")
-        elif QL:
-            await jdbot.send_message(chat_id, "青龙用户，准备重启机器人")
-            os.system("ql bot")
-        else:
-            await jdbot.send_message(chat_id, "未知用户，自行重启机器人")
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-async def upuser(fname, msg):
-    try:
-        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
-        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-        msg = await jdbot.edit_message(msg, "开始下载文件")
-        for speed in speeds:
-            resp = requests.get(f"{speed}{furl_startswith}{fname}").text
-            if "#!/usr/bin/env python3" in resp:
-                break
-        if resp:
-            msg = await jdbot.edit_message(msg, f"下载{fname}成功")
-            path = f"{_JdbotDir}/diy/user.py"
-            backfile(path)
-            with open(path, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-            await restart()
-        else:
-            await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
