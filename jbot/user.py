@@ -77,7 +77,6 @@ def getbean(i, cookie, url):
     try:
         r = requests.get(url=url, headers=headers)
         res = r.json()
-
         if res['code'] == '0':
             followDesc = res['result']['followDesc']
             if followDesc.find('成功') != -1:
@@ -135,23 +134,14 @@ async def myexport(event):
     try:
         SENDER = chat_id
         messages = event.message.text.split("\n")
-        # btns = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
-        # async with jdbot.conversation(SENDER, timeout=60) as conv:
-        #     msg = await conv.send_message(f"监控到新的环境变量，是否需要添加？\n{event.message.text}", buttons=btns)
-        #     convdata = await conv.wait_event(press_event(SENDER))
-        #     fname = bytes.decode(convdata.data)
-        #     if fname == 'no':
-        #         await jdbot.edit_message(msg, '好的，不添加这个环境变量')
-        #         conv.cancel()
-        #         return
-        #     conv.cancel()
+        end = False
         for message in messages:
             kv = message.replace("export ", "").replace("*", "")
             kname = kv.split("=")[0]
             vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
-            if vname not in configs:
+            if vname in configs:
                 continue
             if configs.find(kname) != -1:
                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
@@ -173,7 +163,8 @@ async def myexport(event):
                 end = "新增环境变量成功"
             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                 f3.write(configs)
-        await jdbot.edit_message(msg, end)
+        if end:
+            await jdbot.send_message(chat_id, end)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
