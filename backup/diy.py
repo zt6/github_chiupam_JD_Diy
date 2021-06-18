@@ -1,4 +1,4 @@
-from .. import chat_id, jdbot, _LogDir, _ConfigDir
+from JD_Diy.jbot import chat_id, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
 from telethon import events, Button
 from asyncio import exceptions
