@@ -102,7 +102,7 @@ async def mycheckcookie(event):
                         text += f'账号{expired[1]}：{o}禁用成功，记得及时更新\n'
                     else:
                         text += f'账号{expired[1]}：{o}禁用失败，请手动禁用\n'
-                text += '\n\n'
+                text += '\n'
             if valids != []:
                 text += f'【启用情况】\n'
                 for valid in valids:
