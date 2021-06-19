@@ -39,6 +39,8 @@ async def myhello(event):
     /set 设置。
     /setshort 设置自定义按钮，每次设置会覆盖原设置。
     /snode 选择脚本执行，只能选择/scripts和/own目录下的脚本，选择完后直接后台运行，不影响BOT响应其他命令。 
+    /repo 管理添加的仓库。
+    /checkcookie 检测账号过期。
     /install 拓展本程序功能。
     /uninstall 删除本程序拓展功能。
     /list 列出本程序拓展的功能。
