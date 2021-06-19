@@ -15,8 +15,7 @@
   - [bot.py可拓展功能](#botpy可拓展功能)
   - [user.py功能](#userpy功能)
 - [使用方式](#使用方式)
-  - [V4BOT用户部署bot.py](#v4bot用户部署botpy)
-  - [青龙用户部署bot.py](#青龙用户部署botpy)
+  - [部署bot.py](#部署botpy)
   - [V4BOT用户部署user.py](#v4bot用户部署userpy)
   - [青龙用户部署user.py](#青龙用户部署userpy)
 # 版权
@@ -50,30 +49,20 @@
 - [x] 添加以 `.git` 结尾的仓库链接可添加仓库（暂不支持青龙用户）
 - [x] 发送 `变量名="变量值"` 的格式消息可快捷添加环境变量
 ### user.py功能
-- [x] 部署成功后可自动开启 `bot.py` 所有功能
 - [x] 监控布道场，关注店铺有礼
 - [x] 监控我的脚本频道，自动更新最新的脚本
 - [x] 监控组队瓜分ID频道，自动替换环境变量
 ## 使用方法
-### V4BOT用户部署[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)
-#### 方法一、 在终端中使用命令
+### 部署[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)
+#### 方法一、 在容器中使用命令
 ```
-docker exec -it jd bash
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
-```
-#### 方法二、 给机器人发消息
-```
-/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
-```
-### 青龙用户部署[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)
-#### 方法一、 在终端中使用命令
-```
-docker exec -it qinglong bash
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
+rm -rf diybot.sh
+wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh
+bash diybot.sh
 ```
 #### 方法二、 给机器人发消息
 ```
-/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
+/cmd rm -rf diybot.sh && wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
 ```
 ### V4BOT用户部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)
 1. 把文件存储在路径 `/jbot/diy/` 下
