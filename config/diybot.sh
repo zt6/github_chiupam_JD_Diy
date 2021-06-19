@@ -45,9 +45,11 @@ else
   git_clone_scripts ${url} ${repo_path} "master"
   cd $dir_diy
   if [ ! -f "$user_file" ]; then
+    echo -e "没有部署user.py文件\n"
     cp -rf $repo_path/jbot/. $dir_diy
     rm -rf $dir_diy/user.py
   else
+    echo -e "已部署了user.py文件\n"
     cp -rf $repo_path/jbot/. $dir_diy
   fi
 fi
