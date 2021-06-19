@@ -44,7 +44,7 @@ else
   echo -e "1、更新diybot仓库文件\n"
   git_clone_scripts ${url} ${repo_path} "master"
   cd $dir_diy
-  if [ ! -f $user_file ]; then
+  if [ ! -f "$user_file" ]; then
     cp -rf $repo_path/jbot/. $dir_diy
     rm -rf $dir_diy/user.py
   else
