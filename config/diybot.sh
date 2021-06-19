@@ -38,20 +38,18 @@ git_clone_scripts() {
 if [ -d ${repo_path}/.git ]; then
   echo -e "1、下载diybot仓库文件\n"
   git_pull_scripts ${repo_path} "master"
-  cp -rf $repo_path/jbot/. $dir_diy
-  rm -rf $dir_diy/user.py
 else
   echo -e "1、更新diybot仓库文件\n"
   git_clone_scripts ${url} ${repo_path} "master"
-  cd $dir_diy
-  if [ ! -f "$user_file" ]; then
-    echo -e "没有部署user.py文件\n"
-    cp -rf $repo_path/jbot/. $dir_diy
-    rm -rf $dir_diy/user.py
-  else
-    echo -e "已部署了user.py文件\n"
-    cp -rf $repo_path/jbot/. $dir_diy
-  fi
+fi
+cd $dir_diy
+if [ ! -f "$user_file" ]; then
+  echo -e "没有部署user.py文件\n"
+  cp -rf $repo_path/jbot/. $dir_diy
+  rm -rf $dir_diy/user.py
+else
+  echo -e "已部署了user.py文件\n"
+  cp -rf $repo_path/jbot/. $dir_diy
 fi
 echo -e "2、启动bot程序...\n"
 cd $dir_root
