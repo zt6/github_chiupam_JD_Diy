@@ -15,9 +15,6 @@ import requests, os, asyncio, json
 
 bot_id = int(TOKEN.split(':')[0])
 
-if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json')
-
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):

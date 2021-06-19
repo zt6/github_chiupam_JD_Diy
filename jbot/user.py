@@ -18,13 +18,6 @@ if proxystart:
 else:
     client = TelegramClient("user", api_id, api_hash, connection_retries=None).start()
 
-if not os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
-    os.system(f'cd {_JdbotDir}/diy/ && wget https://raw.githubusercontent.com/chiupam/JD_Diy/main/jbot/bot.py')
-    if os.path.isfile(f"{_JdbotDir}/diy/bot.py"):
-        os.system('pm2 restart jbot')
-if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
-    os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json')
-
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
     diybotset = json.load(f)
