@@ -49,11 +49,11 @@ fi
 echo -e "2、检测是否已部署uer.py...\n"
 cd $dir_diy
 if [ ! -f "$user_file" ]; then
-  echo -e "检测到没有部署uer.py\n"
+  echo -e "检测到没有部署uer.py，不写入user.py文件\n"
   cp -rf $repo_path/jbot/. $dir_diy
   rm -rf $dir_diy/user.py
 else
-  echo -e "检测已成功部署uer.py\n"
+  echo -e "检测已成功部署uer.py，正在更新user.py文件\n"
   cp -rf $repo_path/jbot/. $dir_diy
 fi
 
@@ -62,6 +62,8 @@ cd $dir_config
 if [ ! -f "$diy_config" ]; then
   echo -e "检测到没有配置文件\n"
   cp -rf $repo_path/jbot/config/diybot.json $dir_config
+else
+  echo -e "检测到已有配置文件，跳过写入新配置文件\n"
 fi
 
 echo -e "4、启动bot程序...\n"
