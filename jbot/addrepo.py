@@ -11,7 +11,7 @@ from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os, asyncio, re
+import requests, os, asyncio, re, time
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
@@ -192,7 +192,7 @@ async def myqladdrepo(event):
 def myqladdrepo2(name, command, schedule):
     with open(_Auth, 'r', encoding='utf-8') as f:
         Auto = json.load(f)
-    url = 'http://127.0.0.1:5600/api/crons'
+    url = 'http://127.0.0.1:5600/url/crons'
     headers = {
         "Authorization": f"Bearer {Auto['token']}"
     }
@@ -220,9 +220,8 @@ async def myqladdrepo(event):
             btns = [
                 Button.inline("启用", data="enable"),
                 Button.inline("禁用", data="disable"),
-                Button.inline("运行", data="run"),
-                # Button.inline("修改", data="edit"),
-                Button.inline("删除", data="del"),
+                Button.inline("删除", data="delete"),
+                Button.inline("更新仓库", data="run"),
                 Button.inline("取消会话", data="cancel")
             ]
         if V4:
@@ -306,18 +305,29 @@ async def myqladdrepo(event):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(configs)
         else:
-            crontabfpaht = "/ql/db/crontab.db"
-            with open(crontabfpaht, 'r', encoding='utf-8') as f:
-                crontabs = f.readlines()
-            datas, names, btns_1 = [], [], []
-            for crontab in crontabs:
-                if crontab.find("ql repo ") != -1 and crontab.find('"saved":true,"') != -1:
-                    data = json.loads(crontab)
-                    datas.append(crontab)
-                    names.append(data['name'])
-            names = list(set(names))
-            for name in names:
-                btns_1.append(Button.inline(name, data=name))
+            with open(_Auth, 'r', encoding='utf-8') as f:
+                auth = json.load(f)
+            token = auth['token']
+            url = 'http://127.0.0.1:5600/api/crons'
+            body = {
+                "searchValue": "ql repo",
+                "t": int(round(time.time() * 1000))
+            }
+            headers = {'Authorization': f'Bearer {token}'}
+            resp = requests.get(url, params=body, headers=headers).json()['data']
+            datas, btns_1 = [], []
+            for data in resp:
+                name = data['name']
+                command = data['command']
+                schedule = data['schedule']
+                status = '启用'
+                _id = data['_id']
+                if data['status'] == 1:
+                    status = '禁用'
+                datas.append([name, command, schedule, status, _id])
+            for _ in datas:
+                i = datas.index(_)
+                btns_1.append(Button.inline(_[0], data=f"{str(i)}"))
             btns_1.append(Button.inline("取消会话", data="cancel"))
             async with jdbot.conversation(SENDER, timeout=60) as conv:
                 msg = await conv.send_message("这是你目前添加的仓库", buttons=split_list(btns_1, row))
@@ -327,44 +337,28 @@ async def myqladdrepo(event):
                     msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                     conv.cancel()
                     return
-                i = names.index(res)
-                data = json.loads(datas[i])
-                name = data['name']
-                command = data['command'].replace("ql repo ", "")
-                schedule = data['schedule']
-                isDisabled = data['isDisabled']
-                _id = data['_id']
-                if isDisabled == 0:
-                    status = "启用"
-                else:
-                    status = "禁用"
-                info = f"任务名：{name}\n命令：{command}\n定时：{schedule}\n状态：{status}\n"
+                data = datas[int(res)]
+                info = f"任务名：{data[0]}\n命令：{data[1]}\n定时：{data[2]}\n状态：{data[3]}\n"
                 msg = await jdbot.edit_message(msg, f"{info}请做出你的选择", buttons=split_list(btns, row))
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
-                with open(_Auth, 'r', encoding='utf-8') as f:
-                    Auto = json.load(f)
-                url = 'http://127.0.0.1:5600/api/crons'
-                headers = {"Authorization": f"Bearer {Auto['token']}"}
-                body = [_id]
+                _id = [data[4]]
                 if res == 'cancel':
                     msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                     conv.cancel()
                     return
-                elif res == 'run':
-                    msg = await jdbot.edit_message(msg, "正在拉取仓库")
-                    requests.put(f'{url}/run', json=body, headers=headers)
-                elif res == 'enable':
-                    msg = await jdbot.edit_message(msg, "启用拉取仓库任务")
-                    requests.put(f'{url}/enable', json=body, headers=headers)
-                elif res == 'disable':
-                    msg = await jdbot.edit_message(msg, "禁用拉取仓库任务")
-                    requests.put(f'{url}/disable', json=body, headers=headers)
-                elif res == 'del':
-                    msg = await jdbot.edit_message(msg, "删除拉取仓库任务")
-                    requests.delete(url, json=body, headers=headers)
+                elif res == 'delete':
+                    r = requests.delete(f"{url}?t={str(round(time.time() * 1000))}", json=_id, headers=headers).json()
+                else:
+                    r = requests.put(f'{url}/{res}?t={str(round(time.time() * 1000))}', json=_id, headers=headers).json()
+                conv.cancel()
+            if r['code'] == 200:
+                await jdbot.edit_message(msg, "操作成功")
+            else:
+                await jdbot.edit_message(msg, "操作失败，请手动尝试")
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
