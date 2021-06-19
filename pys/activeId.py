@@ -121,4 +121,8 @@ if __name__ == '__main__':
         if len(cron) < 9:
             cron = findCrontab()
         checkCrontab()
-    tgNofity(bot['user_id'], bot['bot_token'], TUAN_ACTIVEID())
+    msg = TUAN_ACTIVEID()
+    try:
+        tgNofity(bot['user_id'], bot['bot_token'], msg)
+    except:
+        None
