@@ -8,14 +8,12 @@
 
 
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir
-from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, split_list, row, mybot
+from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, split_list, row, mybot, mycron, qlcron, _Auth, upcron
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os, asyncio
-
+import requests, os, asyncio, json
 
 bot_id = int(TOKEN.split(':')[0])
-
 
 if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
     os.system(f'cd {_ConfigDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json')
@@ -24,25 +22,35 @@ if not os.path.isfile(f"{_ConfigDir}/diybotset.json"):
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):
     try:
-        hello = [
-            "自定义机器人使用方法如下：",
-            "\t/start 开始使用此机器人",
-            "\t/restart 重启机器人",
-            "\t/install 扩展此机器人功能",
-            "\t/uninstall 删除此机器人功能",
-            "\t/list 列出已拓展的功能"
-        ]
-        if os.path.isfile(f"{_JdbotDir}/diy/checkcookie.py"):
-            hello.append("\t/checkcookie 检查cookie过期情况")
-        if os.path.isfile(f"{_JdbotDir}/diy/addrepo.py"):
-            hello.append("发送以 .git 结尾的链接开始添加仓库")
-        if os.path.isfile(f"{_JdbotDir}/diy/download.py"):
-            hello.append("发送以 .js .sh .py结尾的已raw链接开始下载文件")
-        if os.path.isfile(f"{_JdbotDir}/diy/addexport.py"):
-            hello.append("发送格式为 key=\"value\" 或者 key='value' 的消息开始添加环境变量")
-        hello.append("\n频道：[👬和东哥做兄弟](https://t.me/JD_Diy_Channel)")
-        await asyncio.sleep(0.5)
-        await jdbot.send_message(chat_id, str('\n'.join(hello)))
+        msg_id = event.id
+        msg = '''使用方法如下：
+    /help 获取命令，可直接发送至botfather。
+    /start 开始使用本程序。
+    /restart 重启本程序。
+    /up 升级本程序。
+    /upbot 升级拓展功能。
+    /a 使用你的自定义快捷按钮。
+    /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
+    /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
+    /cmd 执行命令，例：/cmd python3 /python/bot.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
+    /dl 下载文件
+    /edit 从/jd目录选择文件并编辑，需要将编辑好信息全部发给BOT，BOT会根据你发的信息进行替换。建议仅编辑config或crontab.list，其他文件慎用！！！
+    /getcookie 扫码获取cookie，30s内可取消，31s~2分钟内不能进行其他交互直到超时或获取到cookie。
+    /getfile 获取/jd目录下文件。
+    /log 查看脚本执行日志。
+    /node 执行js脚本，输入/node jd_bean_change。如执行非scripts目录js，需输入绝对路径执行。node命令会等待脚本执行完，期间不能使用BOT，建议使用snode命令。
+    /set 设置。
+    /setshort 设置自定义按钮，每次设置会覆盖原设置。
+    /snode 选择脚本执行，只能选择/scripts和/own目录下的脚本，选择完后直接后台运行，不影响BOT响应其他命令。 
+    /install 拓展本程序功能。
+    /uninstall 删除本程序拓展功能。
+    /list 列出本程序拓展的功能。
+
+    此外，直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。发送以 .git 结尾的链接开始添加仓库。发送以 .js .sh .py结尾的已raw链接开始下载文件。发送格式为 key="value" 或者 key='value' 的消息开始添加环境变量。
+
+[原机器人项目地址](https://github.com/SuMaiKaDe/bot) | [原机器人交流频道](https://t.me/tiangongtong) | [原机器人基本教程](https://github.com/SuMaiKaDe/bot#readme)
+[diy机器人项目地址](https://github.com/chiupam/JD_Diy) | [diy机器人通知频道](https://t.me/JD_Diy_Channel)'''
+        await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -51,18 +59,29 @@ async def myhello(event):
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/help$'))
 async def myhelp(event):
     try:
-        diy_help = [
-            "restart - 重启机器人",
-            "install - 扩展此机器人功能",
-            "uninstall - 删除此机器人功能",
-            "list - 列出已拓展的功能"
-        ]
-        if os.path.isfile(f"{_JdbotDir}/diy/checkcookie.py"):
-            diy_help.append("checkcookie - 检查cookie过期情况")
-        if os.path.isfile(f"{_JdbotDir}/diy/addexport.py"):
-            diy_help.append("export - 修改环境变量")
-        await asyncio.sleep(0.5)
-        await jdbot.send_message(chat_id, str('\n'.join(diy_help)))
+        msg_id = event.id
+        msg = '''
+a-自定义快捷按钮
+bean-获取收支
+chart-统计收支变化
+checkcookie-检测过期
+cmd-执行cmd命令
+dl-下载文件
+edit-编辑文件
+getcookie-扫码获取cookie
+getfile-获取jd目录下文件
+install-扩展此程序功能
+log-选择日志
+list-列出已拓展功能
+node-执行js脚本文件，绝对路径
+restart-重启本程序
+set-BOT设置
+setshort-设置自定义按钮
+snode-选择脚本后台运行
+start-开始使用本程序
+uninstall-删除拓展功能
+'''
+        await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -89,45 +108,35 @@ async def myinstall(event):
             Button.inline("添加仓库", data="addrepo.py"),
             Button.inline("添加环境变量", data="addexport.py"),
             Button.inline("修改环境变量", data="editexport.py"),
-            Button.inline("我全都要", data="All"),
             Button.inline("帮我取消对话", data='cancel')
         ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
             msg = await conv.send_message("请问你需要拓展什么功能？", buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             fname = bytes.decode(convdata.data)
-            All = False
             if fname == 'cancel':
                 await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
-            elif fname == 'All':
-                All = True
             conv.cancel()
-        if All:
-            dltasks = ["upbot.py", "checkcookie.py", "download.py", "addrepo.py", "addexport.py", "editexport.py"]
-        else:
-            dltasks = [fname]
         msg = await jdbot.edit_message(msg, "开始下载文件")
-        text = ''
-        for dltask in dltasks:
-            furl = f"{furl_startswith}{dltask}"
-            if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
-                furl = f'{str(mybot["下载代理"])}/{furl}'
-            try:
-                resp = requests.get(furl).text
-                text += f"下载{dltask}成功\n"
-                botresp = True
-            except Exception as e:
-                text += f"下载{dltask}失败，请自行拉取文件进/jbot/diy目录\n尝试 /set 更换下载代理"
-                botresp = False
-            if botresp:
-                path = f"{_JdbotDir}/diy/{dltask}"
-                backfile(path)
-                with open(path, 'w+', encoding='utf-8') as f:
-                    f.write(resp)
-        await jdbot.edit_message(msg, text)
-        await restart()
+        furl = f"{furl_startswith}{fname}"
+        if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
+            furl = f'{str(mybot["下载代理"])}/{furl}'
+        try:
+            resp = requests.get(furl).text
+            info = f"下载{fname}成功，准备重启程序"
+            botresp = True
+        except Exception as e:
+            info = f"下载{fname}失败，请自行拉取文件进/jbot/diy目录，或尝试使用 /set 指令更换下载代理"
+            botresp = False
+        await jdbot.edit_message(msg, info)
+        if botresp:
+            path = f"{_JdbotDir}/diy/{fname}"
+            backfile(path)
+            with open(path, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+            await restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
@@ -235,10 +244,10 @@ async def mydiyset(event):
 async def restart():
     try:
         if V4:
-            await jdbot.send_message(chat_id, "v4用户，准备重启机器人")
+            await jdbot.send_message(chat_id, "重启程序")
             os.system("pm2 restart jbot")
         elif QL:
-            await jdbot.send_message(chat_id, "青龙用户，准备重启机器人")
+            await jdbot.send_message(chat_id, "重启程序")
             os.system("ql bot")
         else:
             await jdbot.send_message(chat_id, "未知用户，自行重启机器人")
@@ -265,9 +274,9 @@ async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
         await asyncio.sleep(1.5)
     await jdbot.delete_messages(chat_id, msg)
     if QL:
-        crondata = {"name":f'{filename.split(".")[0]}',"command":f'task {path}/{filename}',"schedule":f'{cron}'}
+        crondata = {"name": f'{filename.split(".")[0]}', "command": f'task {path}/{filename}', "schedule": f'{cron}'}
         with open(_Auth, 'r', encoding='utf-8') as f:
-                auth = json.load(f)
+            auth = json.load(f)
         qlcron('add', crondata, auth['token'])
     else:
         upcron(f'{cron} mtask {path}/{filename}')
