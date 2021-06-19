@@ -44,11 +44,9 @@ else
 fi
 cd $dir_diy
 if [ ! -f "$user_file" ]; then
-  echo -e "没有部署user.py文件\n"
   cp -rf $repo_path/jbot/. $dir_diy
   rm -rf $dir_diy/user.py
 else
-  echo -e "已部署了user.py文件\n"
   cp -rf $repo_path/jbot/. $dir_diy
 fi
 echo -e "2、启动bot程序...\n"
