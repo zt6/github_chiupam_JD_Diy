@@ -11,6 +11,8 @@ dir_repo=$dir_root/repo
 url="https://github.com/chiupam/JD_Diy.git"
 repo_path="${dir_repo}/diybot"
 user_file="${dir_root}/jbot/diy/user.py"
+dir_config=$dir_root/config
+diy_config="${dir_config}/diybotset.json"
 
 git_pull_scripts() {
   local dir_current=$(pwd)
@@ -35,6 +37,7 @@ git_clone_scripts() {
   git clone $cmd $url $dir
   exit_status=$?
 }
+
 if [ -d ${repo_path}/.git ]; then
   echo -e "1、下载diybot仓库文件\n"
   git_pull_scripts ${repo_path} "master"
@@ -42,14 +45,26 @@ else
   echo -e "1、更新diybot仓库文件\n"
   git_clone_scripts ${url} ${repo_path} "master"
 fi
+
+echo -e "2、检测是否已部署uer.py...\n"
 cd $dir_diy
 if [ ! -f "$user_file" ]; then
+  echo -e "检测到没有部署uer.py\n"
   cp -rf $repo_path/jbot/. $dir_diy
   rm -rf $dir_diy/user.py
 else
+  echo -e "检测已成功部署uer.py\n"
   cp -rf $repo_path/jbot/. $dir_diy
 fi
-echo -e "2、启动bot程序...\n"
+
+echo -e "3、检测必备配置文件...\n"
+cd $dir_config
+if [ ! -f "$diy_config" ]; then
+  echo -e "检测到没有配置文件\n"
+  cp -rf $repo_path/jbot/config/diybot.json $dir_config
+fi
+
+echo -e "4、启动bot程序...\n"
 cd $dir_root
 if [ -d "/ql" ]; then
   ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
