@@ -72,11 +72,13 @@ log-选择日志
 list-列出已拓展功能
 node-执行js脚本文件，绝对路径
 restart-重启本程序
+repo-仓库管理
 set-BOT设置
 setshort-设置自定义按钮
 snode-选择脚本后台运行
 start-开始使用本程序
 uninstall-删除拓展功能
+upbot-更新拓展功能
 '''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
