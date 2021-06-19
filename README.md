@@ -59,21 +59,21 @@
 #### 方法一、 在终端中使用命令
 ```
 docker exec -it jd bash
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh && pm2 restart jbot
+wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
 ```
 #### 方法二、 给机器人发消息
 ```
-/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh && pm2 restart jbot
+/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
 ```
 ### 青龙用户部署[bot.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/bot.py)
 #### 方法一、 在终端中使用命令
 ```
 docker exec -it qinglong bash
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh && ql bot
+wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
 ```
 #### 方法二、 给机器人发消息
 ```
-/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh && ql bot
+/cmd wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh && bash diybot.sh
 ```
 ### V4BOT用户部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)
 1. 把文件存储在路径 `/jbot/diy/` 下
