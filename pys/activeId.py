@@ -27,11 +27,15 @@ def GET_TUAN_ID():
 def TUAN_ACTIVEID():
     TUAN_ACTIVEID = GET_TUAN_ID()
     if TUAN_ACTIVEID:
+        msg = f"京喜工厂团ID：{TUAN_ACTIVEID}\n"
         with open(f"{env}/config/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         if configs.find(f"export TUAN_ACTIVEID=") != -1:
+            if TUAN_ACTIVEID in configs:
+                msg += "京喜工厂团ID相同，取消替换"
+                return msg
             configs = re.sub(f'TUAN_ACTIVEID=(\"|\').*(\"|\')', f'TUAN_ACTIVEID="{TUAN_ACTIVEID}"', configs)
-            msg = "替换京喜工厂团ID成功"
+            msg += "替换京喜工厂团ID成功"
         else:
             msg = "程序没有找到设置京喜工厂团的变量值，无法完成替换"
             return msg
