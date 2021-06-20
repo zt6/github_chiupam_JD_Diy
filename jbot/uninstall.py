@@ -9,7 +9,6 @@
 
 from .. import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import split_list, row, press_event
-from ..diy.utils import restart
 from telethon import events, Button
 from asyncio import exceptions
 import os, asyncio
@@ -51,6 +50,7 @@ async def myuninstall(event):
             await jdbot.edit_message(msg, "删除成功")
         else:
             await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
+        from ..diy.utils import restart
         await restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')

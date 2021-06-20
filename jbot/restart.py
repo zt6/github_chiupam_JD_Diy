@@ -8,13 +8,13 @@
 
 
 from .. import chat_id, jdbot, logger
-from ..diy.utils import restart
 from telethon import events
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart$'))
 async def myrestart(event):
     try:
+        from ..diy.utils import restart
         await restart()
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
