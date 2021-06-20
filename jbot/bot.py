@@ -29,7 +29,7 @@ async def myhello(event):
     /a 使用你的自定义快捷按钮。
     /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
     /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
-    /cmd 执行命令，例：/cmd python3 /python/bot-06-21.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
+    /cmd 执行命令，例：/cmd python3 /python/bot.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
     /dl 下载文件
     /edit 从/jd目录选择文件并编辑，需要将编辑好信息全部发给BOT，BOT会根据你发的信息进行替换。建议仅编辑config或crontab.list，其他文件慎用！！！
     /getcookie 扫码获取cookie，30s内可取消，31s~2分钟内不能进行其他交互直到超时或获取到cookie。

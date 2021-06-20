@@ -6,7 +6,7 @@
 # @Updata   :
 # @Future   :
 
-from .. import chat_id, jdbot, logger, _JdbotDir
+from JD_Diy import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import split_list, row, press_event, mybot, backfile, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
@@ -58,6 +58,7 @@ async def myinstall(event):
             #     os.system("pm2 restart jbot")
             # elif QL:
             #     await jdbot.edit_message(msg, info + "，重启程序")
+            #     os.system("ql bot")
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
