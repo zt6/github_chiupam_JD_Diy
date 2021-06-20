@@ -14,6 +14,7 @@ def GET_TUAN_ID():
         else:
             m -= 1
     while n:
+        # 参考 https://github.com/qqwas/JD_Diy/blob/master/jbot/tuan.py 使用的链接
         url = 'https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json'
         r = requests.get(url)
         if r.ok:
@@ -37,8 +38,19 @@ def TUAN_ACTIVEID():
             configs = re.sub(f'TUAN_ACTIVEID=(\"|\').*(\"|\')', f'TUAN_ACTIVEID="{TUAN_ACTIVEID}"', configs)
             msg += "替换京喜工厂团ID成功"
         else:
-            msg = "程序没有找到设置京喜工厂团的变量值，无法完成替换"
-            return msg
+            msg += "程序没有找到设置京喜工厂团的变量值，将自动添加进配置"
+            export =  f"export TUAN_ACTIVEID={TUAN_ACTIVEID} # 京喜工厂团ID\n"
+            with open(f"{env}/config/config.sh", 'r', encoding='utf-8') as f3:
+                configs = f3.readlines()
+            if env == '/jd':
+                for config in configs:
+                    if config.find("第五区域") != -1 and config.find("↑") != -1:
+                        line = configs.index(config)
+                        configs.insert(line - 1, export)
+                        configs = ''.join(configs)
+                        break
+            else:
+                configs += export
         with open(f"{env}/config/config.sh", 'w', encoding='utf-8') as f2:
             f2.write(configs)
         return msg
@@ -129,7 +141,4 @@ if __name__ == '__main__':
         checkCrontab()
     msg = TUAN_ACTIVEID()
     print(msg)
-    try:
-        tgNofity(bot['user_id'], bot['bot_token'], msg)
-    except:
-        None
+    tgNofity(bot['user_id'], bot['bot_token'], msg)
