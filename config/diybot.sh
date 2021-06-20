@@ -6,13 +6,18 @@ if [ ! -d "/ql" ];then
 else
   dir_root=/ql
 fi
-dir_diy=$dir_root/jbot/diy
+
+dir_bot=$dir_root/jbot
+dir_diy=$dir_bot/diy
 dir_repo=$dir_root/repo
-url="https://github.com/chiupam/JD_Diy.git"
-repo_path="${dir_repo}/diybot"
-user_file="${dir_root}/jbot/diy/user.py"
 dir_config=$dir_root/config
-diy_config="${dir_config}/diybotset.json"
+url_1="https://ghproxy.com/https://github.com/SuMaiKaDe/bot.git"
+url_2="https://github.com/chiupam/JD_Diy.git"
+repo_1="${dir_repo}/dockerbot"
+repo_2="${dir_repo}/diybot"
+set_1="${dir_root}/config/botset.json"
+set_2="${dir_root}/config/diybotset.json"
+user_file="${dir_bot}/diy/user.py"
 
 git_pull_scripts() {
   local dir_current=$(pwd)
@@ -38,43 +43,57 @@ git_clone_scripts() {
   exit_status=$?
 }
 
-if [ -d ${repo_path}/.git ]; then
-  echo -e "1、下载diybot仓库文件\n"
-  git_pull_scripts ${repo_path} "master"
+echo -e "\n1、安装bot依赖...\n"
+apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev
+echo -e "\nbot依赖安装成功...\n"
+
+echo -e "\n2、下载bot所需文件...\n"
+if [ -d ${repo_1}/.git ]; then
+  git_pull_scripts ${repo_1} "main"
 else
-  echo -e "1、更新diybot仓库文件\n"
-  git_clone_scripts ${url} ${repo_path} "master"
+  git_clone_scripts ${url_1} ${repo_1} "main"
+fi
+cp -rf "$repo_1/jbot" $dir_root
+cd $dir_config
+if [[ ! -f "$set_1" ]]; then
+  cp -f "$set_1" $dir_config
 fi
 
-echo -e "2、检测是否已部署user.py...\n"
-cd $dir_diy
+echo -e "\n3、下载diybot仓库文件...\n"
+if [ -d ${repo_2}/.git ]; then
+  git_pull_scripts ${repo_2} "master"
+else
+  git_clone_scripts ${url_2} ${repo_2} "master"
+fi
+cd $dir_bot/diy
 if [ ! -f "$user_file" ]; then
-  echo -e "没有部署user.py，不写入user.py文件\n"
-  cp -rf $repo_path/jbot/. $dir_diy
+  cp -rf $repo_2/jbot/. $dir_diy
   rm -rf $dir_diy/user.py
 else
-  echo -e "已成功部署user.py，正在更新user.py文件\n"
-  cp -rf $repo_path/jbot/. $dir_diy
+  cp -rf $repo_2/jbot/. $dir_diy
 fi
-
-echo -e "3、检测必备配置文件...\n"
 cd $dir_config
-if [ ! -f "$diy_config" ]; then
-  echo -e "没有配置文件，正在写入新配置文件\n"
-  cp -rf $repo_path/config/diybotset.json $dir_config
-else
-  echo -e "已有配置文件，跳过写入新配置文件\n"
+if [ ! -f "$set_2" ]; then
+  cp -rf $set_2 $dir_config
 fi
 
-echo -e "4、启动bot程序...\n"
 cd $dir_root
-if [ -d "/ql" ]; then
-  ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
-  nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
-  echo -e "bot启动成功...\n"
+if [ ! -d "/ql/log/bot" ]; then
+    mkdir $dir_root/log/bot
+fi
+if [[ -z $(grep -E "123456789" $dir_root/config/bot.json) ]]; then
+    if [ -d "/ql" ]; then
+        ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
+        nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
+        echo -e "bot启动成功...\n"
+    else
+        cd $dir_bot
+        pm2 start ecosystem.config.js
+        cd $dir_root
+        pm2 restart jbot
+        echo -e "bot启动成功...\n"
+    fi
 else
-  cd $dir_root
-  pm2 restart jbot
-  echo -e "bot启动成功...\n"
+    echo -e  "似乎 $dir_root/config/bot.json 还未修改为你自己的信息，可能是首次部署容器，因此不启动Telegram Bot...\n配置好bot.json后再次运行本程序即可启动"
 fi
 exit 0
