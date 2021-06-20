@@ -232,25 +232,25 @@ async def myzoo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# @client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
-# async def myupuser(event):
-#     """
-#     关注频道：https://t.me/jd_diy_bot_channel
-#     """
-#     try:
-#         if event.message.file:
-#             fname = event.message.file.name
-#             try:
-#                 if fname.endswith("bot-06-21.py") or fname.endswith("user.py"):
-#                     path = f'{_JdbotDir}/diy/{fname}'
-#                     backfile(path)
-#                     await client.download_file(input_location=event.message, file=path)
-#                     from ..diy.bot import restart
-#                     await restart()
-#             except:
-#                 return
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
+@client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
+async def myupuser(event):
+    """
+    关注频道：https://t.me/jd_diy_bot_channel
+    """
+    try:
+        if event.message.file:
+            fname = event.message.file.name
+            try:
+                if fname.endswith("bot.py") or fname.endswith("user.py"):
+                    path = f'{_JdbotDir}/diy/{fname}'
+                    backfile(path)
+                    await client.download_file(input_location=event.message, file=path)
+                    from ..diy.bot import restart
+                    await restart()
+            except:
+                return
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
