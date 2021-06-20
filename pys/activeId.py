@@ -120,12 +120,15 @@ if __name__ == '__main__':
     bot = f'{env}/config/bot.json'
     with open(bot, 'r', encoding='utf-8') as botSet:
         bot = json.load(botSet)
-    cron = '' # 此处 V4 用户需要自行设置 cron 表达式，否则程序自动设置为 jd_dreamFactory.js 的运行时间
+    cron = '此处填写' # 此处 V4 用户需要自行设置 cron 表达式，否则程序自动设置为 jd_dreamFactory.js 的运行时间
     if env == '/jd':
         if len(cron) < 9:
             cron = findCrontab()
+        if not cron:
+            cron = "0 0,7,20 * * *"
         checkCrontab()
     msg = TUAN_ACTIVEID()
+    print(msg)
     try:
         tgNofity(bot['user_id'], bot['bot_token'], msg)
     except:
