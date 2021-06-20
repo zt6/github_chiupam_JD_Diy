@@ -42,7 +42,7 @@ async def myinstall(event):
             furl = f'{str(mybot["下载代理"])}/{furl}'
         try:
             resp = requests.get(furl).text
-            info = f"下载{fname}成功，准备重启程序"
+            info = f"下载{fname}成功，暂时请自行重启程序"
             botresp = True
         except Exception as e:
             info = f"下载{fname}失败，请自行拉取文件进/jbot/diy目录，或尝试使用 /set 指令更换下载代理"
@@ -53,11 +53,11 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            if V4:
-                await jdbot.edit_message(msg, info + "，重启程序")
-                os.system("pm2 restart jbot")
-            elif QL:
-                await jdbot.edit_message(msg, info + "，重启程序")
+            # if V4:
+            #     await jdbot.edit_message(msg, info + "，重启程序")
+            #     os.system("pm2 restart jbot")
+            # elif QL:
+            #     await jdbot.edit_message(msg, info + "，重启程序")
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:

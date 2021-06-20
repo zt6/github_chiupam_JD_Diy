@@ -43,16 +43,15 @@ async def myuninstall(event):
                 return
             conv.cancel()
         fpath = f"{_JdbotDir}/diy/{fname}"
-        msg = await jdbot.edit_message(msg, "开始删除机器人功能")
         os.system(f'rm -rf {fpath}')
-        await asyncio.sleep(1.5)
         if not os.path.isfile(fpath):
-            if V4:
-                await jdbot.edit_message(msg, "删除成功，准备重启程序")
-                os.system("pm2 restart jbot")
-            elif QL:
-                await jdbot.edit_message(msg, "删除成功，准备重启程序")
-                os.system("pm2 restart jbot")
+            await jdbot.edit_message(msg, "删除成功，暂时请自行重启程序")
+            # if V4:
+            #     await jdbot.edit_message(msg, "删除成功，准备重启程序")
+            #     os.system("pm2 restart jbot")
+            # elif QL:
+            #     await jdbot.edit_message(msg, "删除成功，准备重启程序")
+            #     os.system("pm2 restart jbot")
         else:
             await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
     except exceptions.TimeoutError:
