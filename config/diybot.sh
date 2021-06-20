@@ -50,11 +50,11 @@ echo -e "\nbot依赖安装成功...\n"
 echo -e "\n2、下载bot所需文件...\n"
 if [ -d ${repo_1}/.git ]; then
     git_pull_scripts ${repo_1} "main"
-    mv $dir_bot/__main__.py $dir_bot/__main__.py.bak
 else
     git_clone_scripts ${url_1} ${repo_1} "main"
 fi
 cp -rf "$repo_1/jbot" $dir_root
+mv $dir_bot/__main__.py $dir_bot/__main__.py.bak
 if [[ ! -f "$set_1" ]]; then
     cp -f "$set_1" $dir_config
 fi
@@ -62,7 +62,6 @@ fi
 echo -e "\n3、下载diybot仓库文件...\n"
 if [ -d ${repo_2}/.git ]; then
     git_pull_scripts ${repo_2} "master"
-    cp -rf $repo_2/backup/__main__.py $dir_bot
 else
     git_clone_scripts ${url_2} ${repo_2} "master"
 fi
@@ -72,6 +71,7 @@ if [ ! -f "$user_file" ]; then
 else
     cp -rf $repo_2/jbot/. $dir_diy
 fi
+cp -rf $repo_2/backup/__main__.py $dir_bot
 if [ ! -f "$set_2" ]; then
     cp -rf $set_2 $dir_config
 fi
