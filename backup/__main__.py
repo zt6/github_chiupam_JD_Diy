@@ -64,7 +64,7 @@ async def mysetting():
 
 async def hello():
     if '启动问候' in mybot.keys() and mybot['启动问候'].lower() == 'true':
-        info = '\t原机器人\t-->\t[项目地址](https://github.com/SuMaiKaDe/) \t| \t[交流频道](https://t.me/tiangongtong) \ndiy机器人\t-->\t[项目地址](https://github.com/chiupam/JD_Diy) \t| \t[通知频道](https://t.me/JD_Diy_Channel)'
+        info = '原机器人\t-->\t[项目地址](https://github.com/SuMaiKaDe/) \t| \t[交流频道](https://t.me/tiangongtong) \ndiy机器人\t-->\t[项目地址](https://github.com/chiupam/JD_Diy) \t| \t[通知频道](https://t.me/JD_Diy_Channel)'
         await jdbot.send_message(chat_id, f'{str(mybot["启动问候语"])}\n\n\t{info}', link_preview=False)
 
 
