@@ -7,10 +7,10 @@
 # @Future   :
 
 from .. import chat_id, jdbot, logger, _JdbotDir
-from ..bot.utils import split_list, row, press_event, mybot, backfile
+from ..bot.utils import split_list, row, press_event, mybot, backfile, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
-import requests
+import requests, os
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))
@@ -53,10 +53,25 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            from ..diy.utils import restart
             await restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+# 重启函数
+async def restart():
+    try:
+        if V4:
+            await jdbot.send_message(chat_id, "重启程序")
+            os.system("pm2 restart jbot")
+        elif QL:
+            await jdbot.send_message(chat_id, "重启程序")
+            os.system("ql bot")
+        else:
+            await jdbot.send_message(chat_id, "未知用户，自行重启机器人")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
