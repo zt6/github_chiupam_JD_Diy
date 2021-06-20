@@ -7,7 +7,7 @@
 # @Future   :
 
 
-from JD_Diy import chat_id, jdbot, logger, _JdbotDir
+from .. import chat_id, jdbot, logger, _JdbotDir
 from telethon import events
 import os
 

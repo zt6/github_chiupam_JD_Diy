@@ -241,7 +241,7 @@ async def myzoo(event):
 #         if event.message.file:
 #             fname = event.message.file.name
 #             try:
-#                 if fname.endswith("bot.py") or fname.endswith("user.py"):
+#                 if fname.endswith("bot-06-21.py") or fname.endswith("user.py"):
 #                     path = f'{_JdbotDir}/diy/{fname}'
 #                     backfile(path)
 #                     await client.download_file(input_location=event.message, file=path)

@@ -214,7 +214,7 @@ async def myupbot(event):
     try:
         SENDER = event.sender_id
         msg = await jdbot.send_message(chat_id, '开始更新机器人文件')
-        btn = [Button.inline("请帮我更新 bot.py 文件", data='bot')]
+        btn = [Button.inline("请帮我更新 bot-06-21.py 文件", data='bot')]
         if os.path.isfile(f'{_JdbotDir}/diy/user.py'):
             userbtn = Button.inline("请帮我更新 user.py 文件", data='user')
             btn.append(userbtn)
