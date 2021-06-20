@@ -61,7 +61,7 @@ echo -e "3、检测必备配置文件...\n"
 cd $dir_config
 if [ ! -f "$diy_config" ]; then
   echo -e "检测到没有配置文件\n"
-  cp -rf $repo_path/jbot/config/diybotset.json $dir_config
+  cp -rf $repo_path/config/diybotset.json $dir_config
 else
   echo -e "检测到已有配置文件，跳过写入新配置文件\n"
 fi
