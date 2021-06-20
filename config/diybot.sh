@@ -71,7 +71,7 @@ if [ ! -f "$user_file" ]; then
 else
     cp -rf $repo_2/jbot/. $dir_diy
 fi
-cp -rf $repo_2/backup/__main__.py $dir_bot
+mv $repo_2/backup/__main__.py $dir_bot
 if [ ! -f "$set_2" ]; then
     cp -rf $set_2 $dir_config
 fi
