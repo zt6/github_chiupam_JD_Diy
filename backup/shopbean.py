@@ -7,7 +7,7 @@
 # @Future   : 1. Null
 
 
-from JD_Diy.jbot import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
+from .. import chat_id, api_hash, api_id, proxystart, proxy, jdbot, _LogDir, _ConfigDir
 from ..bot.utils import cookies
 from telethon import events, TelegramClient, Button
 from asyncio import exceptions
