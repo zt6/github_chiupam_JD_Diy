@@ -257,7 +257,7 @@ async def myqladdrepo(event):
                     break
             for r_name in r_names:
                 btns_1.append(Button.inline(r_name, data=r_name))
-            btns_1.append(Button.inline("更新全部仓库", data="jup"))
+            btns_1.append(Button.inline("更新全部仓库", data="jup own"))
             btns_1.append(Button.inline("取消会话", data="cancel"))
             async with jdbot.conversation(SENDER, timeout=60) as conv:
                 msg = await conv.send_message("这是你目前添加的仓库", buttons=split_list(btns_1, row))
@@ -267,7 +267,7 @@ async def myqladdrepo(event):
                     msg = await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                     conv.cancel()
                     return
-                elif res == 'jup':
+                elif res == 'jup own':
                     msg = await jdbot.edit_message(msg, '准备拉取全部仓库')
                     os.system(res)
                     conv.cancel()
