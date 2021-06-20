@@ -53,25 +53,14 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await restart()
+            if V4:
+                await jdbot.edit_message(msg, info + "，重启程序")
+                os.system("pm2 restart jbot")
+            elif QL:
+                await jdbot.edit_message(msg, info + "，重启程序")
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
-
-# 重启函数
-async def restart():
-    try:
-        if V4:
-            await jdbot.send_message(chat_id, "重启程序")
-            os.system("pm2 restart jbot")
-        elif QL:
-            await jdbot.send_message(chat_id, "重启程序")
-            os.system("ql bot")
-        else:
-            await jdbot.send_message(chat_id, "未知用户，自行重启机器人")
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
