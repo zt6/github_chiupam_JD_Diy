@@ -17,7 +17,7 @@ import requests, re, os, asyncio, time
 bot_id = int(TOKEN.split(':')[0])
 
 
-async def checkCookie(cookie):
+async def checkCookie(jdbot, msg, cookie):
     url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
     headers = {
         "Host": "me-api.jd.com",
@@ -29,8 +29,8 @@ async def checkCookie(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    i = 5
-    while i:
+    i = 0
+    while i >= 5:
         try:
             r = requests.get(url, headers=headers).json()
             if r['retcode'] == '1001':
@@ -38,23 +38,27 @@ async def checkCookie(cookie):
             else:
                 return False
         except:
-            i -= 1
-            await asyncio.sleep(5)
+            i += 1
+            await jdbot.edit_message(msg, f"检验失败，正在进行第{i}次重试……")
+            await asyncio.sleep(1.5)
     return False
 
 
 @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
 async def mycheckcookie(event):
     try:
-        msg = await jdbot.send_message(chat_id, '正在检测 cookie 过期情况')
+        msg = await jdbot.send_message(chat_id, "正在检测 cookie 过期情况……")
         text, o, expireds = '检测结果\n\n', '\n\t   └ ', []
         if V4:
             cookies = myck(_ConfigFile)
             for cookie in cookies:
                 cknum = cookies.index(cookie) + 1
-                check = await checkCookie(cookie)
+                check = await checkCookie(jdbot, msg, cookie)
                 if check:
+                    msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
                     expireds.append(cknum)
+                else:
+                    msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
                 await asyncio.sleep(1)
         elif QL:
             with open(_Auth, 'r', encoding='utf-8') as f:
@@ -69,8 +73,10 @@ async def mycheckcookie(event):
                 cknum = datas.index(data) + 1
                 check = await checkCookie(data['value'])
                 if check:
+                    msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
                     expireds.append([data['_id'], cknum])
                 else:
+                    msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
                     valids.append([data['_id'], data['nickname'], cknum])
                 await asyncio.sleep(1)
         if V4:
