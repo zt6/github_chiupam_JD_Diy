@@ -7,7 +7,7 @@
 # @Future   :
 
 
-from JD_Diy import chat_id, jdbot, logger, _JdbotDir
+from .. import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import press_event, V4, QL, split_list, row, backfile, mybot
 from telethon import events, Button
 from asyncio import exceptions

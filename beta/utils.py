@@ -7,7 +7,7 @@
 # @Future   :
 
 
-from JD_Diy import chat_id, jdbot, logger, _JdbotDir
+from .. import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile
 import json, asyncio, requests
 
