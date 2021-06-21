@@ -53,7 +53,7 @@ if [ -d ${repo_1}/.git ]; then
 else
     git_clone_scripts ${url_1} ${repo_1} "main"
 fi
-#rm -rf $repo_1/jbot/__main__.py
+cp -rf $repo_1/jbot/__main__.py $dir_bot
 cp -rf "$repo_1/jbot" $dir_root
 if [[ ! -f "$set_1" ]]; then
     cp -f "$set_1" $dir_config
@@ -66,10 +66,10 @@ else
     git_clone_scripts ${url_2} ${repo_2} "master"
 fi
 if [ ! -f "$user_file" ]; then
-    cp -rf $repo_2/jbot/. $dir_diy
+    cp -rf $repo_2/beta/. $dir_diy
     rm -rf $dir_diy/user.py
 else
-    cp -rf $repo_2/jbot/. $dir_diy
+    cp -rf $repo_2/beta/. $dir_diy
 fi
 mv $repo_2/backup/__main__.py $dir_bot
 if [ ! -f "$set_2" ]; then
