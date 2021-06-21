@@ -43,21 +43,6 @@ git_clone_scripts() {
     exit_status=$?
 }
 
-echo -e "\n1、安装bot依赖...\n"
-apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev
-echo -e "\nbot依赖安装成功...\n"
-
-echo -e "\n2、下载bot所需文件...\n"
-if [ -d ${repo_1}/.git ]; then
-    git_pull_scripts ${repo_1} "main"
-else
-    git_clone_scripts ${url_1} ${repo_1} "main"
-fi
-cp -rf "$repo_1/jbot" $dir_root
-if [[ ! -f "$set_1" ]]; then
-    cp -f "$set_1" $dir_config
-fi
-
 echo -e "\n3、下载diybot仓库文件...\n"
 if [ -d ${repo_2}/.git ]; then
     git_pull_scripts ${repo_2} "master"
@@ -74,10 +59,6 @@ if [ ! -f "$set_2" ]; then
     cp -rf $set_2 $dir_config
 fi
 
-cd $dir_root
-if [ ! -d "/ql/log/bot" ]; then
-    mkdir $dir_root/log/bot
-fi
 if [[ -z $(grep -E "123456789" $dir_root/config/bot.json) ]]; then
     if [ -d "/ql" ]; then
         ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
