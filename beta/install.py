@@ -53,12 +53,8 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            # if V4:
-            #     await jdbot.edit_message(msg, info + "，重启程序")
-            #     os.system("pm2 restart jbot")
-            # elif QL:
-            #     await jdbot.edit_message(msg, info + "，重启程序")
-            #     os.system("ql bot")
+            from ..diy.utils import restart()
+            restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:

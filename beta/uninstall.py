@@ -46,12 +46,8 @@ async def myuninstall(event):
         os.system(f'rm -rf {fpath}')
         if not os.path.isfile(fpath):
             await jdbot.edit_message(msg, "删除成功，暂时请自行重启程序")
-            # if V4:
-            #     await jdbot.edit_message(msg, "删除成功，准备重启程序")
-            #     os.system("pm2 restart jbot")
-            # elif QL:
-            #     await jdbot.edit_message(msg, "删除成功，准备重启程序")
-            #     os.system("pm2 restart jbot")
+            from ..diy.utils import restart()
+            restart()
         else:
             await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
     except exceptions.TimeoutError:

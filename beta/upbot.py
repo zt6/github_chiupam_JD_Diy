@@ -18,7 +18,7 @@ import requests, re, os, asyncio
 async def myupbot(event):
     try:
         SENDER = event.sender_id
-        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
+        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/beta/"
         mydiy = {
             "checkcookie.py": "检查过期",
             "upbot.py": "升级upbot指令",
@@ -48,7 +48,7 @@ async def myupbot(event):
                 await upuser(fname, msg)
             elif fname == 'all':
                 await jdbot.edit_message(msg, "准备自动升级并重启，请耐心等待")
-                furl = "https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh"
+                furl = "https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh"
                 cmdtext = f"rm - f diybot.sh && wget {furl} && bash diybot.sh"
                 os.system(cmdtext)
                 return
@@ -66,12 +66,8 @@ async def myupbot(event):
         with open(path, 'w+', encoding='utf-8') as f:
             f.write(resp)
             await jdbot.edit_message(msg, f"下载{fname}成功，暂时请自行重启程序")
-        # if V4:
-        #     await jdbot.edit_message(msg, f"下载{fname}成功，重启程序")
-        #     os.system("pm2 restart jbot")
-        # elif QL:
-        #     await jdbot.edit_message(msg, f"下载{fname}成功，重启程序")
-        #     os.system("ql bot")
+        from ..diy.utils import restart()
+        restart()
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
