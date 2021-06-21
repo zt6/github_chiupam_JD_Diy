@@ -26,6 +26,7 @@ async def myhello(event):
     /restart 重启本程序。
     /up 升级本程序。
     /upbot 升级拓展功能。
+    /ver 查看程序版本号。
     /a 使用你的自定义快捷按钮。
     /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
     /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
@@ -38,17 +39,17 @@ async def myhello(event):
     /node 执行js脚本，输入/node jd_bean_change。如执行非scripts目录js，需输入绝对路径执行。node命令会等待脚本执行完，期间不能使用BOT，建议使用snode命令。
     /set 设置。
     /setshort 设置自定义按钮，每次设置会覆盖原设置。
+    /setname 设置命令别名。
     /snode 选择脚本执行，只能选择/scripts和/own目录下的脚本，选择完后直接后台运行，不影响BOT响应其他命令。 
     /repo 管理添加的仓库。
     /checkcookie 检测账号过期。
     /install 拓展本程序功能。
     /uninstall 删除本程序拓展功能。
     /list 列出本程序拓展的功能。
-
-    此外，直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。发送以 .git 结尾的链接开始添加仓库。发送以 .js .sh .py结尾的已raw链接开始下载文件。发送格式为 key="value" 或者 key='value' 的消息开始添加环境变量。
-
-[原机器人项目地址](https://github.com/SuMaiKaDe/bot) | [原机器人交流频道](https://t.me/tiangongtong) | [原机器人基本教程](https://github.com/SuMaiKaDe/bot#readme)
-[diy机器人项目地址](https://github.com/chiupam/JD_Diy) | [diy机器人通知频道](https://t.me/JD_Diy_Channel)'''
+    /addenv 青龙新增环境变量。
+    /env 青龙管理环境变量。
+    
+    此外，直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。发送以 .git 结尾的链接开始添加仓库。发送以 .js .sh .py结尾的已raw链接开始下载文件。发送格式为 key="value" 或者 key='value' 的消息开始添加环境变量。'''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
@@ -61,12 +62,15 @@ async def myhelp(event):
         msg_id = event.id
         msg = '''
 a-自定义快捷按钮
+addenv-青龙新增环境变量
 bean-获取收支
 chart-统计收支变化
 checkcookie-检测过期
 cmd-执行cmd命令
 dl-下载文件
 edit-编辑文件
+env-青龙管理环境变量
+help-获取帮助
 getcookie-扫码获取cookie
 getfile-获取jd目录下文件
 install-扩展此程序功能
@@ -76,11 +80,13 @@ node-执行js脚本文件，绝对路径
 restart-重启本程序
 repo-仓库管理
 set-BOT设置
+setname-设置命令别名
 setshort-设置自定义按钮
 snode-选择脚本后台运行
 start-开始使用本程序
 uninstall-删除拓展功能
 upbot-更新拓展功能
+ver-版本
 '''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
