@@ -77,6 +77,8 @@ else
 fi
 # 修改启动语文件
 mv -f $repo_2/backup/__main__.py $dir_bot
+# 删除 bot.py
+rm -f $dir_root/jbot/diy/bot.py
 # diybotset.json的抉择
 if [ ! -f "$set_2" ]; then
   cp $repo_2/config/diybotset.json $dir_config
