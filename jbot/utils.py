@@ -55,7 +55,6 @@ async def upuser(fname, msg):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await restart()
         else:
             await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
     except Exception as e:
