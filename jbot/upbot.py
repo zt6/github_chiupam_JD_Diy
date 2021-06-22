@@ -54,6 +54,7 @@ async def myupbot(event):
                 return
             conv.cancel()
         msg = await jdbot.edit_message(msg, "开始下载文件")
+        furl = f'{furl_startswith}{fname}'
         if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
             furl = f'{str(mybot["下载代理"])}/{furl_startswith}{fname}'
         try:
