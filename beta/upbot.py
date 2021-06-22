@@ -65,9 +65,7 @@ async def myupbot(event):
         backfile(path)
         with open(path, 'w+', encoding='utf-8') as f:
             f.write(resp)
-            await jdbot.edit_message(msg, f"下载{fname}成功，暂时请自行重启程序")
-        from ..diy.utils import restart
-        restart()
+            await jdbot.edit_message(msg, f"下载{fname}成功")
     except exceptions.TimeoutError:
         msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
