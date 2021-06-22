@@ -70,10 +70,10 @@ else
 fi
 # user.py的抉择
 if [ ! -f "$user_file" ]; then
-  cp -rf $repo_2/beta/. $dir_diy
+  cp -rf $repo_2/jbot/. $dir_diy
   rm -rf $dir_diy/user.py
 else
-  cp -rf $repo_2/beta/. $dir_diy
+  cp -rf $repo_2/jbot/. $dir_diy
 fi
 # 修改启动语文件
 mv -f $repo_2/backup/__main__.py $dir_bot
