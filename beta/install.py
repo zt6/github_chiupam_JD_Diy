@@ -42,7 +42,7 @@ async def myinstall(event):
             furl = f'{str(mybot["下载代理"])}/{furl}'
         try:
             resp = requests.get(furl).text
-            info = f"下载{fname}成功，暂时请自行重启程序"
+            info = f"下载{fname}成功"
             botresp = True
         except Exception as e:
             info = f"下载{fname}失败，请自行拉取文件进/jbot/diy目录，或尝试使用 /set 指令更换下载代理"
