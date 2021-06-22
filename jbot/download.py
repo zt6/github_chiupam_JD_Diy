@@ -9,10 +9,10 @@
 
 from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron, mybot
+from ..diy.utils import mycronup
 from telethon import events, Button
 from asyncio import exceptions
-import requests, re, os, asyncio
-import json
+import requests, re
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://.*(js|py|sh)$'))
@@ -102,31 +102,4 @@ async def mydownload(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-# 修改原作者的 cronup() 函数便于我继续进行此功能的编写
-async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
-    try:
-        cron = mycron(resp)
-        msg = await jdbot.edit_message(msg, f"这是我识别的定时\n```{cron}```\n请问是否需要修改？", buttons=markup)
-    except:
-        msg = await jdbot.edit_message(msg, f"我无法识别定时，将使用默认定时\n```0 0 * * *```\n请问是否需要修改？", buttons=markup)
-    convdata3 = await conv.wait_event(press_event(SENDER))
-    res3 = bytes.decode(convdata3.data)
-    if res3 == 'confirm':
-        await jdbot.delete_messages(chat_id, msg)
-        msg = await conv.send_message("请回复你需要设置的 cron 表达式，例如：0 0 * * *")
-        cron = await conv.get_response()
-        cron = cron.raw_text
-        msg = await jdbot.edit_message(msg, f"好的，你将使用这个定时\n```{cron}```")
-        await asyncio.sleep(1.5)
-    await jdbot.delete_messages(chat_id, msg)
-    if QL:
-        crondata = {"name":f'{filename.split(".")[0]}',"command":f'task {path}/{filename}',"schedule":f'{cron}'}
-        with open(_Auth, 'r', encoding='utf-8') as f:
-                auth = json.load(f)
-        qlcron('add', crondata, auth['token'])
-    else:
-        upcron(f'{cron} mtask {path}/{filename}')
-    await jdbot.send_message(chat_id, '添加定时任务成功')
 
