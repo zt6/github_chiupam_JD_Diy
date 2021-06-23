@@ -5,55 +5,70 @@
 # @Version  : v 1.0
 # @Updata   :
 # @Future   :
-import json
+
 
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import press_event, V4, QL, _ConfigFile, myck, _Auth
 from telethon import events
 from asyncio import exceptions
-import requests, re, asyncio, time
+import requests, re, asyncio, time, json
 
 
 bot_id = int(TOKEN.split(':')[0])
 
 
-async def checkCookie(jdbot, msg, cookie):
-    url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
-    headers = {
-        "Host": "me-api.jd.com",
-        "Accept": "*/*",
+def get(cookie, message):
+    if "东东工厂" in message:
+        url = "https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2"
+        headers = {
+        "Accept": "application/json,text/plain, */*",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-cn",
         "Connection": "keep-alive",
         "Cookie": cookie,
-        "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
-        "Accept-Language": "zh-cn",
-        "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
-        "Accept-Encoding": "gzip, deflate, br"
-    }
-    i = 0
-    while i >= 5:
-        try:
-            r = requests.get(url, headers=headers).json()
-            if r['retcode'] == '1001':
-                return True
-            else:
-                return False
-        except:
-            i += 1
-            await jdbot.edit_message(msg, f"检验失败，正在进行第{i}次重试……")
-            await asyncio.sleep(1.5)
+        "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
+        "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"
+        }
+        key = 'retcode'
+        value = '13'
+    else:
+        url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
+        headers = {
+            "Host": "me-api.jd.com",
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+            "Cookie": cookie,
+            "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+            "Accept-Language": "zh-cn",
+            "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
+            "Accept-Encoding": "gzip, deflate, br"
+        }
+        key = 'retcode'
+        value = '1001'
+    return url, headers, key, value
+
+
+async def checkCookie(cookie, message):
+    url, headers, key, value = get(cookie, message)
+    r = requests.get(url, headers=headers).json()
+    await asyncio.sleep(1)
+    if r[key] == value:
+        return True
     return False
 
 
 @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
 async def mycheckcookie(event):
     try:
+        message = event.message.raw_text
         msg = await jdbot.send_message(chat_id, "正在检测 cookie 过期情况……")
         text, o, expireds = '检测结果\n\n', '\n\t   └ ', []
         if V4:
             cookies = myck(_ConfigFile)
             for cookie in cookies:
                 cknum = cookies.index(cookie) + 1
-                check = await checkCookie(jdbot, msg, cookie)
+                check = await checkCookie(cookie, message)
                 if check:
                     msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
                     expireds.append(cknum)
