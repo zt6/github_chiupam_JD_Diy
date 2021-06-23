@@ -12,8 +12,7 @@ from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, 
 from ..diy.utils import mycronup
 from telethon import events, Button
 from asyncio import exceptions
-import requests, re, os, asyncio
-import json
+import requests, re
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://.*(js|py|sh)$'))

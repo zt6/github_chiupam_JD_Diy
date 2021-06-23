@@ -10,7 +10,7 @@ from .. import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import split_list, row, press_event, mybot, backfile, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os
+import requests
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))
@@ -42,7 +42,7 @@ async def myinstall(event):
             furl = f'{str(mybot["下载代理"])}/{furl}'
         try:
             resp = requests.get(furl).text
-            info = f"下载{fname}成功"
+            info = f"下载{fname}成功，正在自动重启"
             botresp = True
         except Exception as e:
             info = f"下载{fname}失败，请自行拉取文件进/jbot/diy目录，或尝试使用 /set 指令更换下载代理"

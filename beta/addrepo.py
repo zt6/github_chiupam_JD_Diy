@@ -9,9 +9,10 @@ import json
 
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
+from ..diy.utils import myqladdrepo
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os, asyncio, re, time
+import requests, os, re, time
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
@@ -152,7 +153,7 @@ async def myaddrepo(event):
             dependence = replies[3].replace("root", "")
             cron = replies[4].replace("root", "0 0 * * *")
             cmdtext = f'ql repo {url} "{path}" "{blacklist}" "{dependence}" "{branch}"'
-            res = myqladdrepo2(git_name, cmdtext, cron)
+            res =   myqladdrepo(git_name, cmdtext, cron)
             await jdbot.send_message(chat_id, f"现在开始拉取仓库，稍后请自行查看结果")
             await cmd(cmdtext)
     except exceptions.TimeoutError:
@@ -181,7 +182,7 @@ async def myqladdrepo(event):
                 reply = await conv.get_response()
                 cron = reply.raw_text
                 await jdbot.delete_messages(chat_id, msg)
-            myqladdrepo2(taskname, message, cron)
+                myqladdrepo(taskname, message, cron)
             await jdbot.send_message(chat_id, "开始拉取仓库，稍后请自行查看结果")
             await cmd(message)
     except Exception as e:
@@ -189,20 +190,7 @@ async def myqladdrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-def myqladdrepo2(name, command, schedule):
-    with open(_Auth, 'r', encoding='utf-8') as f:
-        Auto = json.load(f)
-    url = 'http://127.0.0.1:5600/url/crons'
-    headers = {
-        "Authorization": f"Bearer {Auto['token']}"
-    }
-    body = {
-        'name': name,
-        'command': command,
-        'schedule': schedule
-    }
-    res = requests.post(url, data=body, headers=headers).json
-    return res
+
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/repo$'))

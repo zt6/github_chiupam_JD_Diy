@@ -55,10 +55,25 @@ async def upuser(fname, msg):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            await restart()
         else:
             await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+
+# addrepo.py 调用
+def  myqladdrepo(name, command, schedule):
+    with open(_Auth, 'r', encoding='utf-8') as f:
+        Auto = json.load(f)
+    url = 'http://127.0.0.1:5600/url/crons'
+    headers = {
+        "Authorization": f"Bearer {Auto['token']}"
+    }
+    body = {
+        'name': name,
+        'command': command,
+        'schedule': schedule
+    }
+    res = requests.post(url, data=body, headers=headers).json
+    return res

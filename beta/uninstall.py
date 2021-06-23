@@ -11,7 +11,7 @@ from .. import chat_id, jdbot, logger, _JdbotDir
 from ..bot.utils import split_list, row, press_event, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
-import os, asyncio
+import os
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/uninstall$'))
@@ -45,7 +45,7 @@ async def myuninstall(event):
         fpath = f"{_JdbotDir}/diy/{fname}"
         os.system(f'rm -rf {fpath}')
         if not os.path.isfile(fpath):
-            await jdbot.edit_message(msg, "删除成功")
+            await jdbot.edit_message(msg, "删除成功，正在自动重启")
         else:
             await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
     except exceptions.TimeoutError:

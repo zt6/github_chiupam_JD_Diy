@@ -11,7 +11,7 @@ from .. import chat_id, jdbot, _ConfigDir, logger
 from ..bot.utils import press_event, V4, QL, split_list, row
 from telethon import events, Button
 from asyncio import exceptions
-import requests, re, os, asyncio
+import re, asyncio
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/export$'))
