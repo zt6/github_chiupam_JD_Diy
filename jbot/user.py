@@ -7,10 +7,10 @@
 # @Future   :
 
 
-from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN
+from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN, _LogDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
-from telethon import events, TelegramClient, Button
-import re, json, requests, os, asyncio
+from telethon import events, TelegramClient
+import re, json, requests, asyncio
 
 
 if proxystart:
@@ -123,6 +123,10 @@ async def shopbean(event):
 
 @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id]))
 async def zoo_shopbean(event):
+    """
+    动物园关注店铺
+    关注频道：https://t.me/zoo_channel
+    """
     cookies = myck(_ConfigFile)
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
@@ -141,7 +145,6 @@ async def zoo_shopbean(event):
 @client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
 async def myexport(event):
     try:
-        SENDER = chat_id
         messages = event.message.text.split("\n")
         end = False
         for message in messages:
@@ -199,54 +202,23 @@ async def myzoo(event):
                 break
         if resp:
             fname = url.split('/')[-1]
-            fname_cn = re.findall(r"(?<=new\sEnv\(').*(?=')", resp, re.M)
-            if fname_cn != []:
-                fname_cn = fname_cn[0]
-            else:
-                fname_cn = ''
             fpath = f"{_ScriptsDir}/{fname}"
             backfile(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
-            cmdtext = False
-            try:
-                with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
-                    diybotset = json.load(f)
-                run = diybotset['zoo开卡自动执行']
-            except:
-                btns = [Button.inline("是", data="confirm"), Button.inline("否", data="no"), Button.inline("取消对话", data="cancel")]
-                async with jdbot.conversation(int(chat_id), timeout=60) as conv:
-                    msg = await jdbot.send_message(chat_id, f"未设置是否自动执行，请设置是否需要自动执行", buttons=btns)
-                    convdata = await conv.wait_event(press_event(int(chat_id)))
-                    res = bytes.decode(convdata.data)
-                    if res == "cancel":
-                        await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
-                        conv.cancel()
-                        return
-                    elif res == "no":
-                        run = 'False'
-                    else:
-                        run = 'True'
-                    await jdbot.edit_message(msg, "设置成功")
-                    conv.cancel()
-                with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f1:
-                    diybotsets = f1.readlines()
-                diybotsets[-2] = diybotsets[-2][:-1]+',\n'
-                diybotsets.insert(-1, f'  "zoo开卡自动执行": "{run}"\n')
-                with open(f"{_ConfigDir}/diybotset.json", 'w', encoding='utf-8') as f2:
-                    f2.write(''.join(diybotsets))
+            with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+                diybotset = json.load(f)
+            run = diybotset['zoo开卡自动执行']
             if run == "False":
                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
             else:
                 cmdtext = f'{jdcmd} {fpath} now'
                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
-            if cmdtext:
                 await cmd(cmdtext)
-    except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, f'选择已超时，对话已停止\n后续如需执行，请发送\n```/cmd {jdcmd} {fpath} now```')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
 
 # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
 @client.on(events.NewMessage(chats=-100123456789))
@@ -257,6 +229,7 @@ async def myforward(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
 
 # @client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
 # async def myupuser(event):
