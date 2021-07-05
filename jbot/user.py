@@ -124,7 +124,7 @@ async def shopbean(event):
 @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id]))
 async def zoo_shopbean(event):
     cookies = myck(_ConfigFile)
-    # message = event.message.text
+    message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
     if url != [] and len(cookies) > 0:
         i = 0
@@ -248,6 +248,15 @@ async def myzoo(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+# -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
+@client.on(events.NewMessage(chats=-100123456789))
+async def myforward(event):
+    try:
+        # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
+        await client.forward_messages(bot_id, event.id, -100123456789)
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
 
 # @client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
 # async def myupuser(event):
