@@ -104,7 +104,7 @@ async def fortest(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
+@client.on(events.NewMessage(chats=[-1001197524983, -1001419355450, my_chat_id], pattern=r'.*店'))
 async def shopbean(event):
     cookies = myck(_ConfigFile)
     message = event.message.text
