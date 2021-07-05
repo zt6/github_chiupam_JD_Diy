@@ -104,7 +104,7 @@ async def fortest(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@client.on(events.NewMessage(chats=[-1001197524983, -1001419355450, my_chat_id], pattern=r'.*店'))
+@client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
 async def shopbean(event):
     cookies = myck(_ConfigFile)
     message = event.message.text
@@ -112,6 +112,23 @@ async def shopbean(event):
     if url != [] and len(cookies) > 0:
         i = 0
         info = '关注店铺\n' + message.split("\n")[0] + "\n"
+        for cookie in cookies:
+            try:
+                i += 1
+                info += getbean(i, cookie, url[0])
+            except:
+                continue
+        await jdbot.send_message(chat_id, info)
+
+
+@client.on(events.NewMessage(chats=[-1001419355450, my_chat_id]))
+async def zoo_shopbean(event):
+    cookies = myck(_ConfigFile)
+    # message = event.message.text
+    url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
+    if url != [] and len(cookies) > 0:
+        i = 0
+        info = '关注店铺\n' + "\n"
         for cookie in cookies:
             try:
                 i += 1
