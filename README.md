@@ -89,7 +89,7 @@ bash diybot.sh
 1. 把文件存储在路径 `/jbot/diy/` 下
 2. 进入容器，使用命令 `docker exec -it qinglong bash`
 3. 先找到 jbot 进程 `PID` ，输入命令：`ps aux`，并记录 `xxx root 0:00 python3 -m jbot`， `xxx` 这串数字就是 `PID`
-4. 杀死 `jbot` 进程，输入命令：` kill -9 xxx`（注：`xxx`是第3步中提到的`PID`，自行替换）
+4. 杀死 `jbot` 进程，输入命令：`kill -9 xxx`（注：`xxx` 是第3步中提到的 `PID`，自行替换）
 5. 为了避免不必要的麻烦，输入命令：`rm -rf user.session`
 6. 手动前台开启机器人，输入命令：`python3 -m jbot`
 7. 输入手机号和 `telegram` 验证码进行登录后按 `Ctrl`+`C` 退出前台运行
