@@ -26,6 +26,7 @@ async def myhello(event):
     /upbot 升级拓展功能。
     /ver 查看程序版本号。
     /a 使用你的自定义快捷按钮。
+    /clearboard 删除快捷输入按钮。
     /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
     /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
     /cmd 执行命令，例：/cmd python3 /python/bot.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
@@ -40,6 +41,7 @@ async def myhello(event):
     /setname 设置命令别名。
     /snode 选择脚本执行，只能选择/scripts和/own目录下的脚本，选择完后直接后台运行，不影响BOT响应其他命令。 
     /repo 管理添加的仓库。
+    /export V4管理环境变量。
     /checkcookie 检测账号过期。
     /install 拓展本程序功能。
     /uninstall 删除本程序拓展功能。
