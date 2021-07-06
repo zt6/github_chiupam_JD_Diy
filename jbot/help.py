@@ -24,10 +24,12 @@ addenv-青龙新增环境变量
 bean-获取收支
 chart-统计收支变化
 checkcookie-检测过期
+clearboard-删除快捷输入按钮
 cmd-执行cmd命令
 dl-下载文件
 edit-编辑文件
 env-青龙管理环境变量
+export-V4管理环境变量
 help-获取帮助
 getcookie-扫码获取cookie
 getfile-获取jd目录下文件
