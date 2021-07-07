@@ -1,7 +1,8 @@
 import requests, re, json, os
 
 
-def GET_TUAN_ID(m):
+def GET_TUAN_ID():
+    m = 5
     try:
         while m:
             # 基于 178 大佬的 activeId.py 改写，感谢大佬！
@@ -14,36 +15,36 @@ def GET_TUAN_ID(m):
             else:
                 m -= 1
     except:
-        GET_TUAN_ID_2(5)
-
-
-def GET_TUAN_ID_2(n):
-    try:
-        while n:
-            # 参考 https://github.com/qqwas/JD_Diy/blob/master/jbot/tuan.py 使用的链接
-            url = 'https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json'
-            r = requests.get(url)
-            if r.ok:
-                TUAN_ACTIVEID = r.json()['tuanActiveId']
-                return TUAN_ACTIVEID
-            else:
-                n -= 1
-    except:
-        return False
+        n = 5
+        try:
+            while n:
+                # 参考 https://github.com/qqwas/JD_Diy/blob/master/jbot/tuan.py 使用的链接
+                url = 'https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json'
+                r = requests.get(url)
+                if r.ok:
+                    TUAN_ACTIVEID = r.json()['tuanActiveId']
+                    return TUAN_ACTIVEID
+                else:
+                    n -= 1
+        except:
+            return False
 
 
 def TUAN_ACTIVEID():
-    TUAN_ACTIVEID = GET_TUAN_ID(5)
+    TUAN_ACTIVEID = GET_TUAN_ID()
     if TUAN_ACTIVEID:
         msg = f"京喜工厂团ID：{TUAN_ACTIVEID}\n"
         with open(f"{env}/config/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
-        if configs.find(f"export TUAN_ACTIVEID=") != -1:
+        if "export TUAN_ACTIVEID=" in configs:
             if TUAN_ACTIVEID in configs:
                 msg += "京喜工厂团ID相同，取消替换"
                 return msg
             configs = re.sub(f'TUAN_ACTIVEID=(\"|\').*(\"|\')', f'TUAN_ACTIVEID="{TUAN_ACTIVEID}"', configs)
-            msg += "替换京喜工厂团ID成功"
+            if TUAN_ACTIVEID in configs:
+                msg += "替换京喜工厂团ID成功"
+            else:
+                msg += "替换京喜工厂团ID失败，请手动替换"
         else:
             msg += "程序没有找到设置京喜工厂团的变量值，将自动添加进配置"
             export =  f"export TUAN_ACTIVEID={TUAN_ACTIVEID} # 京喜工厂团ID\n"
