@@ -1,32 +1,39 @@
 import requests, re, json, os
 
 
-def GET_TUAN_ID():
-    m, n = 5, 5
-    while m:
-        # 基于 178 大佬的 activeId.py 改写，感谢大佬！
-        url = 'https://wqsd.jd.com/pingou/dream_factory/index.html'
-        r = requests.get(url)
-        if r.ok:
-            resp = r.text
-            TUAN_ACTIVEID = re.findall('((?<=.)activeId.*?==)(?:.*?)("start".*?(?=,))(?:.*?)("end".*?(?=,))', re.sub('%3D%3D', '==', ''.join(re.findall('({"width".*?})', resp))))[0][0].split("=",1)[1]
-            return TUAN_ACTIVEID
-        else:
-            m -= 1
-    while n:
-        # 参考 https://github.com/qqwas/JD_Diy/blob/master/jbot/tuan.py 使用的链接
-        url = 'https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json'
-        r = requests.get(url)
-        if r.ok:
-            TUAN_ACTIVEID = r.json()['tuanActiveId']
-            return TUAN_ACTIVEID
-        else:
-            n -= 1
-    return False
+def GET_TUAN_ID(m):
+    try:
+        while m:
+            # 基于 178 大佬的 activeId.py 改写，感谢大佬！
+            url = 'https://wqsd.jd.com/pingou/dream_factory/index.html'
+            r = requests.get(url)
+            if r.ok:
+                resp = r.text
+                TUAN_ACTIVEID = re.findall('((?<=.)activeId.*?==)(?:.*?)("start".*?(?=,))(?:.*?)("end".*?(?=,))', re.sub('%3D%3D', '==', ''.join(re.findall('({"width".*?})', resp))))[0][0].split("=",1)[1]
+                return TUAN_ACTIVEID
+            else:
+                m -= 1
+    except:
+        GET_TUAN_ID_2(5)
+
+
+def GET_TUAN_ID_2(n):
+    try:
+        while n:
+            # 参考 https://github.com/qqwas/JD_Diy/blob/master/jbot/tuan.py 使用的链接
+            url = 'https://cdn.jsdelivr.net/gh/gitupdate/updateTeam@master/shareCodes/jd_updateFactoryTuanId.json'
+            r = requests.get(url)
+            if r.ok:
+                TUAN_ACTIVEID = r.json()['tuanActiveId']
+                return TUAN_ACTIVEID
+            else:
+                n -= 1
+    except:
+        return False
 
 
 def TUAN_ACTIVEID():
-    TUAN_ACTIVEID = GET_TUAN_ID()
+    TUAN_ACTIVEID = GET_TUAN_ID(5)
     if TUAN_ACTIVEID:
         msg = f"京喜工厂团ID：{TUAN_ACTIVEID}\n"
         with open(f"{env}/config/config.sh", 'r', encoding='utf-8') as f1:
