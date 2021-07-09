@@ -223,7 +223,7 @@ async def myzoo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@client.on(events.NewMessage(chats=[-1001210483127, -1001159808620, my_chat_id], pattern=r".*京豆雨.*"))
+@client.on(events.NewMessage(chats=[-1001210483127, my_chat_id], pattern=r".*京豆雨.*"))
 async def redrain(event):
     try:
         if V4:
