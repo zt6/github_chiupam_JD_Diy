@@ -5,14 +5,11 @@
 # @Version  : v 2.5
 # @Updata   :
 # @Future   :
-import os
+
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN, _LogDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
 from telethon import events, TelegramClient
-# from datetime import timedelta
-import time
-import datetime
 import re, json, requests, asyncio
 
 
@@ -218,36 +215,6 @@ async def myzoo(event):
                 cmdtext = f'{jdcmd} {fpath} now'
                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
                 await cmd(cmdtext)
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-@client.on(events.NewMessage(chats=[-1001210483127, my_chat_id], pattern=r".*京豆雨.*"))
-async def redrain(event):
-    try:
-        if V4:
-            if not os.path.exists('/jd/jredrain.sh'):
-                cmdtext = 'cd /jd && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/jredrain.sh'
-                await cmd(cmdtext)
-        else:
-            if not os.path.exists('/ql/jredrain.sh'):
-                cmdtext = 'cd /ql && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/jredrain.sh'
-                await cmd(cmdtext)
-        message = event.message.text
-        RRAs = re.findall(r'RRA.*', message)
-        Times = re.findall(r'开始时间.*', message)
-        for RRA in RRAs:
-            i = RRAs.index(RRA)
-            if V4:
-                cmdtext = f'/cmd bash /jd/jredrain.sh {RRA}'
-            else:
-                cmdtext = f'/cmd bash /ql/jredrain.sh {RRA}'
-            Time_1 = Times[i].split(" ")[0].split("-")
-            Time_2 = Times[i].split(" ")[1].split(":")
-            Time_3 = time.localtime()
-            year, mon, mday = Time_3[0], Time_3[1], Time_3[2]
-            await client.send_message(bot_id, cmdtext, schedule=datetime.datetime(year, int(Time_1[1]), int(Time_1[2]), int(Time_2[0]) - 8 , int(Time_2[1]), 0, 0))
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
