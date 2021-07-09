@@ -10,10 +10,7 @@ import os
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN, _LogDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
 from telethon import events, TelegramClient
-# from datetime import timedelta
-import time
-import datetime
-import re, json, requests, asyncio
+import re, json, requests, asyncio, time, datetime
 
 
 if proxystart:
