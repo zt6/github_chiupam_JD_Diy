@@ -121,7 +121,7 @@ async def shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001419355450, my_chat_id]))
+@client.on(events.NewMessage(chats=[-1001419355450, -1001284907085, my_chat_id]))
 async def zoo_shopbean(event):
     """
     动物园关注店铺
