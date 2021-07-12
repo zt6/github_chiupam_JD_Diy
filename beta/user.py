@@ -142,7 +142,7 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001169232926, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
+@client.on(events.NewMessage(chats=[-1001169232926, -1001284907085, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
 async def myexport(event):
     try:
         messages = event.message.text.split("\n")
