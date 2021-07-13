@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # @Author   : Chiupam
-# @Data     : 2021-06-15
-# @Version  : v 2.5
+# @Data     : 2021-07-13
+# @Version  : v 2.6
 # @Updata   :
 # @Future   :
 import os
@@ -142,11 +142,11 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001169232926, -1001284907085, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
+@client.on(events.NewMessage(chats=[-1001112847619, -1001284907085, my_chat_id], pattern=r"export jd_zdjr_activityId=\".*\"|.*='.*'"))
 async def myexport(event):
     try:
+        cmdtext, end = False, False
         messages = event.message.text.split("\n")
-        end = False
         for message in messages:
             kv = message.replace("export ", "").replace("*", "")
             kname = kv.split("=")[0]
@@ -177,6 +177,8 @@ async def myexport(event):
                 f3.write(configs)
         if end:
             await jdbot.send_message(chat_id, end)
+        if cmdtext:
+            await cmd(cmdtext)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -222,6 +224,10 @@ async def myzoo(event):
 
 @client.on(events.NewMessage(chats=[-1001210483127, my_chat_id], pattern=r".*京豆雨.*"))
 async def redrain(event):
+    """
+    龙王庙京豆雨
+    关注频道：https://t.me/longzhuzhu
+    """
     try:
         if V4:
             if not os.path.exists('/jd/jredrain.sh'):
@@ -245,6 +251,7 @@ async def redrain(event):
             Time_3 = time.localtime()
             year, mon, mday = Time_3[0], Time_3[1], Time_3[2]
             await client.send_message(bot_id, cmdtext, schedule=datetime.datetime(year, int(Time_1[1]), int(Time_1[2]), int(Time_2[0]) - 8 , int(Time_2[1]), 0, 0))
+            await jdbot.send_message(chat_id, f'监控到RRA：{RRA}\n将在预定时间执行脚本，具体请查看当前机器人的定时任务')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
