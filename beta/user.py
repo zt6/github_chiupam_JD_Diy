@@ -5,12 +5,12 @@
 # @Version  : v 2.6
 # @Updata   :
 # @Future   :
-import os
+
 
 from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN, _LogDir
 from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
 from telethon import events, TelegramClient
-import re, json, requests, asyncio, time, datetime
+import re, json, requests, asyncio, time, datetime, os
 
 
 if proxystart:
@@ -142,7 +142,7 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001112847619, -1001284907085, my_chat_id], pattern=r"export jd_zdjr_activityId=\".*\"|.*='.*'"))
+@client.on(events.NewMessage(chats=[-1001112847619, -1001284907085, my_chat_id], pattern=r".*=\".*\"|.*='.*'"))
 async def myexport(event):
     try:
         cmdtext, end = False, False
@@ -177,8 +177,12 @@ async def myexport(event):
                 f3.write(configs)
         if end:
             await jdbot.send_message(chat_id, end)
-        if cmdtext:
-            await cmd(cmdtext)
+        try:
+            from ..diy.diy import smiek_jd_zdjr
+            cmdtext = await smiek_jd_zdjr()
+        finally:
+            if cmdtext:
+                await cmd(cmdtext)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
