@@ -1,4 +1,4 @@
-from JD_Diy import _ScriptsDir, _OwnDir
+from .. import _ScriptsDir, _OwnDir
 from ..bot.utils import V4, QL
 
 
