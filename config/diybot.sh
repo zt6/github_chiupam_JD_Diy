@@ -75,6 +75,10 @@ if [ ! -f $user_file ]; then
 else
   cp -rf $repo_2/jbot/* $dir_diy
 fi
+# diy.py的抉择
+if [ ! -f "$diy_file" ]; then
+  cp -rf $repo_2/pys/diy.py $dir_diy
+fi
 # 修改启动语文件
 mv -f $repo_2/backup/__main__.py $dir_bot
 # 删除 bot.py
