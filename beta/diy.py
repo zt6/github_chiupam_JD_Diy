@@ -5,9 +5,7 @@ from ..bot.utils import V4, QL
 import os
 
 
-async def smiek_jd_zdjr():
+def diy_1():
     """
     自由发挥即可
     """
-    None
-    return
