@@ -150,6 +150,7 @@ if __name__ == '__main__':
         bot = f'{env}/config/bot.json'
         with open(bot, 'r', encoding='utf-8') as botSet:
             bot = json.load(botSet)
-        tgNofity(bot['user_id'], bot['bot_token'], msg)
+        if "京喜工厂团ID相同" not in msg:
+            tgNofity(bot['user_id'], bot['bot_token'], msg)
     except:
         None
