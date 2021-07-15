@@ -56,12 +56,6 @@ if [ -d ${repo_1}/.git ]; then
 else
   git_clone_scripts ${url_1} ${repo_1} "main"
 fi
-# 把 repo/jbot 目录的文件复制到根目录
-cp -rf "$repo_1/jbot" $dir_root
-if [[ ! -f "$set_1" ]]; then
-  cp -f "$set_1" $dir_config
-fi
-
 # 拉取自定义机器人仓库文件
 echo -e "\n3、下载diybot仓库文件...\n"
 if [ -d ${repo_2}/.git ]; then
@@ -69,24 +63,54 @@ if [ -d ${repo_2}/.git ]; then
 else
   git_clone_scripts ${url_2} ${repo_2} "master"
 fi
+
 # user.py的抉择
+echo -e "\n4、检查是否部署了 user.py ...\n"
 if [ ! -f "$user_file" ]; then
-  cp -rf $repo_2/pys/* $dir_diy
-  rm -rf $dir_diy/user.py
+  echo "没有部署 user.py， 不拉取 user.py 进入 diy 目录"
+  cp -rf $repo_2/pys/* $repo_1/jbot/diy
+  rm -rf $repo_1/jbot/diy/user.py
 else
-  cp -rf $repo_2/beta/* $dir_diy
-fi
-# diy.py的抉择
-if [ ! -f "$diy_file" ]; then
-  cp -rf $repo_2/pys/diy.py $dir_diy
-fi
-# 修改启动语文件
-mv -f $repo_2/backup/__main__.py $dir_bot
-# diybotset.json的抉择
-if [ ! -f "$set_2" ]; then
-  cp $repo_2/config/diybotset.json $dir_config
+  echo "已部署 user.py，拉取更新"
+  cp -rf $repo_2/beta/* $repo_1/jbot/diy
 fi
 
+# diy.py的抉择
+echo -e "\n5、检查是否存在 diy.py ...\n"
+if [ ! -f "$diy_file" ]; then
+  echo "未存在 diy.py，拉取 diy.py 进去 diy 目录"
+  cp -rf $repo_2/pys/diy.py $repo_1/jbot/diy
+else
+  echo "已存在 user.py，取消拉取"
+fi
+
+# 修改启动语文件
+echo -e "\n6、修改启动语文件...\n"
+cp -rf -f $repo_2/backup/__main__.py $repo_1/jbot/
+
+# diybotset.json的抉择
+echo -e "\n7、检查是否存在 botset.json ...\n"
+if [ ! -f "$set_2" ]; then
+  echo "未存在 diybotset.json，拉取 diybotset.json 进去 config 目录"
+  cp $repo_2/config/diybotset.json $dir_config
+else
+  echo "已存在 diybotset.json，取消拉取"
+fi
+
+# botset.json的抉择
+echo -e "\n8、检查是否存在 botset.json ...\n"
+if [[ ! -f "$set_1" ]]; then
+  echo "未存在 botset.json，拉取 botset.json 进去 config 目录"
+  cp -f "$set_1" $dir_config
+else
+  echo "已存在 botset.json，取消拉取"
+fi
+
+
+
+# 把 repo/jbot 目录的文件复制到根目录
+echo -e "\n9、把 repo/jbot 目录的文件复制到根目录...\n"
+cp -rf "$repo_1/jbot" $dir_root
 cd $dir_root
 if [ ! -d "/ql/log/bot" ]; then
   mkdir $dir_root/log/bot
