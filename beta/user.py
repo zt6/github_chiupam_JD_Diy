@@ -180,7 +180,7 @@ async def myzdjr(event):
         try:
             from ..diy.diy import smiek_jd_zdjr
             await smiek_jd_zdjr()
-        finally:
+        except:
             None
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
