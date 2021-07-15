@@ -179,10 +179,9 @@ async def myexport(event):
             await jdbot.send_message(chat_id, end)
         try:
             from ..diy.diy import smiek_jd_zdjr
-            cmdtext = await smiek_jd_zdjr()
+            await smiek_jd_zdjr()
         finally:
-            if cmdtext:
-                await cmd(cmdtext)
+            None
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
