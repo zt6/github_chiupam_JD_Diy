@@ -1,4 +1,4 @@
-from .. import chat_id, jdbot, logger, TOKEN, V4, QL, _JdbotDir, _ConfigDir, chat_id
+from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir
 from telethon import events
 import os, asyncio
 

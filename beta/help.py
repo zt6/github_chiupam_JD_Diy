@@ -7,7 +7,8 @@
 # @Future   :
 
 
-from .. import chat_id, jdbot, logger, TOKEN, V4, QL
+from .. import chat_id, jdbot, logger, TOKEN
+from ..bot.utils import V4, QL
 from telethon import events
 
 
