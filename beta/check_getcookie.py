@@ -10,7 +10,6 @@ bot_id = int(TOKEN.split(':')[0])
 async def getcookiefile(event):
     try:
         fname = "getcookie.py"
-        msg = f'请找到一份 {fname} 文件并发送给机器人，选择存储在 {_ConfigDir} 目录中，随后执行以下命令\n/cmd mv {_ConfigDir}/{fname} {_JdbotDir}/bot'
         if not os.path.exists(f'{_JdbotDir}/bot/{fname}'):
             doit = True
         elif not os.path.exists(f'{_JdbotDir}/diy/{fname}'):
@@ -18,6 +17,7 @@ async def getcookiefile(event):
         else:
             doit = False
         if doit:
+            msg = f'请找到一份 {fname} 文件并发送给机器人，选择存储在 {_ConfigDir} 目录中，随后执行以下命令\n/cmd mv {_ConfigDir}/{fname} {_JdbotDir}/bot'
             await jdbot.send_message(chat_id, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
