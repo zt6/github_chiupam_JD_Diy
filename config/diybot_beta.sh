@@ -11,14 +11,14 @@ dir_bot=$dir_root/jbot
 dir_diy=$dir_bot/diy
 dir_repo=$dir_root/repo
 dir_config=$dir_root/config
-url_1="https://ghproxy.com/https://github.com/SuMaiKaDe/bot.git"
-url_2="https://ghproxy.com/https://github.com/chiupam/JD_Diy.git"
+url_1="https://github.com/SuMaiKaDe/bot.git"
+url_2="https://github.com/chiupam/JD_Diy.git"
 repo_1="${dir_repo}/dockerbot"
 repo_2="${dir_repo}/diybot"
 set_1="${dir_root}/config/botset.json"
 set_2="${dir_root}/config/diybotset.json"
-user_file="${dir_bot}/diy/user.py"
-diy_file="${dir_bot}/diy/diy.py"
+user_file="${dir_diy}/user.py"
+diy_file="${dir_diy}/diy.py"
 
 git_pull_scripts() {
   local dir_current=$(pwd)
@@ -68,7 +68,7 @@ echo -e "\n4、开始执行其余操作...\n"
 # user.py的抉择
 if [ ! -f "$user_file" ]; then
   echo "没有部署 user.py"
-  cp -rf $repo_2/pys/* $repo_1/jbot/diy
+  cp -rf $repo_2/beta/* $repo_1/jbot/diy
   rm -rf $repo_1/jbot/diy/user.py
 else
   echo "已部署 user.py"
@@ -94,7 +94,7 @@ fi
 # botset.json的抉择
 if [[ ! -f "$set_1" ]]; then
   echo "未存在 botset.json"
-  cp -f "$set_1" $dir_config
+  cp -f $set_1 $dir_config
 else
   echo "已存在 botset.json"
 fi
@@ -102,7 +102,7 @@ echo -e "\n5、完成其余操作...\n"
 
 # 把 repo/jbot 目录的文件复制到根目录
 echo -e "\n6、把 repo/jbot 目录的文件复制到根目录...\n"
-cp -rf "$repo_1/jbot" $dir_root
+cp -rf $repo_1/jbot $dir_root
 cd $dir_root
 if [ ! -d "/ql/log/bot" ]; then
   mkdir $dir_root/log/bot
