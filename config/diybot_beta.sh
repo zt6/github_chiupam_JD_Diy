@@ -64,41 +64,46 @@ else
   git_clone_scripts ${url_2} ${repo_2} "master"
 fi
 
-echo -e "\n4、开始执行其余操作...\n"
+cp -rf $repo_2/beta/* $repo_1/jbot/diy
+
+echo -e "\n4、开始执行其余操作..."
 # user.py的抉择
 if [ ! -f "$user_file" ]; then
-  echo "没有部署 user.py"
-  cp -rf $repo_2/beta/* $repo_1/jbot/diy
+  echo "没有部署 user.py ，拉取"
   rm -rf $repo_1/jbot/diy/user.py
 else
-  echo "已部署 user.py"
+  echo "已部署 user.py ，更新"
   cp -rf $repo_2/beta/* $repo_1/jbot/diy
 fi
+
 # diy.py的抉择
 if [ ! -f "$diy_file" ]; then
-  echo "未存在 diy.py"
+  echo "未存在 diy.py ， 拉取"
   cp -rf $repo_2/pys/diy.py $repo_1/jbot/diy
 else
-  echo "已存在 diy.py"
+  echo "已存在 diy.py ，取消操作"
 fi
+
 # 修改启动语文件
 echo "修改启动语文件"
 cp -rf -f $repo_2/backup/__main__.py $repo_1/jbot/
+
 # diybotset.json的抉择
 if [ ! -f "$set_2" ]; then
-  echo "未存在 diybotset.json"
+  echo "未存在 diybotset.json ，拉取"
   cp $repo_2/config/diybotset.json $dir_config
 else
-  echo "已存在 diybotset.json"
+  echo "已存在 diybotset.json ，取消操作"
 fi
+
 # botset.json的抉择
 if [[ ! -f "$set_1" ]]; then
-  echo "未存在 botset.json"
+  echo "未存在 botset.json ，拉取"
   cp -f $set_1 $dir_config
 else
-  echo "已存在 botset.json"
+  echo "已存在 botset.json ，取消操作"
 fi
-echo -e "\n5、完成其余操作...\n"
+echo -e "完成其余操作...\n"
 
 # 把 repo/jbot 目录的文件复制到根目录
 echo -e "\n6、把 repo/jbot 目录的文件复制到根目录...\n"
