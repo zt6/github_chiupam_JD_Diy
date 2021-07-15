@@ -17,7 +17,7 @@ async def getcookiefile(event):
         else:
             doit = False
         if doit:
-            msg = f'请找到一份 {fname} 文件并发送给机器人，选择存储在 {_ConfigDir} 目录中，随后执行以下命令\n/cmd mv {_ConfigDir}/{fname} {_JdbotDir}/bot'
+            msg = f'请找到一份 {fname} 文件并发送给机器人，选择存储在 {_ConfigDir} 目录中，随后执行以下命令\n/cmd mv {_ConfigDir}/{fname} {_JdbotDir}/diy'
             await jdbot.send_message(chat_id, msg)
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
