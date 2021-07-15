@@ -112,8 +112,8 @@ if [[ -z $(grep -E "123456789" $dir_root/config/bot.json) ]]; then
     ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
     nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
   else
-    cd $dir_bot
-    pm2 start ecosystem.config.js
+#    cd $dir_bot
+#    pm2 start ecosystem.config.js
     cd $dir_root
     pm2 restart jbot
   fi
