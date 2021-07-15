@@ -88,14 +88,6 @@ fi
 echo "修改启动语文件"
 cp -rf -f $repo_2/backup/__main__.py $repo_1/jbot/
 
-# diybotset.json的抉择
-if [ ! -f "$set_2" ]; then
-  echo "未存在 diybotset.json ，拉取"
-  cp $repo_2/config/diybotset.json $dir_config
-else
-  echo "已存在 diybotset.json ，取消操作"
-fi
-
 # botset.json的抉择
 if [[ ! -f "$set_1" ]]; then
   echo "未存在 botset.json ，拉取"
@@ -103,11 +95,20 @@ if [[ ! -f "$set_1" ]]; then
 else
   echo "已存在 botset.json ，取消操作"
 fi
+
+# diybotset.json的抉择
+if [ ! -f "$set_2" ]; then
+  echo "未存在 diybotset.json ，拉取"
+  cp $repo_2/config/diybotset.json $dir_config
+else
+  echo "已存在 diybotset.json ，取消操作"
+fi
 echo -e "完成其余操作...\n"
 
-# 把 repo/jbot 目录的文件复制到根目录
-echo -e "\n6、把 repo/jbot 目录的文件复制到根目录...\n"
+# 把 repo/dockerbot/jbot 目录的文件复制到根目录
+echo -e "\n5、把 $repo_1/jbot 目录的文件复制到 $dir_root 根目录...\n"
 cp -rf $repo_1/jbot $dir_root
+
 cd $dir_root
 if [ ! -d "/ql/log/bot" ]; then
   mkdir $dir_root/log/bot
