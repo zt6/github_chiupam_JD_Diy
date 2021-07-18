@@ -5,7 +5,7 @@ from asyncio import exceptions
 import re
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/tempblockcookie'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/tempblockcookie|^/blockcookie'))
 async def mytempblockcookie(event):
     try:
         SENDER = event.sender_id
@@ -13,16 +13,16 @@ async def mytempblockcookie(event):
             await jdbot.send_message(chat_id, "青龙用户无法使用临时屏蔽功能")
             return
         message = event.message.raw_text
-        ck_num = message.replace("/tempblockcookie","")
+        ck_num = message.replace("/tempblockcookie","").replace("/blockcookie","")
         goon = True
         if len(ck_num) <= 1:
             async with jdbot.conversation(SENDER, timeout=60) as conv:
                 while goon:
                     goon = await tempblockcookie_1(conv, SENDER)
                 conv.cancel()
-        elif not ck_num.isdigit:
+        elif not ck_num.replace(" ","").isdigit():
             await jdbot.send_message(chat_id, "非法输入！参考下面所给实例进行操作！\n/tempblockcookie 1（屏蔽账号1）")
-        elif ck_num.isdigit:
+        elif ck_num.replace(" ","").isdigit():
             await tempblockcookie_3(ck_num.replace(" ",""))
     except exceptions.TimeoutError:
         await jdbot.send_message(chat_id, '选择已超时，对话已停止，感谢你的使用')
