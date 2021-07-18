@@ -11,13 +11,14 @@ dir_bot=$dir_root/jbot
 dir_diy=$dir_bot/diy
 dir_repo=$dir_root/repo
 dir_config=$dir_root/config
-url_1="https://ghproxy.com/https://github.com/SuMaiKaDe/bot.git"
-url_2="https://ghproxy.com/https://github.com/chiupam/JD_Diy.git"
+url_1="https://github.com/SuMaiKaDe/bot.git"
+url_2="https://github.com/chiupam/JD_Diy.git"
 repo_1="${dir_repo}/dockerbot"
 repo_2="${dir_repo}/diybot"
 set_1="${dir_root}/config/botset.json"
 set_2="${dir_root}/config/diybotset.json"
-user_file="${dir_bot}/diy/user.py"
+user_file="${dir_diy}/user.py"
+diy_file="${dir_diy}/diy.py"
 
 git_pull_scripts() {
   local dir_current=$(pwd)
@@ -55,12 +56,6 @@ if [ -d ${repo_1}/.git ]; then
 else
   git_clone_scripts ${url_1} ${repo_1} "main"
 fi
-# 把 repo/jbot 目录的文件复制到根目录
-cp -rf $repo_1/jbot $dir_root
-if [[ ! -f $set_1 ]]; then
-  cp -f "$set_1" $dir_config
-fi
-
 # 拉取自定义机器人仓库文件
 echo -e "\n3、下载diybot仓库文件...\n"
 if [ -d ${repo_2}/.git ]; then
@@ -68,23 +63,51 @@ if [ -d ${repo_2}/.git ]; then
 else
   git_clone_scripts ${url_2} ${repo_2} "master"
 fi
+
+cp -rf $repo_2/jbot/* $repo_1/jbot/diy
+
+echo -e "\n4、开始执行其余操作..."
 # user.py的抉择
-if [ ! -f $user_file ]; then
-  cp -rf $repo_2/jbot/* $dir_diy
-  rm -rf $dir_diy/user.py
+if [ ! -f "$user_file" ]; then
+  echo "没有部署 user.py ，拉取"
+  rm -rf $repo_1/jbot/diy/user.py
 else
-  cp -rf $repo_2/jbot/* $dir_diy
+  echo "已部署 user.py ，更新"
+  cp -rf $repo_2/beta/* $repo_1/jbot/diy
 fi
+
 # diy.py的抉择
 if [ ! -f "$diy_file" ]; then
-  cp -rf $repo_2/pys/diy.py $dir_diy
+  echo "未存在 diy.py ， 拉取"
+  cp -rf $repo_2/pys/diy.py $repo_1/jbot/diy
+else
+  echo "已存在 diy.py ，取消操作"
 fi
+
 # 修改启动语文件
-mv -f $repo_2/backup/__main__.py $dir_bot
-# diybotset.json的抉择
-if [ ! -f $set_2 ]; then
-  cp $repo_2/config/diybotset.json $dir_config
+echo "修改启动语文件"
+cp -rf -f $repo_2/backup/__main__.py $repo_1/jbot/
+
+# botset.json的抉择
+if [[ ! -f "$set_1" ]]; then
+  echo "未存在 botset.json ，拉取"
+  cp -f $set_1 $dir_config
+else
+  echo "已存在 botset.json ，取消操作"
 fi
+
+# diybotset.json的抉择
+if [ ! -f "$set_2" ]; then
+  echo "未存在 diybotset.json ，拉取"
+  cp $repo_2/config/diybotset.json $dir_config
+else
+  echo "已存在 diybotset.json ，取消操作"
+fi
+echo -e "完成其余操作...\n"
+
+# 把 repo/dockerbot/jbot 目录的文件复制到根目录
+echo -e "\n5、把 $repo_1/jbot 目录的文件复制到 $dir_root 根目录...\n"
+cp -rf $repo_1/jbot $dir_root
 
 cd $dir_root
 if [ ! -d "/ql/log/bot" ]; then
@@ -93,10 +116,10 @@ fi
 if [[ -z $(grep -E "123456789" $dir_root/config/bot.json) ]]; then
   if [ -d "/ql" ]; then
     ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
-    nohup python3 -m jbot > $dir_root/log/bot/bot.log 2>&1 &
+    nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
   else
-    cd $dir_bot
-    pm2 start ecosystem.config.js
+#    cd $dir_bot
+#    pm2 start ecosystem.config.js
     cd $dir_root
     pm2 restart jbot
   fi
