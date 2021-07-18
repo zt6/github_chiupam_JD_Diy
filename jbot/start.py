@@ -45,7 +45,7 @@ async def myhello(event):
     /repo 管理添加的仓库。
     /export 管理添加的环境变量。
     /checkcookie 检测账号过期。
-    /blcokcookie 屏蔽账号。
+    /blockcookie 屏蔽账号。
     /install 拓展本程序功能。
     /uninstall 删除本程序拓展功能。
     /list 列出本程序拓展的功能。
