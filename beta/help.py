@@ -22,6 +22,7 @@ async def myhelp(event):
         if V4:
             msg = '''a-自定义快捷按钮
 bean-获取收支
+blockcookie-屏蔽账号
 chart-统计收支变化
 checkcookie-检测过期
 clearboard-删除快捷输入按钮
