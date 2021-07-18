@@ -8,7 +8,7 @@
 
 
 from .. import chat_id, jdbot, logger, _JdbotDir
-from ..bot.utils import press_event, V4, QL, split_list, row, backfile, mybot
+from ..bot.utils import press_event, V4, QL, split_list, row, backfile, mybot, cmd
 from ..diy.utils import upuser
 from telethon import events, Button
 from asyncio import exceptions
@@ -49,8 +49,8 @@ async def myupbot(event):
             elif fname == 'all':
                 await jdbot.edit_message(msg, "准备自动升级并重启，请耐心等待")
                 furl = "https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh"
-                cmdtext = f"rm - f diybot.sh && wget {furl} && bash diybot.sh"
-                os.system(cmdtext)
+                cmdtext = f"rm -f diybot.sh && wget {furl} && bash diybot.sh"
+                await cmd(cmdtext)
                 return
             conv.cancel()
         msg = await jdbot.edit_message(msg, "开始下载文件")
