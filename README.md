@@ -96,3 +96,6 @@ rm -rf diybot_beta.sh
 wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh
 bash diybot_beta.sh
 ```
+```text
+/cmd rm -rf diybot_beta.sh && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh && bash diybot_beta.sh
+```
