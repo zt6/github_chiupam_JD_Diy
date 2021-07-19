@@ -71,20 +71,23 @@ async def tempblockcookie_1(conv, SENDER):
                         Temp = list(map(int, Temp.split(" ")))
                     else:
                         Temp = list(map(int, Temp))
+                    break
                 elif "AutoDelCron" in config:
                     await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
                     return False
             msg = await conv.send_message(f"目前的屏蔽情况是：\n{Temp}\n请输入你需要操作的账号数字：")
             reply = await conv.get_response()
             ck_num = reply.raw_text
-            if not ck_num.replace(" ", "").replace("|", "").isdigit():
-                message = "非法输入，输入的是非数字！"
+            if not ck_num.isdigit():
+                message = "非法输入，收入的必须是单个整数！"
                 return await operate(conv, SENDER, msg, message)
             if res == 'designated block':
                 if int(ck_num) in Temp:
                     message = "此账号已经被屏蔽，无需再次屏蔽"
                     return await operate(conv, SENDER, msg, message)
                 else:
+                    if '没有帐号被屏蔽' in Temp:
+                        Temp = []
                     Temp.append(int(ck_num))
                     Temp = " ".join('%s' % _ for _ in sorted(Temp, reverse=False))
                     configs[i] = f'TempBlockCookie="{Temp}"\n'
