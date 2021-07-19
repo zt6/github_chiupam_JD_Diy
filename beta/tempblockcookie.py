@@ -1,8 +1,8 @@
 from .. import chat_id, jdbot, logger, chname, mybot
-from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list
+from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list, _Auth
 from telethon import events, Button
 from asyncio import exceptions
-import re
+import re, json, requests, time
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/tempblockcookie|^/blockcookie'))
@@ -18,7 +18,7 @@ async def mytempblockcookie(event):
         if len(ck_num) <= 1:
             async with jdbot.conversation(SENDER, timeout=120) as conv:
                 while goon:
-                    goon = await tempblockcookie_1(conv, SENDER)
+                    goon = await V4_tempblockcookie(conv, SENDER)
                 conv.cancel()
         elif not ck_num.replace(" ","").isdigit():
             await jdbot.send_message(chat_id, "非法输入！参考下面所给实例进行操作！\n/tempblockcookie 1（屏蔽账号1）")
@@ -31,7 +31,7 @@ async def mytempblockcookie(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-async def tempblockcookie_1(conv, SENDER):
+async def V4_tempblockcookie(conv, SENDER):
     msg = await conv.send_message("请做出您的选择")
     buttons = [
         Button.inline("查询目前屏蔽", data="inquire"),
@@ -121,41 +121,62 @@ async def tempblockcookie_1(conv, SENDER):
                     return False
 
 
-# async def tempblockcookie_2(conv, SENDER, res, msg, configs):
-#     await jdbot.delete_messages(chat_id, msg)
-#     msg = await conv.send_message("请输入你需要操作的账号数字")
-#     reply = await conv.get_response()
-#     ck_num = reply.raw_text
-#     if not ck_num.isdigit():
-#         await jdbot.edit_message(msg, "非法输入，输入的是非数字！")
-#         return False
-#     for config in configs:
-#         i = configs.index(config)
-#         if config.find("TempBlockCookie") != -1 and config.find("##") == -1 and configs[i + 1].find(";") == -1:
-#             Temp = re.findall(r'"([^"]*)"', config)[0]
-#             if res == 'designated block':
-#                 if ck_num in Temp:
-#                     message = "此账号已经被屏蔽，无需再次屏蔽"
-#                     return await operate(conv, SENDER, msg, message)
-#                 else:
-#                     configs[i] = f'TempBlockCookie="{Temp} {ck_num}"\n'
-#                     with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-#                         f2.write(''.join(configs))
-#                     message = f"指定屏蔽账号{ck_num}成功"
-#                     return await operate(conv, SENDER, msg, message)
-#             elif res == 'designated unblock':
-#                 if ck_num not in Temp:
-#                     message = "此账号没有被屏蔽，无需取消屏蔽"
-#                     return await operate(conv, SENDER, msg, message)
-#                 else:
-#                     configs[i] = f'TempBlockCookie="{Temp.replace(ck_num, "")}"\n'
-#                     with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-#                         f2.write(''.join(configs))
-#                     message = f"指定取消屏蔽账号{ck_num}成功"
-#                     return await operate(conv, SENDER, msg, message)
-#         elif "AutoDelCron" in config:
-#             await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
-#             return False
+async def QL_tempblockcookie(conv, SENDER):
+    msg = await conv.send_message("请做出您的选择")
+    buttons = [
+        Button.inline("查询目前屏蔽", data="inquire"),
+        Button.inline("指定屏蔽账号", data="designated block"),
+        Button.inline("指定取消屏蔽", data="designated unblock"),
+        Button.inline("取消所有屏蔽", data="unblock all accounts"),
+        Button.inline('取消会话', data='cancel')
+    ]
+    msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=split_list(buttons, row))
+    convdata = await conv.wait_event(press_event(SENDER))
+    res = bytes.decode(convdata.data)
+    if res == 'cancel':
+        await jdbot.edit_message(msg, '对话已取消')
+        conv.cancel()
+        return False
+    else:
+        with open(_Auth, 'r', encoding='utf-8') as f:
+            auth = json.load(f)
+        token = auth['token']
+        headers = {'Authorization': f'Bearer {token}'}
+        cookiedatas = []
+        try:
+            ql_version = '2.2'
+            url = 'http://127.0.0.1:5600/api/cookies'
+            body = {'t': int(round(time.time() * 1000))}
+            datas = requests.get(url, params=body, headers=headers).json()['data']
+            for data in datas:
+                cknum = datas.index(data) + 1
+                cookie = data['value']
+                remarks = data['nickname']
+                status = data['status']
+                _id = data['_id']
+                cookiedatas.append([cknum, cookie, remarks, status, _id])
+        except:
+            ql_version = '2.8+'
+            url = 'http://127.0.0.1:5600/api/envs'
+            body = {
+                'searchValue': 'JD_COOKIE',
+                'Authorization': f'Bearer {token}'
+            }
+            datas = requests.get(url, params=body, headers=headers).json()['data']
+            for data in datas:
+                cknum = datas.index(data) + 1
+                cookie = data['value']
+                _id = data['_id']
+                status = data['status']
+                try:
+                    remarks = data['remarks']
+                except:
+                    remarks = '未备注'
+                cookiedatas.append([cknum, cookie, remarks, status, _id])
+        if res == 'inquire':
+            for cookiedata in cookiedatas:
+                None
+
 
 
 async def operate(conv, SENDER, msg, message):
