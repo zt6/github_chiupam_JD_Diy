@@ -104,7 +104,10 @@ async def mycheckcookie(event):
                         expireds.append([data['_id'], cknum])
                     else:
                         msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
-                        valids.append([data['_id'], data['nickname'], cknum])
+                        try:
+                            valids.append([data['_id'], data['remarks'], cknum])
+                        except:
+                            valids.append([data['_id'], '未备注', cknum])
         if V4:
             with open(_ConfigFile, 'r', encoding='utf-8') as f1:
                 configs = f1.readlines()
