@@ -7,7 +7,7 @@
 # @Future   :
 
 
-from .. import chat_id, jdbot, _ConfigDir, logger
+from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot
 from ..bot.utils import press_event, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
@@ -78,3 +78,6 @@ async def myaddexport(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+if chname:
+    jdbot.add_event_handler(myaddexport, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))

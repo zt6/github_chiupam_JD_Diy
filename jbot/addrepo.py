@@ -7,7 +7,7 @@
 # @Future   :
 import json
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir
+from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
 from ..diy.utils import myqladdrepo
 from telethon import events, Button
@@ -113,20 +113,22 @@ async def myaddrepo(event):
             with open(_ConfigFile, 'r', encoding='utf-8') as f1:
                 configs = f1.readlines()
             for config in configs:
-                if config.find('启用其他开发者的仓库方式一') != -1:
+                if '启用其他开发者的仓库方式一' in config:
                     start_line = configs.index(config)
-                elif config.find('OwnRepoUrl1=""') != -1 and config.find("## ") == -1:
+                elif 'OwnRepoUrl1=""' in config and '##' in config:
                     nums = [1]
                     break
-                elif config.find('OwnRepoUrl2=""') != -1 and config.find("## ") == -1:
+                elif 'OwnRepoUrl2=""' in config and '##' in config:
                     nums = [2]
                     break
-                elif config.find('OwnRepoUrl') != -1 and config.find("## ") == -1:
+                elif 'OwnRepoUrl=""' in config and '##' in config:
                     num = int(re.findall(r'(?<=OwnRepoUrl)[\d]+(?==")', config)[0])
                     nums.append(num)
-                elif config.find('启用其他开发者的仓库方式二') != -1:
+                elif '启用其他开发者的仓库方式二' in config:
                     end_line = configs.index(config)
                     break
+            if len(nums) == 0:
+                nums = [0]
             nums.sort()
             OwnRepoUrl = f'OwnRepoUrl{nums[-1] + 1}="{url}"\n'
             OwnRepoBranch = f'OwnRepoBranch{nums[-1] + 1}="{replies[0].replace("root", "")}"\n'
@@ -135,13 +137,17 @@ async def myaddrepo(event):
                 OwnRepoPath = f'OwnRepoPath{nums[-1] + 1}=""\n'
             else:
                 OwnRepoPath = f'OwnRepoPath{nums[-1] + 1}="{Path}"\n'
-            for config in configs[start_line:end_line]:
-                if config.find(f'OwnRepoUrl{nums[-1]}') != -1 and config.find("## ") == -1:
-                    configs.insert(configs.index(config) + 1, OwnRepoUrl)
-                elif config.find(f'OwnRepoBranch{nums[-1]}') != -1 and config.find("## ") == -1:
-                    configs.insert(configs.index(config) + 1, OwnRepoBranch)
-                elif config.find(f'OwnRepoPath{nums[-1]}') != -1 and config.find("## ") == -1:
-                    configs.insert(configs.index(config) + 1, OwnRepoPath)
+            if nums[-1] == 0:
+                insert = f'{OwnRepoUrl}{OwnRepoBranch}{OwnRepoPath}'
+                configs.insert(configs[end_line] - 1, insert)
+            else:
+                for config in configs[start_line:end_line]:
+                    if config.find(f'OwnRepoUrl{nums[-1]}') != -1 and config.find("## ") == -1:
+                        configs.insert(configs.index(config) + 1, OwnRepoUrl)
+                    elif config.find(f'OwnRepoBranch{nums[-1]}') != -1 and config.find("## ") == -1:
+                        configs.insert(configs.index(config) + 1, OwnRepoBranch)
+                    elif config.find(f'OwnRepoPath{nums[-1]}') != -1 and config.find("## ") == -1:
+                        configs.insert(configs.index(config) + 1, OwnRepoPath)
             with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                 f2.write(''.join(configs))
             await jdbot.send_message(chat_id, "现在开始拉取仓库，稍后请自行查看结果")
@@ -161,6 +167,10 @@ async def myaddrepo(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+if chname:
+    jdbot.add_event_handler(myaddrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^ql repo'))
@@ -190,6 +200,8 @@ async def myqladdrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+if chname:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 
 
 
@@ -350,3 +362,5 @@ async def myqladdrepo(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+if chname:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
