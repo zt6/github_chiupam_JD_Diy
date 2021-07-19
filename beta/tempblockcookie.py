@@ -81,13 +81,13 @@ async def V4_tempblockcookie(conv, SENDER):
             if not ck_num.isdigit():
                 message = "非法输入，收入的必须是单个整数！"
                 return await operate(conv, SENDER, msg, message)
+            if '没有帐号被屏蔽' in Temp:
+                Temp = []
             if res == 'designated block':
                 if int(ck_num) in Temp:
                     message = "此账号已经被屏蔽，无需再次屏蔽"
                     return await operate(conv, SENDER, msg, message)
                 else:
-                    if '没有帐号被屏蔽' in Temp:
-                        Temp = []
                     Temp.append(int(ck_num))
                     Temp = " ".join('%s' % _ for _ in sorted(Temp, reverse=False))
                     configs[i] = f'TempBlockCookie="{Temp}"\n'
@@ -124,10 +124,11 @@ async def V4_tempblockcookie(conv, SENDER):
 async def QL_tempblockcookie(conv, SENDER):
     msg = await conv.send_message("请做出您的选择")
     buttons = [
-        Button.inline("查询目前屏蔽", data="inquire"),
-        Button.inline("指定屏蔽账号", data="designated block"),
-        Button.inline("指定取消屏蔽", data="designated unblock"),
-        Button.inline("取消所有屏蔽", data="unblock all accounts"),
+        Button.inline("查询启停状态", data="query start and stop status"),
+        Button.inline("指定启用账号", data="Specify to able an account"),
+        Button.inline("指定禁用账号", data="specify to disable an account"),
+        Button.inline("启用全部账号", data="enable all accounts"),
+        Button.inline("禁用全部账号", data="disable all accounts"),
         Button.inline('取消会话', data='cancel')
     ]
     msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=split_list(buttons, row))
@@ -168,12 +169,8 @@ async def QL_tempblockcookie(conv, SENDER):
                 cookie = data['value']
                 _id = data['_id']
                 status = data['status']
-                try:
-                    remarks = data['remarks']
-                except:
-                    remarks = '未备注'
-                cookiedatas.append([cknum, cookie, remarks, status, _id])
-        if res == 'inquire':
+                cookiedatas.append([cknum, cookie, data['remarks'] if 'remarks' in data.keys() else "未备注", status, _id])
+        if res == 'query start and stop status':
             for cookiedata in cookiedatas:
                 None
 
