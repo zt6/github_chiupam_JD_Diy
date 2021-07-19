@@ -12,7 +12,13 @@ async def myrestart(event):
             os.system("pm2 restart jbot")
         elif QL:
             await jdbot.send_message(chat_id, "重启程序")
-            os.system("ql bot")
+            bash_file_1 = "ps -ef | grep 'python3 -m jbot' | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null"
+            bash_file_2 = "nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
+            bash_file_3 = "rm -f restart.sh"
+            bash_file = f"{bash_file_1}\n{bash_file_2}\n{bash_file_3}"
+            with open('/ql/restart.sh', 'w', encoding='utf-8') as f:
+                f.write(bash_file)
+            os.system("bash restart.sh")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
