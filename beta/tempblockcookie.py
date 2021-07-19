@@ -9,16 +9,16 @@ import re, json, requests, time
 async def mytempblockcookie(event):
     try:
         SENDER = event.sender_id
-        if QL:
-            await jdbot.send_message(chat_id, "青龙用户无法使用临时屏蔽功能")
-            return
         message = event.message.raw_text
         ck_num = message.replace("/tempblockcookie","").replace("/blockcookie","")
         goon = True
         if len(ck_num) <= 1:
             async with jdbot.conversation(SENDER, timeout=120) as conv:
                 while goon:
-                    goon = await V4_tempblockcookie(conv, SENDER)
+                    if V4:
+                        goon = await V4_tempblockcookie(conv, SENDER)
+                    else:
+                        goon = await QL_tempblockcookie(conv, SENDER)
                 conv.cancel()
         elif not ck_num.replace(" ","").isdigit():
             await jdbot.send_message(chat_id, "非法输入！参考下面所给实例进行操作！\n/tempblockcookie 1（屏蔽账号1）")
@@ -125,7 +125,7 @@ async def QL_tempblockcookie(conv, SENDER):
     msg = await conv.send_message("请做出您的选择")
     buttons = [
         Button.inline("查询启停状态", data="query start and stop status"),
-        Button.inline("指定启用账号", data="Specify to able an account"),
+        Button.inline("指定启用账号", data="specify to able an account"),
         Button.inline("指定禁用账号", data="specify to disable an account"),
         Button.inline("启用全部账号", data="enable all accounts"),
         Button.inline("禁用全部账号", data="disable all accounts"),
@@ -165,14 +165,15 @@ async def QL_tempblockcookie(conv, SENDER):
             }
             datas = requests.get(url, params=body, headers=headers).json()['data']
             for data in datas:
-                cknum = datas.index(data) + 1
-                cookie = data['value']
-                _id = data['_id']
-                status = data['status']
-                cookiedatas.append([cknum, cookie, data['remarks'] if 'remarks' in data.keys() else "未备注", status, _id])
+                cookiedatas.append([datas.index(data) + 1, data['value'], data['remarks'] if 'remarks' in data.keys() else "未备注", '启用' if data['status'] == 1 else '禁用', data['_id']])
         if res == 'query start and stop status':
+            message = "目前启停状态\n\n"
             for cookiedata in cookiedatas:
-                None
+                message += f'账号{cookiedata[0]}\n备注：{cookiedata[2]}\n启停状态：{cookiedata[3]}\n\n'
+            return await operate(conv, SENDER, msg, message)
+        elif res == 'specify to able an account':
+            None
+
 
 
 
