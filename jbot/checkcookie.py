@@ -95,16 +95,33 @@ async def mycheckcookie(event):
                     'Authorization': f'Bearer {token}'
                 }
                 datas = requests.get(url, params=body, headers=headers).json()['data']
-                valids = []
+                valids, changes, removes = [], [], []
                 for data in datas:
-                    cknum = datas.index(data) + 1
-                    check = await checkCookie(data['value'], message)
-                    if check:
-                        msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
-                        expireds.append([data['_id'], cknum])
+                    cookie = data['value']
+                    if "&" in cookie:
+                        cookies = cookie.split("&")
+                        len_cooke = len(cookies)
+                        for ck in cookies:
+                            check = await checkCookie(ck, message)
+                            if check:
+                                msg = await jdbot.edit_message(msg, f"Cookie：{ck} 已过期")
+                                cookies.remove(ck)
+                                removes.append(ck)
+                            else:
+                                msg = await jdbot.edit_message(msg, f"Cookie：{ck} 有效")
+                            await asyncio.sleep(1)
+                        if len(cookies) != len_cooke:
+                            changes.append([data['remarks'] if 'remarks' in data.keys() else '未备注', '&'.join(cookies), data['_id']])
                     else:
-                        msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
-                        valids.append([data['_id'], data['nickname'], cknum])
+                        cknum = datas.index(data) + 1
+                        check = await checkCookie(cookie, message)
+                        if check:
+                            msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
+                            expireds.append([data['_id'], cknum])
+                        else:
+                            msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
+                            valids.append([data['_id'], data['remarks'] if 'remarks' in data.keys() else '未备注', cknum])
+                        await asyncio.sleep(1)
         if V4:
             with open(_ConfigFile, 'r', encoding='utf-8') as f1:
                 configs = f1.readlines()
@@ -163,6 +180,23 @@ async def mycheckcookie(event):
                             text += f'账号{valid[2]} - {valid[1]}：{o}启用成功\n'
                         else:
                             text += f'账号{valid[2]} - {valid[1]}：{o}启用失败，请手动启用\n'
+                text += '\n'
+            if changes != []:
+                text += f'【更新情况】\n'
+                for change in changes:
+                    url = 'http://127.0.0.1:5600/api/envs'
+                    body = {
+                        "name": "JD_COOKIE",
+                        "remarks": change[0],
+                        "value": change[1],
+                        "_id": change[2]
+                    }
+                    r = requests.put(url, json=body, headers=headers)
+                    if r.ok:
+                        removes = ' '.join(removes)
+                        text += f'更新JD_COOKIE：{o}{body["value"]}\n移除的COOKIE：{o}{removes}\n\n'
+                    else:
+                        text += f'更新JD_COOKIE：{o}更新失败，请手动更新\n'
             await jdbot.edit_message(msg, text)
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
