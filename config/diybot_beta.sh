@@ -65,16 +65,17 @@ else
 fi
 
 cp -rf $repo_2/beta/* $repo_1/jbot/diy
+rm -rf $repo_1/jbot/diy/user.py
 
 echo -e "\n4、开始执行其余操作..."
 # user.py的抉择
-if [ ! -f "$user_file" ]; then
-  echo "没有部署 user.py ，拉取"
-  rm -rf $repo_1/jbot/diy/user.py
-else
-  echo "已部署 user.py ，更新"
-  cp -rf $repo_2/beta/* $repo_1/jbot/diy
-fi
+#if [ ! -f "$user_file" ]; then
+#  echo "没有部署 user.py ，删除"
+#  rm -rf $repo_1/jbot/diy/user.py
+#else
+#  echo "已部署 user.py ，更新"
+#  cp -rf $repo_2/beta/* $repo_1/jbot/diy
+#fi
 
 # diy.py的抉择
 if [ ! -f "$diy_file" ]; then
