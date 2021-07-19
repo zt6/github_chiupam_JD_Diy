@@ -20,6 +20,8 @@
   - [V4BOT用户部署user.py](#v4bot用户部署userpy)
   - [青龙用户部署user.py](#青龙用户部署userpy)
 - [前瞻计划](#前瞻计划)
+  - [用户要求](#用户要求)
+  - [部署方法](#部署方法)
 # 仓库目录说明
 ```text
 JD_Diy/               # JD_Diy 仓库
@@ -89,11 +91,16 @@ bash diybot.sh
 2. 把 [user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py) 下载到 `/jbot/diy` 目录下，输入如下命令：`cd /ql/jbot/diy && rm -rf user.py && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/user.py && cd /ql/ && ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null && rm -rf user.session && python3 -m jbot`
 3. 输入手机号和 `telegram` 验证码进行登录后按 `Ctrl`+`C` 退出前台运行，不管出现任何情况，都继续执行第4步
 4. 后台挂起机器人，输入命令：`nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &`
-### 前瞻计划
-测试版机器人的部署方法，功能不稳定，不建议尝试~
+## 前瞻计划
+测试版机器人的部署方法，功能不稳定，不建议尝试。但对测试做出一定贡献的用户可进入🐏群~
+### 用户要求
+- 比较热爱折腾
+- 一定的操作基础
+- 甚至可以 Pr 部分功能
+### 部署方法
 ```shell
 rm -rf diybot_beta.sh
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh
+wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh
 bash diybot_beta.sh
 ```
 ```text
