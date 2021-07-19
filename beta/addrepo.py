@@ -7,7 +7,7 @@
 # @Future   :
 import json
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir
+from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
 from ..diy.utils import myqladdrepo
 from telethon import events, Button
@@ -163,6 +163,10 @@ async def myaddrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+if chname:
+    jdbot.add_event_handler(myaddrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+
+
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^ql repo'))
 async def myqladdrepo(event):
     try:
@@ -190,6 +194,8 @@ async def myqladdrepo(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+if chname:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 
 
 
@@ -350,3 +356,5 @@ async def myqladdrepo(event):
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
+if chname:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))

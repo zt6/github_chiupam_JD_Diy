@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Author   : Chiupam
-# @Data     : 2021-06-20
-# @Version  : v 1.0
-# @Updata   :
-# @Future   :
-
-
-from .. import chat_id, jdbot, logger
+from .. import chat_id, jdbot, logger, chname, mybot
 from ..bot.utils import  V4, QL
 from telethon import events
 import os
@@ -25,4 +16,8 @@ async def myrestart(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+if chname:
+    jdbot.add_event_handler(myrestart, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 

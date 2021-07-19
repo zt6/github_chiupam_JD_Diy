@@ -1,6 +1,6 @@
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir
+from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir, chname, mybot
 from telethon import events
-import os, asyncio
+import os
 
 
 bot_id = int(TOKEN.split(':')[0])
@@ -19,3 +19,7 @@ async def getcookiefile(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+if chname:
+    jdbot.add_event_handler(getcookiefile, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))

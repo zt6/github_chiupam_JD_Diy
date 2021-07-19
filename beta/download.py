@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Author   : Chiupam
-# @Data     : 2021-06-15
-# @Version  : v 1.0
-# @Updata   :
-# @Future   :
-
-
-from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir
+from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
 from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron, mybot
 from ..diy.utils import mycronup
 from telethon import events, Button
@@ -102,4 +93,8 @@ async def mydownload(event):
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+if chname:
+    jdbot.add_event_handler(mydownload, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 

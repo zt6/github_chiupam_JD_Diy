@@ -1,4 +1,4 @@
-from .. import chat_id, jdbot, logger
+from .. import chat_id, jdbot, logger, chname, mybot
 from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list
 from telethon import events, Button
 from asyncio import exceptions
@@ -175,3 +175,7 @@ async def tempblockcookie_3(ck_num):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(''.join(configs))
                 await jdbot.edit_message(msg, f"指定屏蔽账号{ck_num}成功")
+
+
+if chname:
+    jdbot.add_event_handler(mytempblockcookie, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
