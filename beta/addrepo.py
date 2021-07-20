@@ -1,18 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Author   : Chiupam
-# @Data     : 2021-06-17
-# @Version  : v 1.0
-# @Updata   :
-# @Future   :
-import json
-
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
 from ..diy.utils import myqladdrepo
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os, re, time
+import requests, os, re, time, json
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
