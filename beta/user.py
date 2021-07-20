@@ -4,7 +4,7 @@ from ..diy.utils import getbean
 from telethon import events, TelegramClient
 import re, json, requests, asyncio, time, datetime, os
 
-from ..diy.utils import my_chat_id, bot_id, myzdjr_chatId, myjoinTeam_chatId
+from ..diy.utils import my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
 
 
 if proxystart:
@@ -63,8 +63,7 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-# [-1001112847619, -1001284907085, my_chat_id]
-@client.on(events.NewMessage(chats=myzdjr_chatId, pattern=r"export\sjd_zdjr_activityId=\".*\"|.*='.*'"))
+@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r"export\sjd_zdjr_activityId=\".*\"|.*='.*'"))
 async def myzdjr(event):
     try:
         cmdtext, end = False, False
@@ -109,8 +108,7 @@ async def myzdjr(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-# [-1001112847619, -1001284907085, -1001174443659, my_chat_id]
-@client.on(events.NewMessage(chats=myjoinTeam_chatId, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
+@client.on(events.NewMessage(chats=myjoinTeam_chatIds, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
 async def myjoinTeam(event):
     try:
         messages = event.message.text.split("\n")
