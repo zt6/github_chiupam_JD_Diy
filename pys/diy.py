@@ -63,3 +63,22 @@ async def jd_joinTeam_activityId():
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+async def getcookie(jd_cookie):
+    try:
+        """
+        try 部分则自由发挥即可
+        jd_cookie 是传入的 cookie 具体值
+        """
+
+
+
+
+
+
+
+
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
