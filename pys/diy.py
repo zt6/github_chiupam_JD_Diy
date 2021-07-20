@@ -26,11 +26,14 @@ import xxx
 """
 
 
-def smiek_jd_zdjr():
+async def smiek_jd_zdjr():
     try:
         """
         try 部分则自由发挥即可
         """
+
+        # 例如下行代码代表在调用且运行此函数时，机器人给你发送一条消息
+        # await jdbot.send_message(chat_id, "Hello World") # （注释即可）
 
 
 
@@ -44,7 +47,7 @@ def smiek_jd_zdjr():
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-def jd_joinTeam_activityId():
+async def jd_joinTeam_activityId():
     try:
         """
         try 部分则自由发挥即可
