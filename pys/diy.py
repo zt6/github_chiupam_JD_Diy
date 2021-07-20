@@ -33,7 +33,7 @@ async def smiek_jd_zdjr():
         """
 
         # 例如下行代码代表在调用且运行此函数时，机器人给你发送一条消息
-        # await jdbot.send_message(chat_id, "Hello World") # （注释即可）
+        # await jdbot.send_message(chat_id, "Hello World") # （注释此行即可）
 
 
 
