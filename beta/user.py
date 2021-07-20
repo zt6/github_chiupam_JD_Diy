@@ -1,5 +1,5 @@
-from .. import chat_id, jdbot, _ConfigDir, logger, api_id, api_hash, proxystart, proxy, _ScriptsDir, _OwnDir, _JdbotDir, TOKEN, _LogDir
-from ..bot.utils import cmd, press_event, backfile, jdcmd, _DiyDir, V4, QL, _ConfigFile, myck
+from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir
+from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean
 from telethon import events, TelegramClient
 import re, json, requests, asyncio, time, datetime, os
