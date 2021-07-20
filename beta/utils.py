@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# @Author   : Chiupam
-# @Data     : 2021-06-20
-# @Version  : v 1.0
-# @Updata   :
-# @Future   :
-
-
 from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, TOKEN
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
 import json, asyncio, requests
@@ -17,6 +8,18 @@ with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
     diybotset = json.load(f)
 my_chat_id = int(diybotset['my_chat_id'])
 
+def myids(values, test_id):
+    if "," in values:
+        Ids = values.replace(" ", "").split(",")
+        Ids = list(map(int, ['%s' %int(_) for _ in Ids]))
+    else:
+        Ids = [int(values)]
+    Ids.append(int(test_id))
+    return Ids
+
+myzdjr_chatIds = myids(diybotset['myzdjr_chatId'], my_chat_id)
+
+myjoinTeam_chatIds = myids(diybotset['myjoinTeam_chatId'], my_chat_id)
 
 bot_id = int(TOKEN.split(':')[0])
 
