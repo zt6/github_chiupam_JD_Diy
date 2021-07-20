@@ -7,9 +7,84 @@
 # @Future   :
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir
-from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile
+from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, TOKEN
+from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
 import json, asyncio, requests
+
+
+
+with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+    diybotset = json.load(f)
+my_chat_id = int(diybotset['my_chat_id'])
+
+
+bot_id = int(TOKEN.split(':')[0])
+
+
+def checkCookie1():
+    expired = []
+    cookies = myck(_ConfigFile)
+    for cookie in cookies:
+        cknum = cookies.index(cookie) + 1
+        if checkCookie2(cookie):
+            expired.append(cknum)
+    return expired, cookies
+
+
+def checkCookie2(cookie):
+    url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
+    headers = {
+        "Host": "me-api.jd.com",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "Cookie": cookie,
+        "User-Agent": "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1",
+        "Accept-Language": "zh-cn",
+        "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
+        "Accept-Encoding": "gzip, deflate, br"
+    }
+    try:
+        r = requests.get(url, headers=headers).json()
+        if r['retcode'] == '1001':
+            return True
+        else:
+            return False
+    except:
+        return False
+
+
+# user.py调用
+def getbean(i, cookie, url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36",
+        "Accept-Encoding": "gzip,compress,br,deflate",
+        "Cookie": cookie,
+    }
+    result, o = '', '\n\t\t└'
+    try:
+        r = requests.get(url=url, headers=headers)
+        res = r.json()
+        if res['code'] == '0':
+            followDesc = res['result']['followDesc']
+            if followDesc.find('成功') != -1:
+                try:
+                    for n in range(len(res['result']['alreadyReceivedGifts'])):
+                        redWord = res['result']['alreadyReceivedGifts'][n]['redWord']
+                        rearWord = res['result']['alreadyReceivedGifts'][n]['rearWord']
+                        result += f"{o}领取成功，获得{redWord}{rearWord}"
+                except:
+                    giftsToast = res['result']['giftsToast'].split(' \n ')[1]
+                    result = f"{o}{giftsToast}"
+            elif followDesc.find('已经') != -1:
+                result = f"{o}{followDesc}"
+        else:
+            result = f"{o}Cookie 可能已经过期"
+    except Exception as e:
+        if str(e).find('(char 0)') != -1:
+            result = f"{o}访问发生错误：无法解析数据包"
+        else:
+            result = f"{o}访问发生错误：{e}"
+    return f"\n京东账号{i}{result}\n"
 
 
 # 修改原作者的 cronup() 函数便于我继续进行此功能的编写
@@ -63,7 +138,7 @@ async def upuser(fname, msg):
 
 
 # addrepo.py 调用
-def  myqladdrepo(name, command, schedule):
+def myqladdrepo(name, command, schedule):
     with open(_Auth, 'r', encoding='utf-8') as f:
         Auto = json.load(f)
     url = 'http://127.0.0.1:5600/url/crons'
