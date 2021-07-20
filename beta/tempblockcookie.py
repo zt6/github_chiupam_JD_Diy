@@ -1,5 +1,5 @@
 from .. import chat_id, jdbot, logger, chname, mybot
-from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list, _Auth
+from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list, _Auth, myck
 from telethon import events, Button
 from asyncio import exceptions
 import re, json, requests, time
@@ -50,75 +50,88 @@ async def V4_tempblockcookie(conv, SENDER):
     else:
         with open(_ConfigFile, 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
+        for config in configs:
+            if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config:
+                line = configs.index(config)
+                blocks = re.findall(r'"([^"]*)"', config)[0]
+                if len(blocks) == 0:
+                    blocks = []
+                elif " " in blocks:
+                    blocks = list(map(int, blocks.split(" ")))
+                else:
+                    blocks = [int(blocks)]
+                break
+            elif "AutoDelCron" in config:
+                await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
+                return False
         if res == 'inquire':
-            for config in configs:
-                i = configs.index(config)
-                if "TempBlockCookie" in config and "##" not in config and configs[i + 1].find(";") == -1:
-                    result = re.findall(r'"([^"]*)"', config)[0]
-                    if len(result) == 0:
-                        result = '没有帐号被屏蔽'
-                    message = f"目前的屏蔽情况是：\n{result}"
-                    return await operate(conv, SENDER, msg, message)
-        elif res == 'designated block' or res == 'designated unblock':
-            await jdbot.delete_messages(chat_id, msg)
-            for config in configs:
-                i = configs.index(config)
-                if "TempBlockCookie" in config and "##" not in config and configs[i + 1].find(";") == -1:
-                    Temp = re.findall(r'"([^"]*)"', config)[0]
-                    if len(Temp) == 0:
-                        Temp = '没有帐号被屏蔽'
-                    elif " " in Temp:
-                        Temp = list(map(int, Temp.split(" ")))
-                    else:
-                        Temp = list(map(int, Temp))
-                    break
-                elif "AutoDelCron" in config:
-                    await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
-                    return False
-            msg = await conv.send_message(f"目前的屏蔽情况是：\n{Temp}\n请输入你需要操作的账号数字：")
-            reply = await conv.get_response()
-            ck_num = reply.raw_text
-            if not ck_num.isdigit():
-                message = "非法输入，收入的必须是单个整数！"
+            message = f"目前的屏蔽情况是：\n{str(' '.join('%s' % _ for _ in sorted(blocks, reverse=False))) if len(blocks) != 0 else '没有帐号被屏蔽'}"
+            return await operate(conv, SENDER, msg, message)
+        elif res == 'designated block':
+            acounts = len(myck(_ConfigFile))
+            if acounts == len(blocks):
+                message = "所有账号都已被屏蔽，无需继续屏蔽"
                 return await operate(conv, SENDER, msg, message)
-            if '没有帐号被屏蔽' in Temp:
-                Temp = []
-            if res == 'designated block':
-                if int(ck_num) in Temp:
-                    message = "此账号已经被屏蔽，无需再次屏蔽"
-                    return await operate(conv, SENDER, msg, message)
-                else:
-                    Temp.append(int(ck_num))
-                    Temp = " ".join('%s' % _ for _ in sorted(Temp, reverse=False))
-                    configs[i] = f'TempBlockCookie="{Temp}"\n'
-                    with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                        f2.write(''.join(configs))
-                    message = f"指定屏蔽账号{ck_num}成功"
-                    return await operate(conv, SENDER, msg, message)
-            elif res == 'designated unblock':
-                if int(ck_num) not in Temp:
-                    message = "此账号没有被屏蔽，无需取消屏蔽"
-                    return await operate(conv, SENDER, msg, message)
-                else:
-                    Temp.remove(int(ck_num))
-                    Temp = " ".join('%s' % _ for _ in sorted(Temp, reverse=False))
-                    configs[i] = f'TempBlockCookie="{Temp}"\n'
-                    with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                        f2.write(''.join(configs))
-                    message = f"指定取消屏蔽账号{ck_num}成功"
-                    return await operate(conv, SENDER, msg, message)
+            cks, btns = [], []
+            for i in range(acounts):
+                cks.append(i + 1)
+            btns_list = list(set(cks) - set(blocks))
+            btns_list.sort()
+            for block in btns_list:
+                btn = Button.inline(f"账号{str(block)}", data=block)
+                btns.append(btn)
+            btns.append(Button.inline("上级菜单", data="upper menu"))
+            btns.append(Button.inline('取消会话', data='cancel'))
+            msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=split_list(btns, row))
+            convdata = await conv.wait_event(press_event(SENDER))
+            res_2 = bytes.decode(convdata.data)
+            if res_2 == 'upper menu':
+                await jdbot.delete_messages(chat_id, msg)
+                return True
+            elif res_2 == 'cancel':
+                await jdbot.edit_message(msg, '对话已取消')
+                return False
+            else:
+                blocks.append(int(res_2))
+                blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
+                configs[line] = f'TempBlockCookie="{blocks}"\n'
+                with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                    f2.write(''.join(configs))
+                message = f"指定屏蔽账号{str(res_2)}成功"
+                return await operate(conv, SENDER, msg, message)
+        elif res == 'designated unblock':
+            if blocks == []:
+                message = "没有账号被屏蔽，无需取消屏蔽"
+                return await operate(conv, SENDER, msg, message)
+            btns = []
+            for block in blocks:
+                btn = Button.inline(f"账号{str(block)}", data=block)
+                btns.append(btn)
+            btns.append(Button.inline("上级菜单", data="upper menu"))
+            btns.append(Button.inline('取消会话', data='cancel'))
+            msg = await jdbot.edit_message(msg, '请做出您的选择：', buttons=split_list(btns, row))
+            convdata = await conv.wait_event(press_event(SENDER))
+            res_2 = bytes.decode(convdata.data)
+            if res_2 == 'upper menu':
+                await jdbot.delete_messages(chat_id, msg)
+                return True
+            elif res_2 == 'cancel':
+                await jdbot.edit_message(msg, '对话已取消')
+                return False
+            else:
+                blocks.remove(int(res_2))
+                blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
+                configs[line] = f'TempBlockCookie="{blocks}"\n'
+                with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                    f2.write(''.join(configs))
+                message = f"指定取消屏蔽账号{res_2}成功"
+                return await operate(conv, SENDER, msg, message)
         elif res == 'unblock all accounts':
-            for config in configs:
-                i = configs.index(config)
-                if "TempBlockCookie" in config and "##" not in config and configs[i + 1].find(";") == -1:
-                    configs[i] = 'TempBlockCookie=""\n'
-                    with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                        f2.write(''.join(configs))
-                    message = "取消屏蔽所有账号成功"
-                    return await operate(conv, SENDER, msg, message)
-                elif "AutoDelCron" in config:
-                    await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
-                    return False
+            configs[line] = 'TempBlockCookie=""\n'
+            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                f2.write(''.join(configs))
+            message = "取消屏蔽所有账号成功"
+            return await operate(conv, SENDER, msg, message)
 
 
 async def QL_tempblockcookie(conv, SENDER):
