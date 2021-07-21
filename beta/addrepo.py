@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
 from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
 from ..diy.utils import myqladdrepo

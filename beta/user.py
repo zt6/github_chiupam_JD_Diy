@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean

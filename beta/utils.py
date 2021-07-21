@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, TOKEN
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
 import json, asyncio, requests
-
 
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:

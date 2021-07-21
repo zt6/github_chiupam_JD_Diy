@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, _JdbotDir, logger, chname, mybot
 from telethon import events
 import asyncio

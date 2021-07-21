@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir, chname, mybot
 from telethon import events
 import os
