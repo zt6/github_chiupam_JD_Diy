@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+
 from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean
@@ -187,7 +191,7 @@ async def myzoo(event):
                 f.write(resp)
             with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
                 diybotset = json.load(f)
-            run = diybotset['zoo开卡自动执行']
+            run = diybotset['zoo_opencard']
             if run == "False":
                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
             else:

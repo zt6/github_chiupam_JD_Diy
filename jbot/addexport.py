@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Author   : Chiupam
-# @Data     : 2021-06-13
-# @Version  : v 1.0
-# @Updata   :
-# @Future   :
 
 
 from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot
