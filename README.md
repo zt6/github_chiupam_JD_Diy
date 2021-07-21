@@ -60,7 +60,7 @@ JD_Diy/               # JD_Diy 仓库
 - [x] 发送 `/upbot` 升级机器人
 - [x] 发送 `/checkcookie` 检测过期情况
 - [x] 发送 `/export` 修改环境变量
-- [x] 发送 `/blockcookie` 进行屏蔽操作（仅 V4）
+- [x] 发送 `/blockcookie` 进行屏蔽操作
 - [x] 下载 `.js` `.py` `.sh` 的 `raw` 文件
 - [x] 添加以 `.git` 结尾的仓库链接可添加仓库
 - [x] 发送 `变量名="变量值"` 的格式消息可快捷添加环境变量
