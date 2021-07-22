@@ -67,104 +67,6 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r"export\sjd_zdjr_activityId=\".*\"|.*='.*'"))
-async def myzdjr(event):
-    try:
-        msg = await jdbot.send_message(chat_id, '监控到 jd_zdjr_activityId 环境变量')
-        messages = event.message.text.split("\n")
-        change = ''
-        for message in messages:
-            kv = message.replace("export ", "")
-            kname = kv.split("=")[0]
-            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-                configs = f1.read()
-            if vname in configs:
-                continue
-            if configs.find(kname) != -1:
-                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-                change += f"替换 {kname} 环境变量成功\n{kv}\n\n"
-                msg = await jdbot.edit_message(msg, change)
-            else:
-                if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.readlines()
-                    for config in configs:
-                        if config.find("第五区域") != -1 and config.find("↑") != -1:
-                            end_line = configs.index(config)
-                            break
-                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
-                    configs = ''.join(configs)
-                else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.read()
-                    configs += f'export {kname}="{vname}"\n'
-                change += f"新增 {kname} 环境变量成功\n{kv}\n\n"
-                msg = await jdbot.edit_message(msg, change)
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-                f3.write(configs)
-        if len(change) == 0:
-            await jdbot.edit_message(msg, "目前配置中的 jd_zdjr_activityId 环境变量无需改动")
-            return
-        try:
-            from ..diy.diy import smiek_jd_zdjr
-            await smiek_jd_zdjr()
-        except:
-            None
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-@client.on(events.NewMessage(chats=myjoinTeam_chatIds, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
-async def myjoinTeam(event):
-    try:
-        msg = await jdbot.send_message(chat_id, '监控到 jd_joinTeam_activityId 环境变量')
-        messages = event.message.text.split("\n")
-        change = ''
-        for message in messages:
-            kv = message.replace("export ", "")
-            kname = kv.split("=")[0]
-            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-                configs = f1.read()
-            if vname in configs:
-                continue
-            if configs.find(kname) != -1:
-                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-                change += f"替换 {kname} 环境变量成功\n{kv}\n\n"
-                msg = await jdbot.edit_message(msg, change)
-            else:
-                if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.readlines()
-                    for config in configs:
-                        if config.find("第五区域") != -1 and config.find("↑") != -1:
-                            end_line = configs.index(config)
-                            break
-                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
-                    configs = ''.join(configs)
-                else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                        configs = f2.read()
-                    configs += f'export {kname}="{vname}"\n'
-                change += f"新增 {kname} 环境变量成功\n{kv}\n\n"
-                msg = await jdbot.edit_message(msg, change)
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-                f3.write(configs)
-        if len(change) == 0:
-            await jdbot.edit_message(msg, "目前配置中的 jd_joinTeam_activityId 环境变量无需改动")
-            return
-        try:
-            from ..diy.diy import jd_joinTeam_activityId
-            await jd_joinTeam_activityId()
-        except:
-            None
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
 @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
 async def myzoo(event):
     """
@@ -233,6 +135,103 @@ async def redrain(event):
             year, mon, mday = Time_3[0], Time_3[1], Time_3[2]
             await client.send_message(bot_id, cmdtext, schedule=datetime.datetime(year, int(Time_1[1]), int(Time_1[2]), int(Time_2[0]) - 8 , int(Time_2[1]), 0, 0))
             await jdbot.send_message(chat_id, f'监控到RRA：{RRA}\n预定时间：{Times[i].split("：")[1]}\n\n将在预定时间执行脚本，具体请查看当前机器人的定时任务')
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))
+async def myzdjr(event):
+    try:
+        if "cjhydz-isv" in event.message.text:
+            return
+        msg = await jdbot.send_message(chat_id, '监控到 jd_zdjr_activityId 环境变量')
+        messages = event.message.text.split("\n")
+        change = ''
+        for message in messages:
+            kv = message.replace("export ", "")
+            kname = kv.split("=")[0]
+            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+                configs = f1.read()
+            if kv in configs:
+                continue
+            if configs.find(kname) != -1:
+                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+                change += f"替换 jd_zdjr_activityId 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
+            else:
+                if V4:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.readlines()
+                    for config in configs:
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
+                            break
+                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs = ''.join(configs)
+                else:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.read()
+                    configs += f'export {kname}="{vname}"\n'
+                change += f"新增 jd_zdjr_activityId 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+                f3.write(configs)
+        if len(change) == 0:
+            await jdbot.edit_message(msg, "目前配置中的 jd_zdjr_activityId 环境变量无需改动")
+            return
+        try:
+            from ..diy.diy import smiek_jd_zdjr
+            await smiek_jd_zdjr()
+        except:
+            None
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+@client.on(events.NewMessage(chats=myjoinTeam_chatIds, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
+async def myjoinTeam(event):
+    try:
+        end = False
+        env = event.message.text
+        messages = env.split("\n")
+        for message in messages:
+            kv = message.replace("export ", "")
+            kname = kv.split("=")[0]
+            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+                configs = f1.read()
+            if kv in configs:
+                continue
+            if configs.find(kname) != -1:
+                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+                end = f"替换 jd_joinTeam_activityId 环境变量成功\n\n{env}"
+            else:
+                if V4:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.readlines()
+                    for config in configs:
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
+                            break
+                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs = ''.join(configs)
+                else:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.read()
+                    configs += f'export {kname}="{vname}"\n'
+                end = f"新增 jd_joinTeam_activityId 环境变量成功\n\n{env}"
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+                f3.write(configs)
+        if end:
+            await jdbot.send_message(chat_id, end)
+        try:
+            from ..diy.diy import jd_joinTeam_activityId
+            await jd_joinTeam_activityId()
+        except:
+            None
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
