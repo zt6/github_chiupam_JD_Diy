@@ -143,8 +143,8 @@ async def redrain(event):
 @client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))
 async def myzdjr(event):
     try:
-        if "cjhydz-isv" in event.message.text:
-            return
+        # if "cjhydz-isv" in event.message.text:
+        #     return
         msg = await jdbot.send_message(chat_id, '监控到 jd_zdjr_activityId 环境变量')
         messages = event.message.text.split("\n")
         change = ''
