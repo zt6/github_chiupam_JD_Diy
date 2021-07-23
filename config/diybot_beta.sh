@@ -23,7 +23,7 @@ file_repo_botset=$dir_repo_bot/config/botset.json
 file_jbot_diybotset=$root/config/diybotset.json
 file_repo_diybotset=$dir_repo_bot/config/diybotset.json
 
-function git_pull() {
+git_pull() {
   local dir_current=$(pwd)
   local dir_work="$1"
   local branch="$2"
@@ -37,7 +37,7 @@ function git_pull() {
   cd $dir_current
 }
 
-function git_clone() {
+git_clone() {
   local url=$1
   local dir=$2
   local branch=$3
@@ -47,7 +47,7 @@ function git_clone() {
   exit_status=$?
 }
 
-function dir_log() {
+dir_log() {
   dir_log=$root/log/bot
   if [ ! -d $dir_log ]
     then echo "新建 $dir_log 目录"
@@ -57,7 +57,7 @@ function dir_log() {
   fi
 }
 
-function env() {
+env() {
   echo "检测 bot 依赖 "
   APK=$(apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev | grep "OK")
   if [ -z $APK ]
@@ -68,13 +68,13 @@ function env() {
   fi
 }
 
-function bug() {
+bug() {
   if [ -f $dir_repo_bot/jbot/diy/utils.py ]
     then rm -rf $dir_repo
   fi
 }
 
-function bot() {
+bot() {
   if [ -d $dir_repo_bot ]; then
     echo "更新 bot 所需文件"
     git_pull $dir_repo_bot "main"
@@ -84,7 +84,7 @@ function bot() {
   fi
 }
 
-function diybot() {
+diybot() {
   if [ -d $dir_repo_diybot ]; then
     echo "更新 diybot 所需文件"
     git_pull $dir_repo_diybot "master"
@@ -94,12 +94,12 @@ function diybot() {
   fi
 }
 
-function hello() {
+hello() {
   echo "修改启动语文件"
   cp -f ${dir_repo_diybot}/backup/__main__.py $dir_jbot
 }
 
-function file_botset() {
+file_botset() {
   echo "检测 botset.json 文件 "
   if [ -f $file_jbot_botset ]; then
     echo "   └---结果：存在，不拉取"
@@ -109,7 +109,7 @@ function file_botset() {
   fi
 }
 
-function file_diybotset() {
+file_diybotset() {
   echo "检测 diybotset.json 文件 "
   if [ -f $file_jbot_diybotset ]; then
     echo "   └---结果：存在，不拉取"
@@ -119,7 +119,7 @@ function file_diybotset() {
   fi
 }
 
-function file_user() {
+file_user() {
   echo "检测 user.py 文件 "
   if [ -f $file_jbot_user ]; then
     echo "   └---结果：存在，更新$file_jbot_user"
@@ -130,7 +130,7 @@ function file_user() {
   fi
 }
 
-function file_diy() {
+file_diy() {
   echo "检测 diy.py 文件 "
   if [ -f $file_jbot_diy ]; then
     echo "   └---结果：存在，不拉取"
@@ -140,14 +140,14 @@ function file_diy() {
   fi
 }
 
-function copy() {
+copy() {
   echo "拉取原机器人文件进入 $root 目录"
   cp -rf $dir_repo_bot/ $root
   echo "拉取diy机器人文件进入 $dir_diy 目录"
   cp -rf $dir_repo_diybot/beta/* $dir_diy
 }
 
-function start() {
+start() {
   if [ -z $(grep -E "123456789" $file_jbot_botset) ]
     then if [ -d "/jd" ]
       then cd $dir_jbot
@@ -163,7 +163,7 @@ function start() {
   fi
 }
 
-function main() {
+main() {
   dir_log
   env
   bug
