@@ -1,32 +1,35 @@
 #!/usr/bin/env bash
-# 从 whyour 大佬的 bot.sh 与 E大 的 jup.sh 与 SuMaiKaDe 大佬的 bot.sh 拼凑出来
-## 导入通用变量与函数
-if [ ! -d "/ql" ];then
-  dir_root=/jd
+
+if [ -d "/jd" ]; then
+  root=/jd
 else
-  dir_root=/ql
+  root=/ql
 fi
 
-dir_bot=$dir_root/jbot
-dir_diy=$dir_bot/diy
-dir_repo=$dir_root/repo
-dir_config=$dir_root/config
-url_1="https://github.com/SuMaiKaDe/bot.git"
-url_2="https://github.com/chiupam/JD_Diy.git"
-repo_1="${dir_repo}/dockerbot"
-repo_2="${dir_repo}/diybot"
-set_1="${dir_root}/config/botset.json"
-set_2="${dir_root}/config/diybotset.json"
-user_file="${dir_diy}/user.py"
-diy_file="${dir_diy}/diy.py"
+dir_jbot=$root/jbot
+dir_diy=$dir_jbot/diy
+dir_repo=$root/repo
+dir_config=$root/config
+dir_repo_bot=$dir_repo/dockerbot
+dir_repo_diybot=$dir_repo/diybot
+url_bot="https://github.com/SuMaiKaDe/bot.git"
+url_diybot="https://github.com/chiupam/JD_Diy.git"
+file_jbot_user=$dir_diy/user.py
+file_repo_user=$dir_repo_diybot/jbot/user.py
+file_jbot_diy=$dir_diy/diy.py
+file_repo_diy=$dir_repo_diybot/pys/diy.py
+file_jbot_botset=$root/config/botset.json
+file_repo_botset=$dir_repo_bot/config/botset.json
+file_jbot_diybotset=$root/config/diybotset.json
+file_repo_diybotset=$dir_repo_bot/config/diybotset.json
 
-git_pull_scripts() {
+function git_pull() {
   local dir_current=$(pwd)
   local dir_work="$1"
   local branch="$2"
   [[ $branch ]] && local cmd="origin/${branch}"
   cd $dir_work
-  echo -e "开始更新仓库：$dir_work\n"
+  echo "开始更新仓库：$dir_work"
   git fetch --all
   exit_status=$?
   git reset --hard $cmd
@@ -34,98 +37,145 @@ git_pull_scripts() {
   cd $dir_current
 }
 
-git_clone_scripts() {
+function git_clone() {
   local url=$1
   local dir=$2
   local branch=$3
-  [[ $branch ]] && local cmd="-b $branch "
-  echo -e "开始克隆仓库 $url 到 $dir\n"
+  [[ $branch ]] && local cmd="-b $branch"
+  echo "开始克隆仓库 $url 到 $dir"
   git clone $cmd $url $dir
   exit_status=$?
 }
 
-# 安装依赖
-echo -e "\n1、安装bot依赖...\n"
-apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev
-echo -e "\nbot依赖安装成功...\n"
-
-# 拉取原机器人仓库文件
-echo -e "\n2、下载bot所需文件...\n"
-if [ -d ${repo_1}/.git ]; then
-  git_pull_scripts ${repo_1} "main"
-else
-  git_clone_scripts ${url_1} ${repo_1} "main"
-fi
-# 拉取自定义机器人仓库文件
-echo -e "\n3、下载diybot仓库文件...\n"
-if [ -d ${repo_2}/.git ]; then
-  git_pull_scripts ${repo_2} "master"
-else
-  git_clone_scripts ${url_2} ${repo_2} "master"
-fi
-
-cp -rf $repo_2/beta/* $repo_1/jbot/diy
-rm -rf $repo_1/jbot/diy/user.py
-
-echo -e "\n4、开始执行其余操作..."
-# user.py的抉择
-#if [ ! -f "$user_file" ]; then
-#  echo "没有部署 user.py ，删除"
-#  rm -rf $repo_1/jbot/diy/user.py
-#else
-#  echo "已部署 user.py ，更新"
-#  cp -rf $repo_2/beta/* $repo_1/jbot/diy
-#fi
-
-# diy.py的抉择
-if [ ! -f "$diy_file" ]; then
-  echo "未存在 diy.py ， 拉取"
-  cp -rf $repo_2/pys/diy.py $repo_1/jbot/diy
-else
-  echo "已存在 diy.py ，取消操作"
-fi
-
-# 修改启动语文件
-echo "修改启动语文件"
-cp -rf -f $repo_2/backup/__main__.py $repo_1/jbot/
-
-# botset.json的抉择
-if [[ ! -f "$set_1" ]]; then
-  echo "未存在 botset.json ，拉取"
-  cp -f $set_1 $dir_config
-else
-  echo "已存在 botset.json ，取消操作"
-fi
-
-# diybotset.json的抉择
-if [ ! -f "$set_2" ]; then
-  echo "未存在 diybotset.json ，拉取"
-  cp $repo_2/config/diybotset.json $dir_config
-else
-  echo "已存在 diybotset.json ，取消操作"
-fi
-echo -e "完成其余操作...\n"
-
-# 把 repo/dockerbot/jbot 目录的文件复制到根目录
-echo -e "\n5、把 $repo_1/jbot 目录的文件复制到 $dir_root 根目录...\n"
-cp -rf $repo_1/jbot $dir_root
-
-cd $dir_root
-if [ ! -d "/ql/log/bot" ]; then
-  mkdir $dir_root/log/bot
-fi
-if [[ -z $(grep -E "123456789" $dir_root/config/bot.json) ]]; then
-  if [ -d "/ql" ]; then
-    ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
-    nohup python3 -m jbot >$dir_root/log/bot/bot.log 2>&1 &
+function dir_log() {
+  dir_log=$root/log/bot
+  if [ ! -d $dir_log ]
+    then echo "新建 $dir_log 目录"
+    mkdir $dir_log
   else
-#    cd $dir_bot
-#    pm2 start ecosystem.config.js
-    cd $dir_root
-    pm2 restart jbot
+    echo "已存在 $dir_log 目录"
   fi
-  echo -e "bot启动成功...\n"
-else
-  echo -e  "似乎 $dir_root/config/bot.json 还未修改为你自己的信息，可能是首次部署容器，因此不启动Telegram Bot...\n配置好bot.json后再次运行本程序即可启动"
-fi
-exit 0
+}
+
+function env() {
+  echo "检测 bot 依赖 "
+  APK=$(apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev | grep "OK")
+  if [ -z $APK ]
+    then echo "   └---结果：未安装，开始安装..."
+    apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev
+  else
+    echo "   └---结果：已安装"
+  fi
+}
+
+function bug() {
+  if [ -f $dir_repo_bot/jbot/diy/utils.py ]
+    then rm -rf $dir_repo
+  fi
+}
+
+function bot() {
+  if [ -d $dir_repo_bot ]; then
+    echo "更新 bot 所需文件"
+    git_pull $dir_repo_bot "main"
+  else
+    echo "下载 bot 所需文件"
+    git_clone $url_bot $dir_repo_bot "main"
+  fi
+}
+
+function diybot() {
+  if [ -d $dir_repo_diybot ]; then
+    echo "更新 diybot 所需文件"
+    git_pull $dir_repo_diybot "master"
+  else
+    echo "下载 diybot 所需文件"
+    git_clone $url_diybot $dir_repo_diybot "master"
+  fi
+}
+
+function hello() {
+  echo "修改启动语文件"
+  cp -f ${dir_repo_diybot}/backup/__main__.py $dir_jbot
+}
+
+function file_botset() {
+  echo "检测 botset.json 文件 "
+  if [ -f $file_jbot_botset ]; then
+    echo "   └---结果：存在，不拉取"
+  else
+    echo "   └---结果：不存在，拉取"
+    cp -f $file_repo_botset $file_jbot_botset
+  fi
+}
+
+function file_diybotset() {
+  echo "检测 diybotset.json 文件 "
+  if [ -f $file_jbot_diybotset ]; then
+    echo "   └---结果：存在，不拉取"
+  else
+    echo "   └---结果：不存在，拉取"
+    cp -f $file_repo_diybotset $file_jbot_diybotset
+  fi
+}
+
+function file_user() {
+  echo "检测 user.py 文件 "
+  if [ -f $file_jbot_user ]; then
+    echo "   └---结果：存在，更新$file_jbot_user"
+    cp -f $file_repo_user $file_jbot_user
+  else
+    echo "   └---结果：不存在，删除$file_repo_user"
+    rm -f $file_repo_user
+  fi
+}
+
+function file_diy() {
+  echo "检测 diy.py 文件 "
+  if [ -f $file_jbot_diy ]; then
+    echo "   └---结果：存在，不拉取"
+  else
+    echo "   └---结果：不存在，拉取"
+    cp -f $file_repo_diy $file_jbot_diy
+  fi
+}
+
+function copy() {
+  echo "拉取原机器人文件进入 $root 目录"
+  cp -rf $dir_repo_bot/ $root
+  echo "拉取diy机器人文件进入 $dir_diy 目录"
+  cp -rf $dir_repo_diybot/beta/* $dir_diy
+}
+
+function start() {
+  if [ -z $(grep -E "123456789" $file_jbot_botset) ]
+    then if [ -d "/jd" ]
+      then cd $dir_jbot
+        pm2 start ecosystem.config.js
+        cd $root
+        pm2 restart jbot
+      else
+        ps -ef | grep "python3 -m jbot" | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null
+        nohup python3 -m jbot >$root/log/bot/bot.log 2>&1 &
+      fi
+  else
+    echo "请修改${file_jbot_botset}的信息后再次手动启动"
+  fi
+}
+
+function main() {
+  dir_log
+  env
+  bug
+  bot
+  diybot
+  hello
+  file_botset
+  file_diybotset
+  file_user
+  file_diy
+  copy
+  start
+}
+
+main
