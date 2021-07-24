@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, TOKEN
+from .. import chat_id, jdbot, logger
 from ..bot.utils import V4, QL, bot_id
 from telethon import events
 
