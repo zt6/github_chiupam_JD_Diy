@@ -25,13 +25,13 @@ file_repo_diybotset=$dir_repo_bot/config/diybotset.json
 
 git_pull() {
   local dir_current=$(pwd)
-  local dir_work="$1"
-  local branch="$2"
-  [[ $branch ]] && local cmd="origin/${branch}"
-  cd $dir_work
-  echo "开始更新仓库：$dir_work"
+  local url=$1
+  local dir=$2
+  local branch=$3
+  [[ $branch ]] && local cmd=origin/${branch}
+  cd $dir
+  echo "开始更新仓库 $url 到 $dir"
   git fetch --all
-  exit_status=$?
   git reset --hard $cmd
   git pull
   cd $dir_current
@@ -44,7 +44,26 @@ git_clone() {
   [[ $branch ]] && local cmd="-b $branch"
   echo "开始克隆仓库 $url 到 $dir"
   git clone $cmd $url $dir
-  exit_status=$?
+}
+
+bot() {
+  if [ -d $dir_repo_bot ]; then
+    echo "更新 bot 所需文件"
+    git_pull $url_bot $dir_repo_bot "main"
+  else
+    echo "下载 bot 所需文件"
+    git_clone $url_bot $dir_repo_bot "main"
+  fi
+}
+
+diybot() {
+  if [ -d $dir_repo_diybot ]; then
+    echo "更新 diybot 所需文件"
+    git_pull $url_diybot $dir_repo_diybot "master"
+  else
+    echo "下载 diybot 所需文件"
+    git_clone $url_diybot $dir_repo_diybot "master"
+  fi
 }
 
 dir_log() {
@@ -61,10 +80,10 @@ env() {
   echo "检测 bot 依赖 "
   APK=$(apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev | grep "OK")
   if [ -z $APK ]
-    then echo "   └---结果：未安装，开始安装..."
+    then echo "   └结果：未安装，开始安装..."
     apk --no-cache add -f zlib-dev gcc jpeg-dev python3-dev musl-dev freetype-dev
   else
-    echo "   └---结果：已安装"
+    echo "   └结果：已安装"
   fi
 }
 
@@ -74,37 +93,18 @@ bug() {
   fi
 }
 
-bot() {
-  if [ -d $dir_repo_bot ]; then
-    echo "更新 bot 所需文件"
-    git_pull $dir_repo_bot "main"
-  else
-    echo "下载 bot 所需文件"
-    git_clone $url_bot $dir_repo_bot "main"
-  fi
-}
-
-diybot() {
-  if [ -d $dir_repo_diybot ]; then
-    echo "更新 diybot 所需文件"
-    git_pull $dir_repo_diybot "master"
-  else
-    echo "下载 diybot 所需文件"
-    git_clone $url_diybot $dir_repo_diybot "master"
-  fi
-}
-
 hello() {
   echo "修改启动语文件"
   cp -f ${dir_repo_diybot}/backup/__main__.py $dir_jbot
+  echo "   └结果：修改成功"
 }
 
 file_botset() {
   echo "检测 botset.json 文件 "
   if [ -f $file_jbot_botset ]; then
-    echo "   └---结果：存在，不拉取"
+    echo "   └结果：存在，不拉取"
   else
-    echo "   └---结果：不存在，拉取"
+    echo "   └结果：不存在，拉取"
     cp -f $file_repo_botset $file_jbot_botset
   fi
 }
@@ -112,9 +112,9 @@ file_botset() {
 file_diybotset() {
   echo "检测 diybotset.json 文件 "
   if [ -f $file_jbot_diybotset ]; then
-    echo "   └---结果：存在，不拉取"
+    echo "   └结果：存在，不拉取"
   else
-    echo "   └---结果：不存在，拉取"
+    echo "   └结果：不存在，拉取"
     cp -f $file_repo_diybotset $file_jbot_diybotset
   fi
 }
@@ -122,10 +122,13 @@ file_diybotset() {
 file_user() {
   echo "检测 user.py 文件 "
   if [ -f $file_jbot_user ]; then
-    echo "   └---结果：存在，更新$file_jbot_user"
-    cp -f $file_repo_user $file_jbot_user
+    if [ $# -eq 0 ]
+      then echo "   └结果：存在，但默认操作不更新$file_jbot_user"
+    elif [[ $1 = user ]]
+      then echo "   └结果：存在，更改选择更新$file_jbot_user"
+      cp -f $file_repo_user $file_jbot_user
   else
-    echo "   └---结果：不存在，删除$file_repo_user"
+    echo "   └结果：不存在，删除$file_repo_user"
     rm -f $file_repo_user
   fi
 }
@@ -133,9 +136,9 @@ file_user() {
 file_diy() {
   echo "检测 diy.py 文件 "
   if [ -f $file_jbot_diy ]; then
-    echo "   └---结果：存在，不拉取"
+    echo "   └结果：存在，不拉取"
   else
-    echo "   └---结果：不存在，拉取"
+    echo "   └结果：不存在，拉取"
     cp -f $file_repo_diy $file_jbot_diy
   fi
 }
@@ -164,11 +167,11 @@ start() {
 }
 
 main() {
+  bot
+  diybot
   dir_log
   env
   bug
-  bot
-  diybot
   hello
   file_botset
   file_diybotset
