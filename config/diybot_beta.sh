@@ -22,6 +22,7 @@ file_jbot_botset=$root/config/botset.json
 file_repo_botset=$dir_repo_bot/config/botset.json
 file_jbot_diybotset=$root/config/diybotset.json
 file_repo_diybotset=$dir_repo_bot/config/diybotset.json
+up=$1
 
 git_pull() {
   local dir_current=$(pwd)
@@ -123,7 +124,7 @@ file_diybotset() {
 file_user() {
   echo "检测 user.py 文件 "
   if [ -f $file_jbot_user ]; then
-    if [[ $1 = user ]]
+    if [[ $up = user ]]
       then echo "  └—结果：存在，已选择更新"
       cp -f $file_repo_user $file_jbot_user
     elif [ $# -eq 0 ]
