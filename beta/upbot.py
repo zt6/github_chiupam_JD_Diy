@@ -19,7 +19,7 @@ async def myupbot(event):
             furl = f'{str(mybot["下载代理"])}/{furl}'
         resp = requests.get(furl).text
         if not resp:
-            await jdbot.edit_message(msg, "更新失败，请稍后重试")
+            await jdbot.edit_message(msg, "【前瞻计划】\n\n下载shell文件失败\n请稍后重试，或尝试关闭代理重启")
             return
         if os.path.exists(f'{_JdbotDir}/diy/user.py'):
             btns = [
@@ -27,7 +27,7 @@ async def myupbot(event):
                 Button.inline("不更新", data="no")
             ]
             async with jdbot.conversation(SENDER, timeout=60) as conv:
-                msg = await jdbot.edit_message(msg, "是否更新 user.py？（覆盖式更新）", buttons=split_list(btns, row))
+                msg = await jdbot.edit_message(msg, "【前瞻计划】\n\n下载shell文件成功\n是否更新 user.py？（覆盖式更新）", buttons=split_list(btns, row))
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
                 if res == "no":
