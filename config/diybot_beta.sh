@@ -128,6 +128,7 @@ file_user() {
       cp -f $file_repo_user $file_jbot_user
     elif [ $# -eq 0 ]
       then echo "  └—结果：存在，默认不更新"
+      rm -f $file_repo_user
     fi
   else
     echo "  └—结果：不存在，删除"
