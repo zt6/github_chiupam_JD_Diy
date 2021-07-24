@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger
+from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL, bot_id
 from telethon import events
 
+bot_id = int(TOKEN.split(':')[0])
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):
