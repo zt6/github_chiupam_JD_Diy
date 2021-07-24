@@ -3,8 +3,8 @@
 
 
 from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
-from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth
-from ..diy.utils import myqladdrepo
+from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth, qlcron
+from ..diy.utils import ql_token
 from telethon import events, Button
 from asyncio import exceptions
 import requests, os, re, time, json
@@ -16,7 +16,6 @@ async def myaddrepo(event):
         SENDER = event.sender_id
         url = event.raw_text
         short_url, git_name = url.split('/')[-1].replace(".git", ""), url.split("/")[-2]
-        btns_yn = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
         if V4:
             tips_1 = [
                 f'正在设置 OwnRepoBranch（分支） 的值\n该值为你想使用脚本在[仓库]({url})的哪个分支',
@@ -146,19 +145,29 @@ async def myaddrepo(event):
             with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                 f2.write(''.join(configs))
             await jdbot.send_message(chat_id, "现在开始拉取仓库，稍后请自行查看结果")
-            os.system("jup own")
+            await cmd("jup own")
         else:
             branch = replies[0].replace("root", "")
             path = replies[1].replace(" ", "|").replace("root", "")
             blacklist = replies[2].replace(" ", "|").replace("root", "")
             dependence = replies[3].replace("root", "")
             cron = replies[4].replace("root", "0 0 * * *")
-            cmdtext = f'ql repo {url} "{path}" "{blacklist}" "{dependence}" "{branch}"'
-            res =   myqladdrepo(git_name, cmdtext, cron)
-            await jdbot.send_message(chat_id, f"现在开始拉取仓库，稍后请自行查看结果")
-            await cmd(cmdtext)
+            command = f'ql repo {url} "{path}" "{blacklist}" "{dependence}" "{branch}"'
+            data = {
+                "name": "拉取仓库",
+                "command": command,
+                "schedule": cron
+            }
+            res = qlcron("add", data, ql_token(_Auth))
+            if res['code'] == 200:
+                await jdbot.send_message(chat_id, "新增仓库的定时任务成功")
+                await cmd(command)
+            elif res['code'] == 500:
+                await jdbot.send_message(chat_id, "cron表达式有错误！")
+            else:
+                await jdbot.send_message(chat_id, "发生未知错误，无法新增仓库")
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+        await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -187,9 +196,20 @@ async def myqladdrepo(event):
                 reply = await conv.get_response()
                 cron = reply.raw_text
                 await jdbot.delete_messages(chat_id, msg)
-                myqladdrepo(taskname, message, cron)
-            await jdbot.send_message(chat_id, "开始拉取仓库，稍后请自行查看结果")
-            await cmd(message)
+                conv.cancel()
+            data = {
+                "command": message.replace('"', '\"'),
+                "name": taskname,
+                "schedule": cron
+            }
+            res = qlcron("add", data, ql_token(_Auth))
+            if res['code'] == 200:
+                await jdbot.send_message(chat_id, "新增仓库的定时任务成功")
+                await cmd(message)
+            elif res['code'] == 500:
+                await jdbot.send_message(chat_id, "cron表达式有错误！")
+            else:
+                await jdbot.send_message(chat_id, "发生未知错误，无法新增仓库")
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
@@ -201,7 +221,7 @@ if chname:
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/repo$'))
-async def myqladdrepo(event):
+async def myrepo(event):
     try:
         SENDER = event.sender_id
         if V4:
@@ -300,9 +320,7 @@ async def myqladdrepo(event):
                 with open(_ConfigFile, 'w', encoding='utf-8') as f2:
                     f2.write(configs)
         else:
-            with open(_Auth, 'r', encoding='utf-8') as f:
-                auth = json.load(f)
-            token = auth['token']
+            token = ql_token(_Auth)
             url = 'http://127.0.0.1:5600/api/crons'
             body = {
                 "searchValue": "ql repo",
@@ -352,7 +370,7 @@ async def myqladdrepo(event):
             else:
                 await jdbot.edit_message(msg, "操作失败，请手动尝试")
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+        await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))

@@ -47,6 +47,7 @@ ver-版本'''
             msg = '''a-自定义快捷按钮
 addenv-青龙新增环境变量
 bean-获取收支
+blockcookie-屏蔽账号
 chart-统计收支变化
 clearboard-删除快捷输入按钮
 cmd-执行cmd命令

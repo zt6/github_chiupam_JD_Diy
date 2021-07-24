@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
+from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot, _JdDir
 from ..bot.utils import split_list, row, press_event, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
@@ -37,14 +37,15 @@ async def myuninstall(event):
                 conv.cancel()
                 return
             conv.cancel()
-        fpath = f"{_JdbotDir}/diy/{fname}"
-        os.system(f'rm -rf {fpath}')
-        if not os.path.isfile(fpath):
+        fpath_1 = f"{_JdbotDir}/diy/{fname}"
+        fpath_2 = f"{_JdDir}/repo/diybot/jbot/{fname}"
+        os.system(f'rm -f {fpath_1} && rm -f {fpath_2}')
+        if not os.path.isfile(fpath_1):
             await jdbot.edit_message(msg, "删除成功，正在自动重启")
         else:
-            await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath}文件")
+            await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath_1}文件")
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+        await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))

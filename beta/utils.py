@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, TOKEN
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
-import json, asyncio, requests
+import json, asyncio, requests, os
 
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
@@ -25,6 +25,18 @@ myzdjr_chatIds = myids(diybotset['myzdjr_chatId'], my_chat_id)
 myjoinTeam_chatIds = myids(diybotset['myjoinTeam_chatId'], my_chat_id)
 
 bot_id = int(TOKEN.split(':')[0])
+
+QL8, QL2 = False, False
+if os.path.exists('/ql/config/env.sh'):
+    QL8 = True
+else:
+    QL2 = True
+
+
+def ql_token(_Auth):
+    with open(_Auth, 'r', encoding='utf-8') as f:
+        set = json.load(f)
+    return set['token']
 
 
 def checkCookie1():
