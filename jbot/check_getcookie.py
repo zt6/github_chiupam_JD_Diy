@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, _ConfigDir, chname, mybot
+from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, chname, mybot
 from telethon import events
-import os
-
-
-bot_id = int(TOKEN.split(':')[0])
+import os, sys
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/getcookie$'))
@@ -21,8 +18,12 @@ async def getcookiefile(event):
             msg = f'请找到一份 {fname} 文件并发送给机器人，选择存储在 {_ConfigDir} 目录中，随后执行以下命令\n/cmd mv {_ConfigDir}/{fname} {_JdbotDir}/diy'
             await jdbot.send_message(chat_id, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:
