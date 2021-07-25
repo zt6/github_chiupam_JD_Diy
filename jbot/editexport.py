@@ -6,7 +6,7 @@ from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot
 from ..bot.utils import press_event, V4, QL, split_list, row
 from telethon import events, Button
 from asyncio import exceptions
-import re, asyncio
+import re, asyncio, sys, os
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/export$'))
@@ -113,10 +113,14 @@ async def mychangeexport(event):
         await jdbot.delete_messages(chat_id, msg)
         await jdbot.send_message(chat_id, "修改环境变量成功")
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+        await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:
