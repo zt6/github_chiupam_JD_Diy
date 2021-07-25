@@ -21,7 +21,7 @@ file_repo_diy=$dir_repo_diybot/pys/diy.py
 file_jbot_botset=$root/config/botset.json
 file_repo_botset=$dir_repo_bot/config/botset.json
 file_jbot_diybotset=$root/config/diybotset.json
-file_repo_diybotset=$dir_repo_bot/config/diybotset.json
+file_repo_diybotset=$dir_repo_diybot/config/diybotset.json
 up=$1
 
 git_pull() {
