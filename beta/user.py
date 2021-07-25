@@ -84,7 +84,7 @@ async def myzdjr(event):
             kv = message.replace("export ", "")
             key = kv.split("=")[0]
             value = re.findall(r'"([^"]*)"', kv)[0]
-            if "Id" in value and len(value) != 32:
+            if "Id" in key and len(value) != 32:
                 await jdbot.edit_message(msg, "这是一趟灵车，不上车了")
                 return 
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
