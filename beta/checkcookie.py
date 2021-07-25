@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, chname, mybot
+from .. import chat_id, jdbot, logger, chname, mybot, TOKEN
 from ..bot.utils import press_event, V4, QL, _ConfigFile, myck, _Auth
 from ..diy.utils import QL2, QL8, ql_token
 from telethon import events
 from asyncio import exceptions
 import requests, re, asyncio, time, sys, os
 
+bot_id = int(TOKEN.split(":")[0])
 
 async def checkCookie(cookie):
     url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
@@ -25,7 +26,7 @@ async def checkCookie(cookie):
     res = requests.post(url, headers=headers)
     await asyncio.sleep(2)
     data = res.json()
-    if data['code'] != "1001":
+    if data['retcode'] != "1001":
         return False
     return True
 
