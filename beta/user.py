@@ -85,7 +85,7 @@ async def myzdjr(event):
             key = kv.split("=")[0]
             value = re.findall(r'"([^"]*)"', kv)[0]
             if "Id" in key and len(value) != 32:
-                await jdbot.edit_message(msg, "这是一趟灵车，不上车了")
+                await jdbot.edit_message(msg, f"这是一趟灵车，不上车了\n\n{event.message.text}")
                 return 
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
