@@ -31,7 +31,7 @@ async def checkCookie(cookie):
 
 
 # @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
-@jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$'))
+@jdbot.on(events.NewMessage(from_users=[chat_id], pattern=r'^/checkcookie$'))
 async def mycheckcookie(event):
     try:
         msg = await jdbot.send_message(chat_id, "正在检测 cookie 过期情况……")
