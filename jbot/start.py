@@ -5,10 +5,9 @@
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL
 from telethon import events
-
+import sys, os
 
 bot_id = int(TOKEN.split(':')[0])
-
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/start$'))
 async def myhello(event):
@@ -56,7 +55,7 @@ async def myhello(event):
     /ver 查看程序版本号。
     /a 使用你的自定义快捷按钮。
     /clearboard 删除快捷输入按钮。
-    /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
+    /bean 获取京豆变化，默认为总京豆收支。
     /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
     /cmd 执行命令，例：/cmd python3 /python/bot.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
     /dl 下载文件。
@@ -80,6 +79,10 @@ async def myhello(event):
     此外，直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。发送以 .git 结尾的链接开始添加仓库。发送以 .js .sh .py结尾的已raw链接开始下载文件。发送格式为 key="value" 或者 key='value' 的消息开始添加环境变量。'''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
 

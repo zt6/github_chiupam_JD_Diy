@@ -5,6 +5,7 @@
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL
 from telethon import events
+import sys, os
 
 
 bot_id = int(TOKEN.split(':')[0])
@@ -47,6 +48,7 @@ ver-版本'''
             msg = '''a-自定义快捷按钮
 addenv-青龙新增环境变量
 bean-获取收支
+blockcookie-屏蔽账号
 chart-统计收支变化
 clearboard-删除快捷输入按钮
 cmd-执行cmd命令
@@ -74,5 +76,9 @@ upbot-更新拓展功能
 ver-版本'''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
