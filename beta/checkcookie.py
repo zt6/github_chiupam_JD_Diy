@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, logger, chname, mybot
 from ..bot.utils import press_event, V4, QL, _ConfigFile, myck, _Auth
-from ..diy.utils import QL2, QL8, ql_token, bot_id
+from ..diy.utils import QL2, QL8, ql_token
 from telethon import events
 from asyncio import exceptions
 import requests, re, asyncio, time, sys, os
