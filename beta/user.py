@@ -16,31 +16,31 @@ else:
 
 
 @client.on(events.NewMessage(chats=[bot_id, my_chat_id], from_users=chat_id, pattern=r"^user(\?|\？)$"))
-async def fortest(event):
+async def user(event):
     try:
         msg = await jdbot.send_message(chat_id, '你好无聊。。。\n我在监控。。。\n不要烦我。。。')
         await asyncio.sleep(5)
         await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        await jdbot.send_message(chat_id, f"【测试在线】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【测试在线】--->错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=[-1001197524983, -1001419355450, -1001284907085, my_chat_id]))
+@client.on(events.NewMessage(chats=[-1001320212725, my_chat_id]))
 async def follow(event):
-    cookies = myck(_ConfigFile)
-    message = event.message.text
-    url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
-    if url != [] and len(cookies) > 0:
+    try:
+        url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), event.message.text)
+        if not url:
+            return
         i = 0
-        info = '关注店铺\n' + "\n"
-        for cookie in cookies:
-            try:
-                i += 1
-                info += getbean(i, cookie, url[0])
-            except:
-                continue
+        info = '关注店铺\n\n'
+        for cookie in myck(_ConfigFile):
+            i += 1
+            info += getbean(i, cookie, url[0])
         await jdbot.send_message(chat_id, info)
+    except Exception as e:
+        await jdbot.send_message(chat_id, f"【关注店铺】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【关注店铺】--->错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=[-1001159808620, my_chat_id], pattern=r".*京豆雨.*"))
@@ -70,8 +70,8 @@ async def red(event):
             await client.send_message(bot_id, cmdtext, schedule=datetime.datetime(year, int(Time_1[1]), int(Time_1[2]), int(Time_2[0]) - 8 , int(Time_2[1]), 0, 0))
             await jdbot.send_message(chat_id, f'监控到RRA：{RRA}\n预定时间：{Times[i].split("：")[1]}\n\n将在预定时间执行脚本，具体请查看当前机器人的定时任务')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        await jdbot.send_message(chat_id, f"【龙王庙】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【龙王庙】--->错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))
@@ -122,8 +122,8 @@ async def myzdjr(event):
         except:
             None
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        await jdbot.send_message(chat_id, f"【组队瓜分京豆】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【组队瓜分京豆】--->错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=myjoinTeam_chatIds, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
@@ -168,8 +168,8 @@ async def myjoinTeam(event):
         except:
             None
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        await jdbot.send_message(chat_id, f"【组队瓜分京豆2】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【组队瓜分京豆2】--->错误--->{str(e)}")
 
 
 # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
@@ -179,8 +179,8 @@ async def myforward(event):
         # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
         await client.forward_messages(bot_id, event.id, -100123456789)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        await jdbot.send_message(chat_id, f"【转发消息】--->错误\n\n{str(e)}\n\n建议百度查询")
+        logger.error(f"【转发消息】--->错误--->{str(e)}")
 
 
 # @client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
