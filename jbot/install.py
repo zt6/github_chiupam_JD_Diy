@@ -6,7 +6,7 @@ from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
 from ..bot.utils import split_list, row, press_event, mybot, backfile, V4, QL
 from telethon import events, Button
 from asyncio import exceptions
-import requests
+import requests, os, sys
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))
@@ -17,6 +17,7 @@ async def myinstall(event):
         btns = [
             Button.inline("升级机器人", data="upbot.py"),
             Button.inline("检查账号过期", data="checkcookie.py"),
+            Button.inline("屏蔽账号", data="tempblockcookie.py"),
             Button.inline("下载文件", data="download.py"),
             Button.inline("添加仓库", data="addrepo.py"),
             Button.inline("添加环境变量", data="addexport.py"),
@@ -49,11 +50,20 @@ async def myinstall(event):
             backfile(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
+            if QL:
+                cmdtext = "if [ -d '/jd' ]; then cd /jd/jbot; pm2 start ecosystem.config.js; cd /jd; pm2 restart jbot; else " \
+                          "ps -ef | grep 'python3 -m jbot' | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null; " \
+                          "nohup python3 -m jbot >/ql/log/bot/bot.log 2>&1 & fi "
+                os.system(cmdtext)
     except exceptions.TimeoutError:
-        msg = await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
+        await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:
