@@ -15,7 +15,13 @@ from asyncio import exceptions
 """
 如果需要导入 diy 目录内某个文件的变量或函数
 from ..diy.xxx import xxx
-例如：from ..diy.utils import bot_id
+例如：from ..diy.utils import ql_token
+"""
+
+"""
+如果需要导入 bot 目录内某个文件的变量或函数
+from ..bot.xxx import xxx
+例如：from ..bot.utils import myck
 """
 
 
@@ -31,7 +37,6 @@ async def smiek_jd_zdjr():
         """
         try 部分则自由发挥即可
         """
-
         # 例如下行代码代表在调用且运行此函数时，机器人给你发送一条消息
         # await jdbot.send_message(chat_id, "Hello World") # （注释此行即可）
 
