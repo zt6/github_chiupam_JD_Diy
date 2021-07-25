@@ -54,7 +54,7 @@ async def myhello(event):
     /ver 查看程序版本号。
     /a 使用你的自定义快捷按钮。
     /clearboard 删除快捷输入按钮。
-    /bean 获取京豆变化，默认为总京豆收支。/bean in 京豆进账，/bean out 京豆支出。
+    /bean 获取京豆变化，默认为总京豆收支。
     /chart 获取京豆变化数据柱状图和曲线图。例：/chart 1，获取账号1京豆变化。
     /cmd 执行命令，例：/cmd python3 /python/bot.py，则执行python目录下的bot.py。不建议使用BOT使用并发，可能产生不明原因的崩溃。 
     /dl 下载文件。

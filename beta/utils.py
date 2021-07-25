@@ -2,29 +2,28 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, TOKEN
+from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
 import json, asyncio, requests, os
-
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
     diybotset = json.load(f)
 my_chat_id = int(diybotset['my_chat_id'])
 
+
 def myids(values, test_id):
     if "," in values:
-        Ids = values.replace(" ", "").split(",")
-        Ids = list(map(int, ['%s' %int(_) for _ in Ids]))
+        ids = values.replace(" ", "").split(",")
+        ids = list(map(int, ['%s' % int(_) for _ in ids]))
     else:
-        Ids = [int(values)]
-    Ids.append(int(test_id))
-    return Ids
+        ids = [int(values)]
+    ids.append(int(test_id))
+    return ids
+
 
 myzdjr_chatIds = myids(diybotset['myzdjr_chatId'], my_chat_id)
 
 myjoinTeam_chatIds = myids(diybotset['myjoinTeam_chatId'], my_chat_id)
-
-bot_id = int(TOKEN.split(':')[0])
 
 QL8, QL2 = False, False
 if os.path.exists('/ql/config/env.sh'):
@@ -33,10 +32,10 @@ else:
     QL2 = True
 
 
-def ql_token(_Auth):
-    with open(_Auth, 'r', encoding='utf-8') as f:
-        set = json.load(f)
-    return set['token']
+def ql_token(file):
+    with open(file, 'r', encoding='utf-8') as f:
+        auth = json.load(f)
+    return auth['token']
 
 
 def checkCookie1():
@@ -131,42 +130,23 @@ async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
         upcron(f'{cron} mtask {path}/{filename}')
     await jdbot.send_message(chat_id, '添加定时任务成功')
 
-
-# 升级 user.py 的函数
-async def upuser(fname, msg):
-    try:
-        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
-        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-        msg = await jdbot.edit_message(msg, "开始下载文件")
-        for speed in speeds:
-            resp = requests.get(f"{speed}{furl_startswith}{fname}").text
-            if "#!/usr/bin/env python3" in resp:
-                break
-        if resp:
-            msg = await jdbot.edit_message(msg, f"下载{fname}成功")
-            path = f"{_JdbotDir}/diy/user.py"
-            backfile(path)
-            with open(path, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-        else:
-            await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
-# addrepo.py 调用
-def myqladdrepo(name, command, schedule):
-    with open(_Auth, 'r', encoding='utf-8') as f:
-        Auto = json.load(f)
-    url = 'http://127.0.0.1:5600/url/crons'
-    headers = {
-        "Authorization": f"Bearer {Auto['token']}"
-    }
-    body = {
-        'name': name,
-        'command': command,
-        'schedule': schedule
-    }
-    res = requests.post(url, data=body, headers=headers).json
-    return res
+# async def upuser(fname, msg):
+#     try:
+#         furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
+#         speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
+#         msg = await jdbot.edit_message(msg, "开始下载文件")
+#         for speed in speeds:
+#             resp = requests.get(f"{speed}{furl_startswith}{fname}").text
+#             if "#!/usr/bin/env python3" in resp:
+#                 break
+#         if resp:
+#             msg = await jdbot.edit_message(msg, f"下载{fname}成功")
+#             path = f"{_JdbotDir}/diy/user.py"
+#             backfile(path)
+#             with open(path, 'w+', encoding='utf-8') as f:
+#                 f.write(resp)
+#         else:
+#             await jdbot.edit_message(msg, f"下载{fname}失败，请自行拉取文件进/jbot/diy目录")
+#     except Exception as e:
+#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+#         logger.error('something wrong,I\'m sorry\n' + str(e))

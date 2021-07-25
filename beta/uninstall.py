@@ -15,6 +15,7 @@ async def myuninstall(event):
         SENDER = event.sender_id
         mydiy = {
             "checkcookie.py": "检查账号过期",
+            "tempblockcookie.py": "屏蔽账号",
             "upbot.py": "升级机器人",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
@@ -42,8 +43,13 @@ async def myuninstall(event):
         os.system(f'rm -f {fpath_1} && rm -f {fpath_2}')
         if not os.path.isfile(fpath_1):
             await jdbot.edit_message(msg, "删除成功，正在自动重启")
+            if QL:
+                cmdtext = "if [ -d '/jd' ]; then cd /jd/jbot; pm2 start ecosystem.config.js; cd /jd; pm2 restart jbot; else " \
+                          "ps -ef | grep 'python3 -m jbot' | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null; " \
+                          "nohup python3 -m jbot >/ql/log/bot/bot.log 2>&1 & fi "
+                os.system(cmdtext)
         else:
-            await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath_1}文件")
+            await jdbot.edit_message(msg, f"删除失败，请手动删除{fpath_1}文件和{fpath_2}文件")
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:

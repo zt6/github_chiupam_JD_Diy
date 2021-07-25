@@ -21,6 +21,7 @@ async def myupbot(event):
         if not resp:
             await jdbot.edit_message(msg, "【前瞻计划】\n\n下载shell文件失败\n请稍后重试，或尝试关闭代理重启")
             return
+        cmdtext = f"bash {_JdDir}/diybot.sh"
         if os.path.exists(f'{_JdbotDir}/diy/user.py'):
             btns = [
                 Button.inline("更新", data="user"),
@@ -30,9 +31,7 @@ async def myupbot(event):
                 msg = await jdbot.edit_message(msg, "【前瞻计划】\n\n下载shell文件成功\n是否更新 user.py？（覆盖式更新）", buttons=split_list(btns, row))
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
-                if res == "no":
-                    cmdtext = f"bash {_JdDir}/diybot.sh"
-                else:
+                if res == "user":
                     cmdtext = f"bash {_JdDir}/diybot.sh {res}"
                 conv.cancel()
         fpath = f"{_JdDir}/diybot.sh"

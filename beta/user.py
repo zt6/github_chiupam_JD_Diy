@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir
+from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir, _JdDir
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
-from ..diy.utils import getbean
+from ..diy.utils import getbean, my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
 from telethon import events, TelegramClient
-import re, json, requests, asyncio, time, datetime, os
-
-from ..diy.utils import my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
+import re, asyncio, time, datetime, os
 
 
 if proxystart:
@@ -17,7 +15,6 @@ else:
     client = TelegramClient("user", api_id, api_hash, connection_retries=None).start()
 
 
-# user?
 @client.on(events.NewMessage(chats=[bot_id, my_chat_id], from_users=chat_id, pattern=r"^user(\?|\？)$"))
 async def fortest(event):
     try:
@@ -29,29 +26,8 @@ async def fortest(event):
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
-@client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
-async def shopbean(event):
-    cookies = myck(_ConfigFile)
-    message = event.message.text
-    url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
-    if url != [] and len(cookies) > 0:
-        i = 0
-        info = '关注店铺\n' + message.split("\n")[0] + "\n"
-        for cookie in cookies:
-            try:
-                i += 1
-                info += getbean(i, cookie, url[0])
-            except:
-                continue
-        await jdbot.send_message(chat_id, info)
-
-
-@client.on(events.NewMessage(chats=[-1001419355450, -1001284907085, my_chat_id]))
-async def zoo_shopbean(event):
-    """
-    动物园关注店铺
-    关注频道：https://t.me/zoo_channel
-    """
+@client.on(events.NewMessage(chats=[-1001197524983, -1001419355450, -1001284907085, my_chat_id]))
+async def follow(event):
     cookies = myck(_ConfigFile)
     message = event.message.text
     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
@@ -67,68 +43,26 @@ async def zoo_shopbean(event):
         await jdbot.send_message(chat_id, info)
 
 
-@client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
-async def myzoo(event):
-    """
-    动物园开卡
-    关注频道：https://t.me/zoo_channel
-    """
-    try:
-        messages = event.message.text
-        url = re.findall(re.compile(r"[(](https://raw\.githubusercontent\.com.*?)[)]", re.S), messages)
-        if url == []:
-            return
-        else:
-            url = url[0]
-        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-        for speed in speeds:
-            resp = requests.get(f"{speed}{url}").text
-            if resp:
-                break
-        if resp:
-            fname = url.split('/')[-1]
-            fpath = f"{_ScriptsDir}/{fname}"
-            backfile(fpath)
-            with open(fpath, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-            with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
-                diybotset = json.load(f)
-            run = diybotset['zoo_opencard']
-            if run == "False":
-                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
-            else:
-                cmdtext = f'{jdcmd} {fpath} now'
-                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
-                await cmd(cmdtext)
-    except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
-
-
 @client.on(events.NewMessage(chats=[-1001159808620, my_chat_id], pattern=r".*京豆雨.*"))
-async def redrain(event):
+async def red(event):
     """
     龙王庙京豆雨
     关注频道：https://t.me/longzhuzhu
     """
     try:
-        if V4:
-            if not os.path.exists('/jd/jredrain.sh'):
-                cmdtext = 'cd /jd && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/jredrain.sh'
-                await cmd(cmdtext)
-        else:
-            if not os.path.exists('/ql/jredrain.sh'):
-                cmdtext = 'cd /ql && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/jredrain.sh'
-                await cmd(cmdtext)
+        file = "jredrain.sh"
+        if not os.path.exists(f'{_JdDir}/{file}'):
+            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/{file}'
+            await cmd(cmdtext)
+            if not os.path.exists(f'{_JdDir}/{file}'):
+                await jdbot.send_message(chat_id, f"【龙王庙】\n\n监控到RRA，但是缺少{file}文件，无法执行定时")
+                return
         message = event.message.text
         RRAs = re.findall(r'RRA.*', message)
         Times = re.findall(r'开始时间.*', message)
         for RRA in RRAs:
             i = RRAs.index(RRA)
-            if V4:
-                cmdtext = f'/cmd bash /jd/jredrain.sh {RRA}'
-            else:
-                cmdtext = f'/cmd bash /ql/jredrain.sh {RRA}'
+            cmdtext = f"/cmd bash {_JdDir}/{file} {RRA}"
             Time_1 = Times[i].split(" ")[0].split("-")
             Time_2 = Times[i].split(" ")[1].split(":")
             Time_3 = time.localtime()
@@ -143,22 +77,23 @@ async def redrain(event):
 @client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))
 async def myzdjr(event):
     try:
-        # if "cjhydz-isv" in event.message.text:
-        #     return
-        msg = await jdbot.send_message(chat_id, '监控到 jd_zdjr_activityId 环境变量')
+        msg = await jdbot.send_message(chat_id, '监控到 jd_zdjr_activity 环境变量')
         messages = event.message.text.split("\n")
         change = ''
         for message in messages:
             kv = message.replace("export ", "")
-            kname = kv.split("=")[0]
-            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            key = kv.split("=")[0]
+            value = re.findall(r'"([^"]*)"', kv)[0]
+            if "Id" in value and len(value) != 32:
+                await jdbot.edit_message(msg, "这是一趟灵车，不上车了")
+                return 
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
             if kv in configs:
                 continue
-            if configs.find(kname) != -1:
-                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
-                change += f"替换 jd_zdjr_activityId 环境变量成功\n{kv}\n\n"
+            if configs.find(key) != -1:
+                configs = re.sub(f'{key}=(\"|\').*(\"|\')', kv, configs)
+                change += f"替换 jd_zdjr_activity 环境变量成功\n{kv}\n\n"
                 msg = await jdbot.edit_message(msg, change)
             else:
                 if V4:
@@ -168,18 +103,18 @@ async def myzdjr(event):
                         if config.find("第五区域") != -1 and config.find("↑") != -1:
                             end_line = configs.index(config)
                             break
-                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs.insert(end_line - 2, f'export {key}="{value}"\n')
                     configs = ''.join(configs)
                 else:
                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
                         configs = f2.read()
-                    configs += f'export {kname}="{vname}"\n'
-                change += f"新增 jd_zdjr_activityId 环境变量成功\n{kv}\n\n"
+                    configs += f'export {key}="{value}"\n'
+                change += f"新增 jd_zdjr_activity 环境变量成功\n{kv}\n\n"
                 msg = await jdbot.edit_message(msg, change)
             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                 f3.write(configs)
         if len(change) == 0:
-            await jdbot.edit_message(msg, "目前配置中的 jd_zdjr_activityId 环境变量无需改动")
+            await jdbot.edit_message(msg, "目前配置中的 jd_zdjr_activity 环境变量无需改动")
             return
         try:
             from ..diy.diy import smiek_jd_zdjr
@@ -199,14 +134,14 @@ async def myjoinTeam(event):
         messages = env.split("\n")
         for message in messages:
             kv = message.replace("export ", "")
-            kname = kv.split("=")[0]
-            vname = re.findall(r"(\".*\"|'.*')", kv)[0][1:-1]
+            key = kv.split("=")[0]
+            value = re.findall(r'"([^"]*)"', kv)[0]
             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
             if kv in configs:
                 continue
-            if configs.find(kname) != -1:
-                configs = re.sub(f'{kname}=(\"|\').*(\"|\')', kv, configs)
+            if configs.find(key) != -1:
+                configs = re.sub(f'{key}=(\"|\').*(\"|\')', kv, configs)
                 end = f"替换 jd_joinTeam_activityId 环境变量成功\n\n{env}"
             else:
                 if V4:
@@ -216,12 +151,12 @@ async def myjoinTeam(event):
                         if config.find("第五区域") != -1 and config.find("↑") != -1:
                             end_line = configs.index(config)
                             break
-                    configs.insert(end_line - 2, f'export {kname}="{vname}"\n')
+                    configs.insert(end_line - 2, f'export {key}="{value}"\n')
                     configs = ''.join(configs)
                 else:
                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
                         configs = f2.read()
-                    configs += f'export {kname}="{vname}"\n'
+                    configs += f'export {key}="{value}"\n'
                 end = f"新增 jd_joinTeam_activityId 环境变量成功\n\n{env}"
             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
                 f3.write(configs)
@@ -270,3 +205,56 @@ async def myforward(event):
 #         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+# @client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
+# async def shopbean(event):
+#     cookies = myck(_ConfigFile)
+#     message = event.message.text
+#     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
+#     if url != [] and len(cookies) > 0:
+#         i = 0
+#         info = '关注店铺\n' + message.split("\n")[0] + "\n"
+#         for cookie in cookies:
+#             try:
+#                 i += 1
+#                 info += getbean(i, cookie, url[0])
+#             except:
+#                 continue
+#         await jdbot.send_message(chat_id, info)
+
+
+# @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
+# async def myzoo(event):
+#     """
+#     动物园开卡
+#     关注频道：https://t.me/zoo_channel
+#     """
+#     try:
+#         messages = event.message.text
+#         url = re.findall(re.compile(r"[(](https://raw\.githubusercontent\.com.*?)[)]", re.S), messages)
+#         if url == []:
+#             return
+#         else:
+#             url = url[0]
+#         speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
+#         for speed in speeds:
+#             resp = requests.get(f"{speed}{url}").text
+#             if resp:
+#                 break
+#         if resp:
+#             fname = url.split('/')[-1]
+#             fpath = f"{_ScriptsDir}/{fname}"
+#             backfile(fpath)
+#             with open(fpath, 'w+', encoding='utf-8') as f:
+#                 f.write(resp)
+#             with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+#                 diybotset = json.load(f)
+#             run = diybotset['zoo_opencard']
+#             if run == "False":
+#                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
+#             else:
+#                 cmdtext = f'{jdcmd} {fpath} now'
+#                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
+#                 await cmd(cmdtext)
+#     except Exception as e:
+#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+#         logger.error('something wrong,I\'m sorry\n' + str(e))

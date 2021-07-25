@@ -13,6 +13,7 @@ async def mylist(event):
         lists = []
         mydiy = {
             "checkcookie.py": "检查账号过期",
+            "tempblockcookie.py": "屏蔽账号",
             "upbot.py": "升级机器人",
             "download.py": "下载文件",
             "addrepo.py": "添加仓库",
