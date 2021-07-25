@@ -23,7 +23,7 @@ async def checkCookie(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    res = requests.post(url, headers=headers)
+    res = requests.get(url, headers=headers)
     await asyncio.sleep(2)
     data = res.json()
     if data['code'] != "1001":
