@@ -171,11 +171,11 @@ start() {
 }
 
 main() {
+  bug
   bot
   diybot
   dir_log
   env
-  bug
   hello
   file_botset
   file_diybotset
