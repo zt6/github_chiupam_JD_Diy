@@ -5,7 +5,7 @@
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL
 from telethon import events
-import sys
+import sys, os
 
 bot_id = int(TOKEN.split(':')[0])
 
@@ -80,8 +80,9 @@ async def myhello(event):
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 

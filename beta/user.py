@@ -6,7 +6,7 @@ from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _Con
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean, my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
 from telethon import events, TelegramClient
-import re, asyncio, time, datetime, os, sys
+import re, asyncio, time, datetime, os, sys, requests, json
 
 
 if proxystart:
@@ -23,9 +23,10 @@ async def user(event):
         await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -43,9 +44,10 @@ async def follow(event):
         await jdbot.send_message(chat_id, info)
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -77,9 +79,10 @@ async def red(event):
             await jdbot.send_message(chat_id, f'监控到RRA：{RRA}\n预定时间：{Times[i].split("：")[1]}\n\n将在预定时间执行脚本，具体请查看当前机器人的定时任务')
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -132,9 +135,10 @@ async def myzdjr(event):
             None
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -181,9 +185,10 @@ async def myjoinTeam(event):
             None
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -195,9 +200,10 @@ async def myforward(event):
         await client.forward_messages(bot_id, event.id, -100123456789)
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -220,9 +226,10 @@ async def myupuser(event):
                 return
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
 
@@ -278,7 +285,8 @@ async def myzoo(event):
                 await cmd(cmdtext)
     except Exception as e:
         title = "【💥错误💥】"
-        name = sys.argv[0].split("/")[-1].split(".")[0]
-        function = sys._getframe().f_code.co_name
-        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
