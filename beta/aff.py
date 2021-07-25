@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, _JdbotDir, logger, chname, mybot
 from telethon import events
-import asyncio
+import asyncio, sys
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/aff$'))
@@ -17,8 +17,11 @@ async def myaff(event):
             await asyncio.sleep(1)
         await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:

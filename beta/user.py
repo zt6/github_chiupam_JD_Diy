@@ -6,7 +6,7 @@ from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _Con
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean, my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
 from telethon import events, TelegramClient
-import re, asyncio, time, datetime, os
+import re, asyncio, time, datetime, os, sys
 
 
 if proxystart:
@@ -22,8 +22,11 @@ async def user(event):
         await asyncio.sleep(5)
         await jdbot.delete_messages(chat_id, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【测试在线】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【测试在线】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=[-1001320212725, my_chat_id]))
@@ -39,8 +42,11 @@ async def follow(event):
             info += getbean(i, cookie, url[0])
         await jdbot.send_message(chat_id, info)
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【关注店铺】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【关注店铺】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=[-1001159808620, my_chat_id], pattern=r".*京豆雨.*"))
@@ -70,8 +76,11 @@ async def red(event):
             await client.send_message(bot_id, cmdtext, schedule=datetime.datetime(year, int(Time_1[1]), int(Time_1[2]), int(Time_2[0]) - 8 , int(Time_2[1]), 0, 0))
             await jdbot.send_message(chat_id, f'监控到RRA：{RRA}\n预定时间：{Times[i].split("：")[1]}\n\n将在预定时间执行脚本，具体请查看当前机器人的定时任务')
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【龙王庙】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【龙王庙】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))
@@ -122,8 +131,11 @@ async def myzdjr(event):
         except:
             None
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【组队瓜分京豆】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【组队瓜分京豆】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 @client.on(events.NewMessage(chats=myjoinTeam_chatIds, pattern=r"^export\sjd_joinTeam_activityId=\".*\"|.*='.*'"))
@@ -168,8 +180,11 @@ async def myjoinTeam(event):
         except:
             None
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【组队瓜分京豆2】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【组队瓜分京豆2】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
@@ -179,82 +194,91 @@ async def myforward(event):
         # -100123456789 是频道的id，例如我需要把频道1的消息转发给机器人，则下一行的相应位置中填写频道1的id
         await client.forward_messages(bot_id, event.id, -100123456789)
     except Exception as e:
-        await jdbot.send_message(chat_id, f"【转发消息】--->错误\n\n{str(e)}\n\n建议百度查询")
-        logger.error(f"【转发消息】--->错误--->{str(e)}")
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
-# @client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
-# async def myupuser(event):
-#     """
-#     关注频道：https://t.me/jd_diy_bot_channel
-#     """
-#     try:
-#         if event.message.file:
-#             fname = event.message.file.name
-#             try:
-#                 if fname.endswith("bot-06-21.py") or fname.endswith("user.py"):
-#                     path = f'{_JdbotDir}/diy/{fname}'
-#                     backfile(path)
-#                     await client.download_file(input_location=event.message, file=path)
-#                     from ..diy.bot import restart
-#                     await restart()
-#             except:
-#                 return
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
+@client.on(events.NewMessage(chats=[-1001431256850, my_chat_id], from_users=1185488678))
+async def myupuser(event):
+    """
+    关注频道：https://t.me/jd_diy_bot_channel
+    """
+    try:
+        if event.message.file:
+            fname = event.message.file.name
+            try:
+                if fname.endswith("bot-06-21.py") or fname.endswith("user.py"):
+                    path = f'{_JdbotDir}/diy/{fname}'
+                    backfile(path)
+                    await client.download_file(input_location=event.message, file=path)
+                    from ..diy.bot import restart
+                    await restart()
+            except:
+                return
+    except Exception as e:
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
-# @client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
-# async def shopbean(event):
-#     cookies = myck(_ConfigFile)
-#     message = event.message.text
-#     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
-#     if url != [] and len(cookies) > 0:
-#         i = 0
-#         info = '关注店铺\n' + message.split("\n")[0] + "\n"
-#         for cookie in cookies:
-#             try:
-#                 i += 1
-#                 info += getbean(i, cookie, url[0])
-#             except:
-#                 continue
-#         await jdbot.send_message(chat_id, info)
+@client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
+async def shopbean(event):
+    cookies = myck(_ConfigFile)
+    message = event.message.text
+    url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
+    if url != [] and len(cookies) > 0:
+        i = 0
+        info = '关注店铺\n' + message.split("\n")[0] + "\n"
+        for cookie in cookies:
+            try:
+                i += 1
+                info += getbean(i, cookie, url[0])
+            except:
+                continue
+        await jdbot.send_message(chat_id, info)
 
 
-# @client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
-# async def myzoo(event):
-#     """
-#     动物园开卡
-#     关注频道：https://t.me/zoo_channel
-#     """
-#     try:
-#         messages = event.message.text
-#         url = re.findall(re.compile(r"[(](https://raw\.githubusercontent\.com.*?)[)]", re.S), messages)
-#         if url == []:
-#             return
-#         else:
-#             url = url[0]
-#         speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
-#         for speed in speeds:
-#             resp = requests.get(f"{speed}{url}").text
-#             if resp:
-#                 break
-#         if resp:
-#             fname = url.split('/')[-1]
-#             fpath = f"{_ScriptsDir}/{fname}"
-#             backfile(fpath)
-#             with open(fpath, 'w+', encoding='utf-8') as f:
-#                 f.write(resp)
-#             with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
-#                 diybotset = json.load(f)
-#             run = diybotset['zoo_opencard']
-#             if run == "False":
-#                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
-#             else:
-#                 cmdtext = f'{jdcmd} {fpath} now'
-#                 await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
-#                 await cmd(cmdtext)
-#     except Exception as e:
-#         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-#         logger.error('something wrong,I\'m sorry\n' + str(e))
+@client.on(events.NewMessage(chats=[-1001419355450, my_chat_id], pattern=r"^#开卡"))
+async def myzoo(event):
+    """
+    动物园开卡
+    关注频道：https://t.me/zoo_channel
+    """
+    try:
+        messages = event.message.text
+        url = re.findall(re.compile(r"[(](https://raw\.githubusercontent\.com.*?)[)]", re.S), messages)
+        if url == []:
+            return
+        else:
+            url = url[0]
+        speeds = ["http://ghproxy.com/", "https://mirror.ghproxy.com/", ""]
+        for speed in speeds:
+            resp = requests.get(f"{speed}{url}").text
+            if resp:
+                break
+        if resp:
+            fname = url.split('/')[-1]
+            fpath = f"{_ScriptsDir}/{fname}"
+            backfile(fpath)
+            with open(fpath, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+            with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+                diybotset = json.load(f)
+            run = diybotset['zoo_opencard']
+            if run == "False":
+                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n自动运行请在config目录diybotset.json中设置为Ture")
+            else:
+                cmdtext = f'{jdcmd} {fpath} now'
+                await jdbot.send_message(chat_id, f"开卡脚本将保存到{_ScriptsDir}目录\n不自动运行请在config目录diybotset.json中设置为False")
+                await cmd(cmdtext)
+    except Exception as e:
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")

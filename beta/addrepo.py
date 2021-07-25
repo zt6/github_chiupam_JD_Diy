@@ -7,7 +7,7 @@ from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile
 from ..diy.utils import ql_token
 from telethon import events, Button
 from asyncio import exceptions
-import requests, os, re, time, json
+import requests, os, re, time, sys
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
@@ -169,8 +169,11 @@ async def myaddrepo(event):
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:
@@ -211,8 +214,11 @@ async def myqladdrepo(event):
             else:
                 await jdbot.send_message(chat_id, "发生未知错误，无法新增仓库")
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:
@@ -372,8 +378,11 @@ async def myrepo(event):
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 if chname:
     jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))

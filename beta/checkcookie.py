@@ -7,7 +7,7 @@ from ..bot.utils import press_event, V4, QL, _ConfigFile, myck, _Auth
 from ..diy.utils import QL2, QL8, ql_token, bot_id
 from telethon import events
 from asyncio import exceptions
-import requests, re, asyncio, time
+import requests, re, asyncio, time, sys
 
 
 async def checkCookie(cookie):
@@ -181,8 +181,11 @@ async def mycheckcookie(event):
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
 
 if chname:

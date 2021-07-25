@@ -5,6 +5,7 @@
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL
 from telethon import events
+import sys
 
 bot_id = int(TOKEN.split(':')[0])
 
@@ -78,6 +79,9 @@ async def myhello(event):
     此外，直接发送文件至BOT，会让您选择保存到目标文件夹，支持保存并运行。发送以 .git 结尾的链接开始添加仓库。发送以 .js .sh .py结尾的已raw链接开始下载文件。发送格式为 key="value" 或者 key='value' 的消息开始添加环境变量。'''
         await jdbot.edit_message(bot_id, msg_id + 1, msg)
     except Exception as e:
-        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
-        logger.error('something wrong,I\'m sorry\n' + str(e))
+        title = "【💥错误💥】"
+        name = sys.argv[0].split("/")[-1].split(".")[0]
+        function = sys._getframe().f_code.co_name
+        await jdbot.send_message(chat_id, f"{title}\n\n文件名：{name}\n函数名：{function}\n错误原因：{str(e)}\n\n建议百度/谷歌查询")
+        logger.error(f"错误--->{str(e)}")
 
