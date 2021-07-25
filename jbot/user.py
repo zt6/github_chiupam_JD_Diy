@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir, _JdDir
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
-from ..diy.utils import getbean, my_chat_id, bot_id, myzdjr_chatIds, myjoinTeam_chatIds
+from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, myjoinTeam_chatIds
 from telethon import events, TelegramClient
 import re, asyncio, time, datetime, os, sys, requests, json
 
