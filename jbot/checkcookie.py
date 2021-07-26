@@ -26,7 +26,7 @@ async def checkCookie(cookie):
     res = requests.get(url, headers=headers)
     await asyncio.sleep(2)
     data = res.json()
-    if data['code'] != "1001":
+    if data['retcode'] != "1001":
         return False
     return True
 
