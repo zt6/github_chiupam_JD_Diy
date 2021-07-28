@@ -73,9 +73,7 @@ JD_Diy/               # JD_Diy 仓库
 ### 部署机器人
 #### 方法一、 在容器中使用命令
 ```shell
-rm -rf diybot.sh
-wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh
-bash diybot.sh
+rm -rf diybot.sh;wget https://ghproxy.com/https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh;bash diybot.sh
 ```
 #### 方法二、 给机器人发消息
 ```text
@@ -99,9 +97,7 @@ bash diybot.sh
 - 甚至可以 Pr 部分功能
 ### 部署方法
 ```shell
-rm -rf diybot_beta.sh
-wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh
-bash diybot_beta.sh
+rm -rf diybot_beta.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh;bash diybot_beta.sh
 ```
 ```text
 /cmd rm -rf diybot_beta.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh;bash diybot_beta.sh
