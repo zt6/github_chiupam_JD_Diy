@@ -32,7 +32,7 @@ async def checkCookie(cookie):
 
 
 # @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
-@jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$'))
+@jdbot.on(events.NewMessage(from_users=[chat_id], pattern=r'^/checkcookie$'))
 async def mycheckcookie(event):
     try:
         msg = await jdbot.send_message(chat_id, "正在检测 cookie 过期情况……")
@@ -146,7 +146,7 @@ async def mycheckcookie(event):
                 text += f'【启用情况】\n'
                 for valid in valids:
                     if QL8:
-                        url = 'http://127.0.0.1:5600/api/cookies/enable'
+                        url = 'http://127.0.0.1:5600/api/envs/enable'
                         body = [f"{valid[0]}"]
                         r = requests.put(url, json=body, headers=headers)
                         if r.ok:
@@ -154,7 +154,7 @@ async def mycheckcookie(event):
                         else:
                             text += f'账号{valid[2]} - {valid[1]}：{o}启用失败，请手动启用\n'
                     else:
-                        url = 'http://127.0.0.1:5600/api/envs/enable'
+                        url = 'http://127.0.0.1:5600/api/cookies/enable'
                         body = [f"{valid[0]}"]
                         r = requests.put(url, json=body, headers=headers)
                         if r.ok:
