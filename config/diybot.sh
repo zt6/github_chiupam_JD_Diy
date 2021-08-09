@@ -93,6 +93,14 @@ bug() {
   if [ -f $dir_repo_bot/jbot/diy/utils.py ]
     then rm -rf $dir_repo
   fi
+  JSON=$(cat $file_jbot_diybotset | grep "zoo_opencard")
+  if [ -z "$JSON" ]
+    then echo "请先修改 $file_jbot_diybotset 的内容，再重新启动！参考链接如下"
+    echo ""
+    echo "https://github.com/chiupam/JD_Diy/blob/master/config/diybotset.json"
+    echo ""
+    exit
+  fi
 }
 
 hello() {
