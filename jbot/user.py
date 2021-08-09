@@ -103,11 +103,11 @@ async def shoptoken(event):
                 configs = f1.read()
             if value in configs:
                 continue
-            if "MyShopToken" in configs:
+            if "export MyShopToken" in configs:
                 with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
                     configs = f2.readlines()
                 for config in configs:
-                    if "MyShopToken" in config:
+                    if "export MyShopToken" in config:
                         number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
                         line = configs.index(config) + 1
                 change += f'export MyShopToken{number}="{value}"\n'
@@ -131,7 +131,7 @@ async def shoptoken(event):
             if len(change) == 0:
                 await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
                 return
-            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的店铺TOKEN有以下\n{change}")
+            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
