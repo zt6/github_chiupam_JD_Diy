@@ -40,9 +40,9 @@ tip() {
 }
 
 install() {
+  stop
   cd $root/jbot/diy
   wget $url
-  stop
   tip
   python3 -m jbot
 }
@@ -64,19 +64,19 @@ update() {
 }
 
 reinstall() {
+  stop
   cd $root/jbot/diy
   rm -f "user.py"
   wget $url
-  stop
   tip
   python3 -m jbot
 }
 
 relogin() {
+  stop
   cd $root
   rm -f "user.session"
   rm -f "user.session-journal"
-  stop
   tip
   python3 -m jbot
 }
