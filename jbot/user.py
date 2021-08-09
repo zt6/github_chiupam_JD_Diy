@@ -90,7 +90,7 @@ async def red(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d+=(".*"|\'.*\')'))
+@client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d*=(".*"|\'.*\')'))
 async def shoptoken(event):
     try:
         msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量')
