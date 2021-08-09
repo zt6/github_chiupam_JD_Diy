@@ -33,9 +33,9 @@ tip() {
   echo "登陆完成后使用 Ctrl + C 退出脚本，并使用以下命令启动 user 监控"
   echo ""
   if [ -d "/jd" ]
-    then echo "pm2 restart jbot"
+    then echo "cd $dir_jbot;pm2 restart jbot"
   else
-    echo "nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
+    echo "cd $dir_jbot;nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
   fi
 }
 
