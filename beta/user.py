@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir, _JdDir, TOKEN
 from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
-from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, myjoinTeam_chatIds
+from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, myjoinTeam_chatIds, shoptokenIds
 from telethon import events, TelegramClient
 import re, asyncio, time, datetime, os, sys, requests, json
 
@@ -90,7 +90,7 @@ async def red(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'(export\s)?MyShopToken\d+=(".*"|\'.*\')'))
+@client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d+=(".*"|\'.*\')'))
 async def shoptoken(event):
     try:
         msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量')
