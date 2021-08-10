@@ -80,7 +80,7 @@ rm -rf diybot.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/co
 rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/user.sh;bash user.sh
 ```
 ## 前瞻计划
-测试版机器人的部署方法，功能不稳定，不建议尝试。但对测试做出一定贡献的用户可进入🐏群~
+测试版机器人的部署方法，功能不稳定，不建议尝试。
 ### 用户要求
 - 比较热爱折腾
 - 一定的操作基础
