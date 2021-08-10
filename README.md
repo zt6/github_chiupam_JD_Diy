@@ -77,7 +77,7 @@ rm -rf diybot.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/co
 ### 部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)监控机器人
 首先进入容器中执行以下命令，然后按提示操作即可（此命令禁止在机器人中使用）
 ```shell
-wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/user.sh;bash user.sh
+rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/user.sh;bash user.sh
 ```
 ## 前瞻计划
 测试版机器人的部署方法，功能不稳定，不建议尝试。但对测试做出一定贡献的用户可进入🐏群~
