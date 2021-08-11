@@ -10,6 +10,18 @@ dir_jbot=$root/jbot
 dir_diy=$dir_jbot/diy
 dir_repo=$root/repo
 url="https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/user.py"
+file_user=$dir_diy/user.py
+bot_set=$root/config/diybotset.json
+
+fix() {
+  if [ -z "$(grep -E "sdfasdf" $bot_set)" ]
+    then echo "没有找到shoptokenId键，自动填写对应值！"
+      key_1="shoptokenId"
+      sed -i "s/key_1/$key_1/" $bot_set
+      value_1="-100123456789"
+      sed -i "s/value_1/$value_1/" $bot_set
+  fi
+}
 
 stop() {
   cd $root
@@ -21,11 +33,15 @@ stop() {
 }
 
 restart() {
-  cd $root
-  if [ -d "/jd" ]
-    then pm2 restart jbot
+  if [ -f $file_user ]
+    then cd $root
+    if [ -d "/jd" ]
+      then pm2 restart jbot
+    else
+      nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &
+    fi
   else
-    nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &
+    echo "你没有安装 user.py 无法重启！"
   fi
 }
 
@@ -33,52 +49,72 @@ tip() {
   echo "登陆完成后使用 Ctrl + C 退出脚本，并使用以下命令启动 user 监控"
   echo ""
   if [ -d "/jd" ]
-    then echo "cd $dir_jbot;pm2 restart jbot"
+    then echo "cd $root;pm2 restart jbot"
   else
-    echo "cd $dir_jbot;nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
+    echo "cd $root;nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
   fi
 }
 
 install() {
-  stop
-  cd $root/jbot/diy
-  wget $url
-  tip
-  python3 -m jbot
+  if [ -f $file_user ]
+    then stop
+    cd $root/jbot/diy
+    wget $url
+    tip
+    python3 -m jbot
+  else
+    echo "你已经安装 user.py 请不要重复安装！"
+  fi
 }
 
 uninstall() {
-  cd $root/jbot/diy
-  rm -f "user.py"
-  cd $root
-  rm -f "user.session"
-  rm -f "user.session-journal"
+  if [ -f $file_user ]
+    then cd $root/jbot/diy
+    rm -f "user.py"
+    cd $root
+    rm -f "user.session"
+    rm -f "user.session-journal"
+  else
+    echo "你没有使用 user.py 无法卸载！"
+  fi
 }
 
 update() {
-  stop
-  cd $root/jbot/diy
-  rm -f "user.py"
-  wget $url
-  restart
+  if [ -f $file_user ]
+    then stop
+    cd $root/jbot/diy
+    rm -f "user.py"
+    wget $url
+    restart
+  else
+    echo "你没有使用 user.py 无法升级！"
+  fi
 }
 
 reinstall() {
-  stop
-  cd $root/jbot/diy
-  rm -f "user.py"
-  wget $url
-  tip
-  python3 -m jbot
+  if [ -f $file_user ]
+    then stop
+    cd $root/jbot/diy
+    rm -f "user.py"
+    wget $url
+    tip
+    python3 -m jbot
+  else
+    echo "你没有使用 user.py 无法重新安装！"
+  fi
 }
 
 relogin() {
-  stop
-  cd $root
-  rm -f "user.session"
-  rm -f "user.session-journal"
-  tip
-  python3 -m jbot
+  if [ -f $file_user ]
+    then stop
+    cd $root
+    rm -f "user.session"
+    rm -f "user.session-journal"
+    tip
+    python3 -m jbot
+  else
+    echo "你没有使用 user.py 无法重新登录！"
+  fi
 }
 
 main() {
@@ -103,4 +139,5 @@ main() {
     esac
 }
 
+fix
 main
