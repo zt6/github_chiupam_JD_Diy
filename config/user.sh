@@ -23,6 +23,19 @@ fix() {
   fi
 }
 
+start() {
+  echo "登陆完成后使用 Ctrl + C 退出脚本，并使用以下命令启动 user 监控"
+  echo ""
+  if [ -d "/jd" ]
+    then echo "cd $root;pm2 restart jbot"
+  else
+    echo "cd $root;nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
+  fi
+  echo ""
+  cd $root
+  python3 -m jbot
+}
+
 stop() {
   cd $root
   if [ -d "/jd" ]
@@ -45,16 +58,6 @@ restart() {
   fi
 }
 
-tip() {
-  echo "登陆完成后使用 Ctrl + C 退出脚本，并使用以下命令启动 user 监控"
-  echo ""
-  if [ -d "/jd" ]
-    then echo "cd $root;pm2 restart jbot"
-  else
-    echo "cd $root;nohup python3 -m jbot > /ql/log/bot/bot.log 2>&1 &"
-  fi
-}
-
 install() {
   if [ -f $file_user ]
     then echo "你已经安装 user.py 请不要重复安装！"
@@ -62,9 +65,7 @@ install() {
     stop
     cd $root/jbot/diy
     wget $url
-    tip
-    cd $root
-    python3 -m jbot
+    start
   fi
 }
 
@@ -75,6 +76,7 @@ uninstall() {
     cd $root
     rm -f "user.session"
     rm -f "user.session-journal"
+    echo "卸载 user.py 及相关 session 文件"
   else
     echo "你没有使用 user.py 无法卸载！"
   fi
@@ -86,6 +88,7 @@ update() {
     cd $root/jbot/diy
     rm -f "user.py"
     wget $url
+    echo "升级完成，正在重启程序"
     restart
   else
     echo "你没有使用 user.py 无法升级！"
@@ -98,9 +101,7 @@ reinstall() {
     cd $root/jbot/diy
     rm -f "user.py"
     wget $url
-    tip
-    cd $root
-    python3 -m jbot
+    start
   else
     echo "你没有使用 user.py 无法重新安装！"
   fi
@@ -112,9 +113,7 @@ relogin() {
     cd $root
     rm -f "user.session"
     rm -f "user.session-journal"
-    tip
-    cd $root
-    python3 -m jbot
+    start
   else
     echo "你没有使用 user.py 无法重新登录！"
   fi
