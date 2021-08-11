@@ -63,6 +63,7 @@ install() {
     cd $root/jbot/diy
     wget $url
     tip
+    cd $root
     python3 -m jbot
   fi
 }
@@ -98,6 +99,7 @@ reinstall() {
     rm -f "user.py"
     wget $url
     tip
+    cd $root
     python3 -m jbot
   else
     echo "你没有使用 user.py 无法重新安装！"
@@ -111,6 +113,7 @@ relogin() {
     rm -f "user.session"
     rm -f "user.session-journal"
     tip
+    cd $root
     python3 -m jbot
   else
     echo "你没有使用 user.py 无法重新登录！"
