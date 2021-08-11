@@ -14,7 +14,7 @@ file_user=$dir_diy/user.py
 bot_set=$root/config/diybotset.json
 
 fix() {
-  if [ -z "$(grep -E "sdfasdf" $bot_set)" ]
+  if [ -z "$(grep -E "shoptokenId" $bot_set)" ]
     then echo "没有找到shoptokenId键，自动填写对应值！"
       key_1="shoptokenId"
       sed -i "s/key_1/$key_1/" $bot_set
