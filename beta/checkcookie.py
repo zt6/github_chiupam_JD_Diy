@@ -23,12 +23,16 @@ async def checkCookie(cookie):
         "Referer": "https://home.m.jd.com/myJd/newhome.action?sceneval=2&ufc=&",
         "Accept-Encoding": "gzip, deflate, br"
     }
-    res = requests.get(url, headers=headers)
-    await asyncio.sleep(2)
-    data = res.json()
-    if data['retcode'] != "1001":
-        return False
-    return True
+    try:
+        res = requests.get(url, headers=headers)
+        await asyncio.sleep(2)
+        data = res.json()
+        if data['retcode'] != "1001":
+            return False
+        return True
+    except Exception as e:
+        await jdbot.send_message(chat_id, f"此cookie无法完成检测，请自行斟酌！\n\n{cookie}\n\n错误：{e}")
+        return True
 
 
 # @jdbot.on(events.NewMessage(from_users=[chat_id, bot_id], pattern=r'^/checkcookie$|.*cookie已失效'))
@@ -51,7 +55,7 @@ async def mycheckcookie(event):
                     res += f"账号{cknum}有效\n"
                     msg = await jdbot.edit_message(msg, res)
             await asyncio.sleep(2)
-        elif QL8:
+        elif QL:
             token = ql_token(_Auth)
             headers = {'Authorization': f'Bearer {token}'}
             if QL8:
