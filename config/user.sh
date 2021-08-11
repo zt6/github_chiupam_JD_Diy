@@ -57,13 +57,13 @@ tip() {
 
 install() {
   if [ -f $file_user ]
-    then stop
+    then echo "你已经安装 user.py 请不要重复安装！"
+  else
+    stop
     cd $root/jbot/diy
     wget $url
     tip
     python3 -m jbot
-  else
-    echo "你已经安装 user.py 请不要重复安装！"
   fi
 }
 
