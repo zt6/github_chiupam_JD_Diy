@@ -91,47 +91,96 @@ async def red(event):
 
 
 @client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d*=(".*"|\'.*\')'))
-async def shoptoken(event):
+async def myshoptoken(event):
     try:
-        msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量')
-        messages = event.message.text.split("\n")
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        exports = re.findall(r'export MyShopToken(\d+)="(.*)"', configs)
+        if not exports:
+            change = ""
+            msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，直接添加！')
+            for message in event.message.text.split("\n"):
+                value = re.findall(r'"([^"]*)"', message)[0]
+                if V4:
+                    configs = configs.split("\n")
+                    for config in configs:
+                        if "第五区域" in config and "↑" in config:
+                            line = configs.index(config)
+                            break
+                    change += f'export MyShopToken1="{value}"\n'
+                    configs.insert(line - 2, f'export MyShopToken1="{value}"\n')
+                    configs = "".join(configs)
+                elif QL:
+                    change += f'export MyShopToken1="{value}"\n'
+                    configs += f'export MyShopToken1="{value}"\n'
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
+                f2.write(configs)
+            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
+            return
+        msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，首先清理过期店铺……')
+        shop = ""
         change = ""
-        for message in messages:
-            kv = message.replace("export ", "")
-            value = re.findall(r'"([^"]*)"', kv)[0]
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-                configs = f1.read()
+        charts = []
+        for export in exports:
+            url = f"https://api.m.jd.com/api?appid=interCenter_shopSign&t={int(time.time() * 1000)}&loginType=2&functionId=interact_center_shopSign_getActivityInfo&body={{%22token%22:%22{export[1]}%22,%22venderId%22:%22%22}}"
+            headers = {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate, br",
+                "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+                "referer": "https://h5.m.jd.com/",
+                "User-Agent": "Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40"
+            }
+            r = requests.post(url, headers=headers).json()
+            if r['code'] == 402:
+                shop += f"店铺{export[0]}已过期\n"
+                msg = await jdbot.edit_message(msg, shop)
+                charts.append(f'export MyShopToken{export[0]}="{export[1]}"')
+            await asyncio.sleep(0.1)
+        if charts:
+            configs = configs.split("\n")
+            for chart in charts:
+                configs.remove(chart)
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
+                f2.write("\n".join(configs))
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                configs = f3.read()
+            tokens = re.findall(r'export MyShopToken\d+="(.*)"', configs)
+            i = 0
+            configs = configs.split("\n")
+            for config in configs:
+                if tokens[i] in config:
+                    line = configs.index(config)
+                    configs[line] = f'export MyShopToken{i + 1}="{tokens[i]}"'
+                    i += 1
+                    if i >= len(tokens):
+                        break
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f4:
+                f4.write("\n".join(configs))
+        for message in event.message.text.split("\n"):
+            value = re.findall(r'"([^"]*)"', message)[0]
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                configs = f2.read()
             if value in configs:
                 continue
-            if "export MyShopToken" in configs:
-                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                    configs = f2.readlines()
-                for config in configs:
-                    if "export MyShopToken" in config:
-                        number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
-                        line = configs.index(config) + 1
-                change += f'export MyShopToken{number}="{value}"\n'
-                configs.insert(line, f'export MyShopToken{number}="{value}"\n')
-            elif V4:
-                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                    configs = f2.readlines()
-                for config in configs:
-                    if "第五区域" in config and "↑" in config:
-                        line = configs.index(config)
-                        break
-                change += f'export MyShopToken1="{value}"\n'
-                configs.insert(line - 2, f'export MyShopToken1="{value}"\n')
-            elif QL:
-                with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-                    configs = f2.read()
-                change += f'export MyShopToken1="{value}"\n'
-                configs += f'export MyShopToken1="{value}"\n'
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-                f3.write("".join(configs))
-            if len(change) == 0:
-                await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
-                return
-            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
+                configs = f3.readlines()
+            for config in configs:
+                if "export MyShopToken" in config:
+                    number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
+                    line = configs.index(config) + 1
+            change += f'export MyShopToken{number}="{value}"\n'
+            configs.insert(line, f'export MyShopToken{number}="{value}"\n')
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f4:
+            f4.write("\n".join(configs))
+        if len(change) == 0:
+            await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
+            return
+        await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
+        try:
+            from ..diy.diy import signCollectGift
+            await signCollectGift()
+        except:
+            None
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
