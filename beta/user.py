@@ -2,11 +2,19 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _ScriptsDir, _JdbotDir, _JdDir, TOKEN
-from ..bot.utils import cmd, backfile, jdcmd, V4, QL, _ConfigFile, myck
-from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, myjoinTeam_chatIds, shoptokenIds
+import asyncio
+import datetime
+import os
+import re
+import sys
+import time
+
 from telethon import events, TelegramClient
-import re, asyncio, time, datetime, os, sys, requests, json
+
+from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _JdDir, TOKEN
+from ..bot.utils import cmd, V4, QL, _ConfigFile, myck
+from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, shoptokenIds
+from ..diy.utils import getvenderId, getvenderName, getActivityInfo, signCollectGift, checkShopToken
 
 bot_id = int(TOKEN.split(":")[0])
 
@@ -118,24 +126,8 @@ async def myshoptoken(event):
             await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
             return
         msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，首先清理过期店铺……')
-        shop = ""
         change = ""
-        charts = []
-        for export in exports:
-            url = f"https://api.m.jd.com/api?appid=interCenter_shopSign&t={int(time.time() * 1000)}&loginType=2&functionId=interact_center_shopSign_getActivityInfo&body={{%22token%22:%22{export[1]}%22,%22venderId%22:%22%22}}"
-            headers = {
-                "accept": "*/*",
-                "accept-encoding": "gzip, deflate, br",
-                "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-                "referer": "https://h5.m.jd.com/",
-                "User-Agent": "Mozilla/5.0 (Linux; U; Android 10; zh-cn; MI 8 Build/QKQ1.190828.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/79.0.3945.147 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.5.40"
-            }
-            r = requests.post(url, headers=headers).json()
-            if r['code'] == 402:
-                shop += f"店铺{export[0]}已过期\n"
-                msg = await jdbot.edit_message(msg, shop)
-                charts.append(f'export MyShopToken{export[0]}="{export[1]}"')
-            await asyncio.sleep(0.1)
+        charts = await checkShopToken(exports, msg)
         if charts:
             configs = configs.split("\n")
             for chart in charts:
@@ -168,7 +160,18 @@ async def myshoptoken(event):
                 if "export MyShopToken" in config:
                     number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
                     line = configs.index(config) + 1
-            change += f'export MyShopToken{number}="{value}"\n'
+                    change += f'export MyShopToken{number}="{value}"\n'
+                    cookies = myck(_ConfigFile)
+                    for cookie in cookies:
+                        try:
+                            venderId = getvenderId(value)
+                            shopName, nameinfo = getvenderName(venderId)
+                            change += nameinfo
+                            activityId, endday, actinfo = getActivityInfo(value, venderId)
+                            signinfo = signCollectGift(value, activityId, cookie)
+                            change += signinfo
+                        except:
+                            continue
             configs.insert(line, f'export MyShopToken{number}="{value}"\n')
         with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f4:
             f4.write("\n".join(configs))
@@ -176,11 +179,6 @@ async def myshoptoken(event):
             await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
             return
         await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
-        try:
-            from ..diy.diy import signCollectGift
-            await signCollectGift()
-        except:
-            None
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
