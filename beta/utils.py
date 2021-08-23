@@ -79,6 +79,28 @@ def checkCookie2(cookie):
         return False
 
 
+# 读取config.sh
+def read(arg):
+    if arg == "str":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        return configs
+    elif arg == "list":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        return configs
+
+
+# 写入config.sh
+def write(configs):
+    if isinstance(configs, str):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write(configs)
+    elif isinstance(configs, list):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write("".join(configs))
+
+
 # user.py调用
 def getbean(i, cookie, url):
     headers = {
@@ -149,18 +171,16 @@ async def checkShopToken(tokens, msg):
 
 
 def deltoken(charts):
-    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-        configs = f1.readlines()
+    """
+    删除过期店铺
+    """
+    configs = read("list")
     for chart in charts:
         configs.remove(chart)
-    with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-        f2.write("".join(configs))
-    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
-        configs = f3.read()
-    tokens = re.findall(r'export MyShopToken\d+="(.*)"', configs)
+    write(configs)
+    tokens = re.findall(r'export MyShopToken\d+="(.*)"', read("str"))
     i = 0
-    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
-        configs = f4.readlines()
+    configs = read("list")
     for config in configs:
         if tokens[i] in config:
             line = configs.index(config)
@@ -168,8 +188,7 @@ def deltoken(charts):
             i += 1
             if i >= len(tokens):
                 break
-    with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f5:
-        f5.write("".join(configs))
+    write(configs)
 
 
 def getvenderId(token):
