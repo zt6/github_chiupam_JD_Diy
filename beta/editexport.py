@@ -4,6 +4,7 @@
 
 from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot
 from ..bot.utils import press_event, V4, QL, split_list, row
+from ..diy.utils import read, write
 from telethon import events, Button
 from asyncio import exceptions
 import re, asyncio, sys, os
@@ -13,8 +14,7 @@ import re, asyncio, sys, os
 async def mychangeexport(event):
     try:
         SENDER = event.sender_id
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-            configs = f1.readlines()
+        configs = read("list")
         knames, vnames, notes, btns = [], [], [], []
         if V4:
             for config in configs:
@@ -104,11 +104,9 @@ async def mychangeexport(event):
                     msg = await jdbot.edit_message(msg, f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
                     loop = False
                     conv.cancel()
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
-            configs = f2.read()
+        configs = read("str")
         configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
-            f3.write(configs)
+        write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
         await jdbot.send_message(chat_id, "修改环境变量成功")

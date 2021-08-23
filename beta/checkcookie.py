@@ -4,7 +4,7 @@
 
 from .. import chat_id, jdbot, logger, chname, mybot, TOKEN
 from ..bot.utils import press_event, V4, QL, _ConfigFile, myck, _Auth
-from ..diy.utils import QL2, QL8, ql_token
+from ..diy.utils import QL2, QL8, ql_token, read, write
 from telethon import events
 from asyncio import exceptions
 import requests, re, asyncio, time, sys, os
@@ -108,8 +108,7 @@ async def mycheckcookie(event):
                         valids.append([data['_id'], data['nickname'], cknum])
                     await asyncio.sleep(1)
         if V4:
-            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-                configs = f1.readlines()
+            configs = read("list")
             for config in configs:
                 i = configs.index(config)
                 if config.find("TempBlockCookie") != -1 and config.find("##") == -1 and configs[i + 1].find(";") == -1:
@@ -121,8 +120,7 @@ async def mycheckcookie(event):
             n = " ".join('%s' % expired for expired in expireds)
             configs = re.sub(r'TempBlockCookie=".*"program', f'TempBlockCookie="{n}"', configs, re.M)
             text += f'【屏蔽情况】{o}TempBlockCookie="{n}"\n'
-            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                f2.write(configs)
+            write(configs)
             await jdbot.edit_message(msg, text)
         elif QL:
             headers = {'Authorization': f'Bearer {token}'}
