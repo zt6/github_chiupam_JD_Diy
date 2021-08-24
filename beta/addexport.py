@@ -62,7 +62,7 @@ async def myaddexport(event):
                     configs = ''.join(configs)
                 else:
                     configs = read("str")
-                    configs += f'export {kname}="{vname}"{note}\n'
+                    configs += f'\nexport {kname}="{vname}"{note}'
                 await asyncio.sleep(1.5)
                 end = "新增环境变量成功"
             write(configs)
