@@ -105,7 +105,7 @@ async def mychangeexport(event):
                     loop = False
                     conv.cancel()
         configs = read("str")
-        configs = re.sub(f'{kname}=(\"|\')\S+(\"|\')', f'{kname}="{vname}"', configs)
+        configs = re.sub(f'{kname}=(\"|\').*(\"|\')', f'{kname}="{vname}"', configs)
         write(configs)
         await asyncio.sleep(1.5)
         await jdbot.delete_messages(chat_id, msg)
