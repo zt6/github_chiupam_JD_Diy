@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
-from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth, qlcron
-from ..diy.utils import ql_token
-from telethon import events, Button
 from asyncio import exceptions
-import requests, os, re, time, sys
+
+import os
+import re
+import requests
+import sys
+import time
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, chname, mybot
+from ..bot.utils import press_event, V4, QL, cmd, split_list, row, _Auth, qlcron
+from ..diy.utils import ql_token, read, write
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
@@ -104,8 +110,7 @@ async def myaddrepo(event):
             conv.cancel()
         if V4:
             nums = []
-            with open(_ConfigFile, 'r', encoding='utf-8') as f1:
-                configs = f1.readlines()
+            configs = read("list")
             for config in configs:
                 if '启用其他开发者的仓库方式一' in config:
                     start_line = configs.index(config)
@@ -142,8 +147,7 @@ async def myaddrepo(event):
                         configs.insert(configs.index(config) + 1, OwnRepoBranch)
                     elif config.find(f'OwnRepoPath{nums[-1]}') != -1 and config.find("## ") == -1:
                         configs.insert(configs.index(config) + 1, OwnRepoPath)
-            with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                f2.write(''.join(configs))
+            write(configs)
             await jdbot.send_message(chat_id, "现在开始拉取仓库，稍后请自行查看结果")
             await cmd("jup own")
         else:
@@ -227,7 +231,6 @@ if chname:
     jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 
 
-
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/repo$'))
 async def myrepo(event):
     try:
@@ -248,8 +251,7 @@ async def myrepo(event):
                 Button.inline("取消会话", data="cancel")
             ]
         if V4:
-            with open(_ConfigFile, 'r', encoding='utf-8') as f:
-                configs = f.readlines()
+            configs = read("list")
             r_names, r_urls, r_namesline, r_branchs, r_branchsline, r_paths, r_pathsline, r_status, r_nums, btns_1 = [], [], [], [], [], [], [], [], [], []
             for config in configs:
                 if config.find("OwnRepoUrl") != -1 and config.find("## ") == -1:
@@ -320,13 +322,11 @@ async def myrepo(event):
                     configs = ''.join(configs)
                 elif res == 'delete':
                     await jdbot.edit_message(msg, "删除仓库")
-                    with open(_ConfigFile, 'r', encoding='utf-8') as f:
-                        configs = f.read()
+                    configs = read("str")
                     configs = re.sub(f"OwnRepoUrl{num}=.*", "", configs)
                     configs = re.sub(f"OwnRepoBranch{num}=.*", "", configs)
                     configs = re.sub(f"OwnRepoPath{num}=.*", "", configs)
-                with open(_ConfigFile, 'w', encoding='utf-8') as f2:
-                    f2.write(configs)
+                write(configs)
         else:
             token = ql_token(_Auth)
             url = 'http://127.0.0.1:5600/api/crons'

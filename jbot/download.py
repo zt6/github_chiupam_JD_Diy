@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
-from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron
-from ..diy.utils import mycronup
-from telethon import events, Button
 from asyncio import exceptions
-import requests, re, sys, os
+
+import os
+import re
+import requests
+import sys
+from telethon import events, Button
+
+from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
+from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, split_list, row
+from ..diy.utils import mycronup, read, write
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://.*(js|py|sh)$'))
@@ -38,7 +43,7 @@ async def mydownload(event):
                 btns = [Button.inline('放入config目录', data=_ConfigDir), Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy'), Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('放入own目录', data=_OwnDir ), Button.inline('取消对话', data='cancel')]
             else:
                 btns = [Button.inline('放入config目录', data=_ConfigDir), Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('取消对话', data='cancel')]
-            write, cmdtext = True, False
+            cmdtext = False
             msg = await conv.send_message(f'成功下载{fname_cn}脚本\n现在，请做出你的选择：', buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
             res1 = bytes.decode(convdata.data)
@@ -72,14 +77,13 @@ async def mydownload(event):
                     await jdbot.edit_message(msg, f"文件将保存到{res1}目录，且已写入配置中，准备执行脚本")
                 else:
                     await jdbot.edit_message(msg, f'文件将保存到{res1}目录，且已写入配置中，准备拉取单个脚本，请耐心等待')
-                with open(_ConfigFile, 'r', encoding="utf-8") as f1:
-                    configs = f1.readlines()
+                configs = read("list")
                 for config in configs:
-                    if config.find("OwnRawFile") != -1 and config.find("## ") == -1:
+                    if "OwnRawFile" in config and "##" not in config:
                         line = configs.index(config) + 1
                         configs.insert(line, f"\t{event.raw_text}\n")
-                        with open(_ConfigFile, 'w', encoding="utf-8") as f2:
-                            f2.write(''.join(configs))
+                        write(configs)
+                        break
                     elif config.find("第五区域") != -1:
                         break
                 await cmd("jup own")

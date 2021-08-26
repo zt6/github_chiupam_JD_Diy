@@ -2,11 +2,18 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, chname, mybot
-from ..bot.utils import press_event, V4, QL, _ConfigFile, row, split_list, _Auth, myck
-from telethon import events, Button
+import json
+import os
+import re
+import requests
+import sys
+import time
 from asyncio import exceptions
-import re, json, requests, time, sys, os
+
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, chname, mybot
+from ..bot.utils import press_event, V4, _ConfigFile, row, split_list, _Auth, myck
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/blockcookie'))

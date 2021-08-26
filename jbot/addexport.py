@@ -4,10 +4,13 @@
 
 from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot, _LogDir
 from ..bot.utils import press_event, V4, QL
+from ..diy.utils import read, write
 from telethon import events, Button
 from asyncio import exceptions
-import re, asyncio, sys, os
-
+import re
+import asyncio
+import sys
+import os
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(export\s)?\w*=(".*"|\'.*\')'))
 async def myaddexport(event):
@@ -30,10 +33,9 @@ async def myaddexport(event):
                 else:
                     msg = await jdbot.edit_message(msg, f"好的，请稍等\n你设置变量为：{kname}=\"{vname}\"")
                 conv.cancel()
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
-                configs = f1.read()
+            configs = read("str")
             await asyncio.sleep(1.5)
-            if configs.find(f"export {kname}=") != -1:
+            if f"export {kname}=" in configs:
                 configs = re.sub(f'{kname}=(\"|\').*(\"|\')', f'{kname}="{vname}"', configs)
                 end = "替换环境变量成功"
             else:
@@ -51,22 +53,19 @@ async def myaddexport(event):
                         note = f" # {note.raw_text}"
                     conv.cancel()
                 if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f3:
-                        configs = f3.readlines()
+                    configs = read("list")
                     for config in configs:
-                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                        if "第五区域" in config and "↑" in config:
                             end_line = configs.index(config)
                             break
                     configs.insert(end_line - 1, f'export {kname}="{vname}"{note}\n')
                     configs = ''.join(configs)
                 else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f4:
-                        configs = f4.read()
-                    configs += f'export {kname}="{vname}"{note}\n'
+                    configs = read("str")
+                    configs += f'\nexport {kname}="{vname}"{note}'
                 await asyncio.sleep(1.5)
                 end = "新增环境变量成功"
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f2:
-                f2.write(configs)
+            write(configs)
             await jdbot.edit_message(msg, end)
     except exceptions.TimeoutError:
         await jdbot.edit_message(msg, '选择已超时，对话已停止，感谢你的使用')
