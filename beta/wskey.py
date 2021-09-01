@@ -18,7 +18,7 @@ async def myaddwskey(event):
         text = ""
         msg = await jdbot.send_message(chat_id, "获取到wskey，正在工作中……")
         messages = event.raw_text.split("\n")
-        if V4:
+        if V4 or QL2:
             file = f"{_ConfigDir}/wskey.list"
             configs = read("str")
             if not os.path.exists(file) and "wskey" not in configs:
@@ -41,7 +41,9 @@ async def myaddwskey(event):
                     msg = await jdbot.edit_message(msg, f'你的选择是：存储在{res}中\n准备继续工作……')
             if os.path.exists(file):
                 for message in messages:
-                    pin = message.split(";")[0].split("=")[1]
+                    pin = re.findall(r'pin=(.*);', message)[0]
+                    key = re.findall(r'wskey=(.*);', message)[0]
+                    message = f"pin={pin};wskey={key};"
                     configs = wskey("str")
                     if pin in configs:
                         configs = re.sub(f"pin={pin};wskey=.*;", message, configs)
@@ -52,12 +54,14 @@ async def myaddwskey(event):
                     wskey(configs)
             else:
                 for message in messages:
-                    pin = message.split(";")[0].split("=")[1]
+                    pin = re.findall(r'pin=(.*);', message)[0]
+                    key = re.findall(r'wskey=(.*);', message)[0]
+                    message = f"pin={pin};wskey={key};"
                     configs = read("str")
                     if pin + ";wskey" in configs:
                         configs = re.sub(f'pin={pin};wskey=.*;', message, configs)
                         text += f"更新wskey成功！pin为：{pin}\n"
-                    else:
+                    elif V4:
                         configs = read("list")
                         for config in configs:
                             if pin in config and "wskey" not in config:
@@ -69,12 +73,18 @@ async def myaddwskey(event):
                             elif "第二区域" in config:
                                 await jdbot.edit_message(msg, "请使用标准模板！")
                                 return
+                    elif QL2:
+                        configs = read("str")
+                        configs += f"{message}\n"
+                        text += f"新增wskey成功！pin为：{pin}\n"
                     await jdbot.edit_message(msg, text)
                     write(configs)
         elif QL8:
             token = ql_token(_Auth)
             for message in messages:
-                pin = message.split(";")[0].split('=')[1]
+                pin = re.findall(r'pin=(.*);', message)[0]
+                key = re.findall(r'wskey=(.*);', message)[0]
+                message = f"pin={pin};wskey={key};"
                 url = 'http://127.0.0.1:5600/api/envs'
                 headers = {'Authorization': f'Bearer {token}'}
                 body = {
@@ -91,10 +101,6 @@ async def myaddwskey(event):
                     post(url, json=body, headers=headers)
                     text += f"新增wskey成功！pin为：{pin}\n"
                 await jdbot.edit_message(msg, text)
-        elif QL2:
-            text = "青龙2.2无法使用此功能~"
-            await jdbot.edit_message(msg, text)
-            return
         if len(text) > 1:
             if V4:
                 if os.path.exists("/jd/own/wskey_ptkey.py"):
@@ -108,13 +114,14 @@ async def myaddwskey(event):
                 else:
                     text += "\n不存在wskey_ptkey.py，无法自动更新cookie列表，自行解决更新问题"
                     await jdbot.edit_message(msg, text)
-            elif QL8:
+            else:
+                token = ql_token(_Auth)
                 url = 'http://127.0.0.1:5600/api/crons'
                 headers = {'Authorization': f'Bearer {token}'}
-                body = {
-                    'searchValue': "wskey_ptkey.py",
-                    'Authorization': f'Bearer {token}'
-                }
+                if QL8:
+                    body = {'searchValue': "wskey_ptkey.py", 'Authorization': f'Bearer {token}'}
+                else:
+                    body = {'searchValue': "wskey_ptkey.py"}
                 data = get(url, params=body, headers=headers).json()['data']
                 if data:
                     url = 'http://127.0.0.1:5600/api/crons/run'

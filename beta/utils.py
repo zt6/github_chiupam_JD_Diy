@@ -99,6 +99,24 @@ def write(configs):
             f1.write("".join(configs))
 
 
+# 读写config.sh
+def rw(arg):
+    if arg == "str":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        return configs
+    elif arg == "list":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        return configs
+    elif isinstance(arg, str):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write(arg)
+    elif isinstance(arg, list):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write("".join(arg))
+
+
 # 读写wskey.list
 def wskey(arg):
     file = f"{_ConfigDir}/wskey.list"
