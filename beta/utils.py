@@ -99,33 +99,37 @@ def write(configs):
             f1.write("".join(configs))
 
 
-# 读取wskey.list
-def read_wskey(arg):
+# 读写wskey.list
+def wskey(arg):
+    file = f"{_ConfigDir}/wskey.list"
     if arg == "str":
-        with open(f"{_ConfigDir}/wskey.list", 'r', encoding='utf-8') as f1:
+        with open(file, 'r', encoding='utf-8') as f1:
             wskey = f1.read()
         return wskey
     elif arg == "list":
-        with open(f"{_ConfigDir}/wskey.list", 'r', encoding='utf-8') as f1:
+        with open(file, 'r', encoding='utf-8') as f1:
             wskey = f1.readlines()
         return wskey
+    elif "wskey" in arg and "pin" in arg:
+        with open(file, 'w', encoding='utf-8') as f1:
+            f1.write(arg)
 
 
-# 写入wskey.list
-def write_wskey(wskey):
-    file = f"{_ConfigDir}/wskey.list"
-    if not os.path.exists(file):
-        os.system(f"touch {file}")
-    pin = wskey.split(";")[0].split("=")[1]
-    with open(file, 'r', encoding='utf-8') as f1:
-        wskeys = f1.read()
-    if pin in wskeys:
-        wskeys = re.sub(f"pin={pin};wskey=.*;", wskey, wskeys)
-        with open(file, 'w', encoding='utf-8') as f2:
-            f2.write(wskeys)
-    else:
-        with open(file, 'a', encoding='utf-8') as f2:
-            f2.write(wskey + "\n")
+# # 写入wskey.list
+# def write_wskey(wskey):
+#     file = f"{_ConfigDir}/wskey.list"
+#     if not os.path.exists(file):
+#         os.system(f"touch {file}")
+#     pin = wskey.split(";")[0].split("=")[1]
+#     with open(file, 'r', encoding='utf-8') as f1:
+#         wskeys = f1.read()
+#     if pin in wskeys:
+#         wskeys = re.sub(f"pin={pin};wskey=.*;", wskey, wskeys)
+#         with open(file, 'w', encoding='utf-8') as f2:
+#             f2.write(wskeys)
+#     else:
+#         with open(file, 'a', encoding='utf-8') as f2:
+#             f2.write(wskey + "\n")
 
 
 # user.py调用
