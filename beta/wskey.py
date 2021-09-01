@@ -41,9 +41,12 @@ async def myaddwskey(event):
                     msg = await jdbot.edit_message(msg, f'你的选择是：存储在{res}中\n准备继续工作……')
             if os.path.exists(file):
                 for message in messages:
-                    pin = re.findall(r'pin=(.*);', message)[0]
-                    key = re.findall(r'wskey=(.*);', message)[0]
-                    message = f"pin={pin};wskey={key};"
+                    if "whwswswws" in message:
+                        pin = re.findall(r'pin=(.*);ws', message)[0]
+                        key = re.findall(r'wskey=(.*);wh', message)[0]
+                        message = f"pin={pin};wskey={key};"
+                    else:
+                        pin = message.split(";")[0].split("=")[1]
                     configs = wskey("str")
                     if pin in configs:
                         configs = re.sub(f"pin={pin};wskey=.*;", message, configs)
@@ -54,9 +57,12 @@ async def myaddwskey(event):
                     wskey(configs)
             else:
                 for message in messages:
-                    pin = re.findall(r'pin=(.*);', message)[0]
-                    key = re.findall(r'wskey=(.*);', message)[0]
-                    message = f"pin={pin};wskey={key};"
+                    if "whwswswws" in message:
+                        pin = re.findall(r'pin=(.*);ws', message)[0]
+                        key = re.findall(r'wskey=(.*);wh', message)[0]
+                        message = f"pin={pin};wskey={key};"
+                    else:
+                        pin = message.split(";")[0].split("=")[1]
                     configs = read("str")
                     if pin + ";wskey" in configs:
                         configs = re.sub(f'pin={pin};wskey=.*;', message, configs)
