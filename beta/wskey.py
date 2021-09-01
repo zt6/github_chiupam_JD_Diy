@@ -60,7 +60,7 @@ async def myaddwskey(event):
                     else:
                         configs = read("list")
                         for config in configs:
-                            if pin in config:
+                            if pin in config and "wskey" not in config:
                                 line = configs.index(config)
                                 num = re.findall(r'(?<=[Cc]ookie)[\d]+(?==")', config)[0]
                                 configs.insert(line, f'wskey{num}="{message}"\n')
