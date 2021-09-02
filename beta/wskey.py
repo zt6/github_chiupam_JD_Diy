@@ -58,7 +58,7 @@ async def myaddwskey(event):
                     pin, key = ws[0], ws[1]
                     message = pin + key
                     configs = read("str")
-                    if pin + ";wskey" in configs:
+                    if pin + "wskey" in configs:
                         configs = re.sub(f'pin={pin};wskey=.*;', message, configs)
                         text += f"更新wskey成功！pin为：{pin}\n"
                     elif V4:
