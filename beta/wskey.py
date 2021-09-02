@@ -3,7 +3,7 @@
 
 
 from .. import chat_id, jdbot, logger, _ConfigDir
-from ..bot.utils import V4, _Auth, press_event, split_list, row
+from ..bot.utils import V4, _Auth, press_event, split_list, row, cmd
 from ..diy.utils import QL2, QL8, ql_token, wskey, read, write
 from telethon import events, Button
 from requests import get, put, post
@@ -12,7 +12,7 @@ import os
 import sys
 
 
-@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'.*wskey.*'))
+@jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^pin=.*;wskey=.*'))
 async def myaddwskey(event):
     try:
         text = ""
@@ -41,9 +41,9 @@ async def myaddwskey(event):
                     msg = await jdbot.edit_message(msg, f'你的选择是：存储在{res}中\n准备继续工作……')
             if os.path.exists(file):
                 for message in messages:
-                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
-                    pin, key = ws[0], ws[1]
-                    message = pin + key
+                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
+                    pin, key = ws[0][0], ws[0][1]
+                    message = pin + key + ";"
                     configs = wskey("str")
                     if pin in configs:
                         configs = re.sub(f"pin={pin};wskey=.*;", message, configs)
@@ -54,11 +54,11 @@ async def myaddwskey(event):
                     wskey(configs)
             else:
                 for message in messages:
-                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
-                    pin, key = ws[0], ws[1]
-                    message = pin + key
+                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
+                    pin, key = ws[0][0], ws[0][1]
+                    message = pin + key + ";"
                     configs = read("str")
-                    if pin + "wskey" in configs:
+                    if pin + ";wskey" in configs:
                         configs = re.sub(f'pin={pin};wskey=.*;', message, configs)
                         text += f"更新wskey成功！pin为：{pin}\n"
                     elif V4:
@@ -82,9 +82,9 @@ async def myaddwskey(event):
         elif QL8:
             token = ql_token(_Auth)
             for message in messages:
-                ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
-                pin, key = ws[0], ws[1]
-                message = pin + key
+                ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
+                pin, key = ws[0][0], ws[0][1]
+                message = pin + key + ";"
                 url = 'http://127.0.0.1:5600/api/envs'
                 headers = {'Authorization': f'Bearer {token}'}
                 body = {
@@ -105,10 +105,10 @@ async def myaddwskey(event):
             if V4:
                 if os.path.exists("/jd/own/wskey_ptkey.py"):
                     text += "\n将自动更新cookie列表，自行查看更新情况"
-                    os.system("python /jd/own/wskey_ptkey.py")
+                    await cmd("python /jd/own/wskey_ptkey.py")
                 elif os.path.exists("/jd/scripts/wskey_ptkey.py"):
                     text += "\n将自动更新cookie列表，自行查看更新情况"
-                    os.system("python /jd/scripts/wskey_ptkey.py")
+                    await cmd("python /jd/scripts/wskey_ptkey.py")
                 if "更新" in text:
                     await jdbot.edit_message(msg, text)
                 else:
