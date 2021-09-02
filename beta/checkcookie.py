@@ -11,6 +11,7 @@ import requests, re, asyncio, time, sys, os
 
 bot_id = int(TOKEN.split(":")[0])
 
+
 async def checkCookie(cookie):
     url = "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion"
     headers = {
@@ -27,9 +28,11 @@ async def checkCookie(cookie):
         res = requests.get(url, headers=headers)
         await asyncio.sleep(2)
         data = res.json()
-        if data['retcode'] != "1001":
+        if data['retcode'] == "1001":
             return False
-        return True
+        else:
+            nickname = data['data']['userInfo']['baseInfo']['nickname']
+            return nickname
     except Exception as e:
         await jdbot.send_message(chat_id, f"此cookie无法完成检测，请自行斟酌！\n\n{cookie}\n\n错误：{e}")
         return True
@@ -48,22 +51,19 @@ async def mycheckcookie(event):
                 cknum = cookies.index(cookie) + 1
                 check = await checkCookie(cookie)
                 if check:
-                    res += f"账号{cknum}已过期\n"
-                    msg = await jdbot.edit_message(msg, res)
-                    expireds.append(cknum)
+                    res += f"账号{cknum}-{check}有效\n"
                 else:
-                    res += f"账号{cknum}有效\n"
-                    msg = await jdbot.edit_message(msg, res)
+                    res += f"账号{cknum}已过期\n"
+                    expireds.append(cknum)
+                msg = await jdbot.edit_message(msg, res)
             await asyncio.sleep(2)
         elif QL:
             token = ql_token(_Auth)
             headers = {'Authorization': f'Bearer {token}'}
+            res = ""
             if QL8:
                 url = 'http://127.0.0.1:5600/api/envs'
-                body = {
-                    'searchValue': 'JD_COOKIE',
-                    'Authorization': f'Bearer {token}'
-                }
+                body = {'searchValue': 'JD_COOKIE'}
                 datas = requests.get(url, params=body, headers=headers).json()['data']
                 valids, changes, removes = [], [], []
                 for data in datas:
@@ -74,11 +74,12 @@ async def mycheckcookie(event):
                         for ck in cookies:
                             check = await checkCookie(ck)
                             if check:
-                                msg = await jdbot.edit_message(msg, f"Cookie：{ck} 已过期")
+                                res += f"{check} Cookie：{ck} 有效\n"
+                            else:
+                                res += f"Cookie：{ck} 已过期\n"
                                 cookies.remove(ck)
                                 removes.append(ck)
-                            else:
-                                msg = await jdbot.edit_message(msg, f"Cookie：{ck} 有效")
+                            msg = await jdbot.edit_message(msg, res)
                             await asyncio.sleep(1)
                         if len(cookies) != len_cooke:
                             changes.append([data['remarks'] if 'remarks' in data.keys() else '未备注', '&'.join(cookies), data['_id']])
@@ -86,11 +87,12 @@ async def mycheckcookie(event):
                         cknum = datas.index(data) + 1
                         check = await checkCookie(cookie)
                         if check:
-                            msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
-                            expireds.append([data['_id'], cknum])
-                        else:
-                            msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
+                            res += f"账号{cknum}-{check}有效\n"
                             valids.append([data['_id'], data['remarks'] if 'remarks' in data.keys() else '未备注', cknum])
+                        else:
+                            res += f"账号{cknum}已过期\n"
+                            expireds.append([data['_id'], cknum])
+                        msg = await jdbot.edit_message(msg, res)
                         await asyncio.sleep(1)
             else:
                 url = 'http://127.0.0.1:5600/api/cookies'
@@ -101,11 +103,12 @@ async def mycheckcookie(event):
                     cknum = datas.index(data) + 1
                     check = await checkCookie(data['value'])
                     if check:
-                        msg = await jdbot.edit_message(msg, f"账号{cknum}已过期")
-                        expireds.append([data['_id'], cknum])
-                    else:
-                        msg = await jdbot.edit_message(msg, f"账号{cknum}有效")
+                        res += f"账号{cknum}-{check}有效\n"
                         valids.append([data['_id'], data['nickname'], cknum])
+                    else:
+                        res += f"账号{cknum}已过期\n"
+                        expireds.append([data['_id'], cknum])
+                    msg = await jdbot.edit_message(msg, res)
                     await asyncio.sleep(1)
         if V4:
             configs = read("list")
@@ -123,8 +126,9 @@ async def mycheckcookie(event):
             write(configs)
             await jdbot.edit_message(msg, text)
         elif QL:
+            token = ql_token(_Auth)
             headers = {'Authorization': f'Bearer {token}'}
-            if expireds != []:
+            if expireds:
                 text += f'【禁用情况】\n'
                 for expired in expireds:
                     if QL8:
@@ -144,7 +148,7 @@ async def mycheckcookie(event):
                         else:
                             text += f'账号{expired[1]}：{o}禁用失败，请手动禁用\n'
                 text += '\n'
-            if valids != []:
+            if valids:
                 text += f'【启用情况】\n'
                 for valid in valids:
                     if QL8:
@@ -164,7 +168,7 @@ async def mycheckcookie(event):
                         else:
                             text += f'账号{valid[2]} - {valid[1]}：{o}启用失败，请手动启用\n'
                 text += '\n'
-            if changes != []:
+            if changes:
                 text += f'【更新情况】\n'
                 for change in changes:
                     url = 'http://127.0.0.1:5600/api/envs'
