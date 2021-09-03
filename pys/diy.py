@@ -70,6 +70,24 @@ async def jd_joinTeam_activityId():
         logger.error('something wrong,I\'m sorry\n' + str(e))
 
 
+async def jd_fav_shop_gift():
+    try:
+        """
+        try 部分则自由发挥即可
+        """
+
+
+
+
+
+
+
+
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
 async def getcookie(jd_cookie):
     try:
         """

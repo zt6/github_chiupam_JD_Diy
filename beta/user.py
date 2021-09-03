@@ -98,52 +98,66 @@ async def red(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d*=(".*"|\'.*\')'))
-async def myshoptoken(event):
+@client.on(events.NewMessage(chats=myzdjr_chatIds,
+                             pattern=r'export\s(jd_zdjr_activity|jd_joinTeam_activity|FAV).*=(".*"|\'.*\')'))
+async def activityID(event):
     try:
+        text = event.message.text
+        if "jd_zdjr_activity" in text:
+            activity = "jd_zdjr_activity"
+        elif "jd_joinTeam_activity" in text:
+            activity = "jd_joinTeam_activity"
+        elif "FAV_SHOP" in text:
+            activity = "FAV_SHOP"
+        msg = await jdbot.send_message(chat_id, f'监控到 {activity} 环境变量')
         messages = event.message.text.split("\n")
-        exports = re.findall(r'export MyShopToken(\d+)="(.*)"', read("str"))
         change = ""
-        if not exports:
-            msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，直接添加！')
-            configs = read("str")
-            for message in messages:
-                value = re.findall(r'"([^"]*)"', message)[0]
-                if V4:
-                    configs = read("list")
-                    for config in configs:
-                        if "第五区域" in config and "↑" in config:
-                            line = configs.index(config)
-                            break
-                    change += f'export MyShopToken1="{value}"\n'
-                    configs.insert(line - 2, f'export MyShopToken1="{value}"\n')
-                elif QL:
-                    change += f'export MyShopToken1="{value}"\n'
-                    configs += f'export MyShopToken1="{value}"\n'
-                write(configs)
-            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
-            return
-        msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，继续添加！')
         for message in messages:
-            value = re.findall(r'"([^"]*)"', message)[0]
-            configs = read("str")
-            if value in configs:
+            kv = message.replace("export ", "")
+            key = kv.split("=")[0]
+            value = re.findall(r'"([^"]*)"', kv)[0]
+            if "jd_zdjr_activityId" in key and len(value) != 32:
+                await jdbot.edit_message(msg, f"这是一趟灵车，不上车了\n\n{event.message.text}")
+                return
+            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+                configs = f1.read()
+            if kv in configs:
                 continue
-            configs = read("list")
-            for config in configs:
-                if "export MyShopToken" in config:
-                    number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
-                    line = configs.index(config) + 1
-            change += f'export MyShopToken{number}="{value}"\n'
-            configs.insert(line, f'export MyShopToken{number}="{value}"\n')
-            write(configs)
+            if key in configs:
+                configs = re.sub(f'{key}=(\"|\').*(\"|\')', kv, configs)
+                change += f"替换 {activity} 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
+            else:
+                if V4:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.readlines()
+                    for config in configs:
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
+                            break
+                    configs.insert(end_line - 2, f'export {key}="{value}"\n')
+                    configs = ''.join(configs)
+                else:
+                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                        configs = f2.read()
+                    configs += f'export {key}="{value}"\n'
+                change += f"新增 {activity} 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
+            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+                f3.write(configs)
         if len(change) == 0:
-            await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
+            await jdbot.edit_message(msg, f"目前配置中的 {activity} 环境变量无需改动")
             return
-        await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
         try:
-            from ..diy.diy import signCollectGift
-            await signCollectGift()
+            if "jd_zdjr_activity" in event.message.text:
+                from ..diy.diy import smiek_jd_zdjr
+                await smiek_jd_zdjr()
+            elif "jd_joinTeam_activityId" in event.message.text:
+                from ..diy.diy import jd_joinTeam_activityId
+                await jd_joinTeam_activityId()
+            elif "FAV_SHOP_ID" in event.message.text:
+                from ..diy.diy import jd_fav_shop_gift
+                await jd_fav_shop_gift()
         except:
             None
     except Exception as e:
