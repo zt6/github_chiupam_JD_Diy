@@ -231,6 +231,7 @@ if chname:
     jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
 
 
+
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/repo$'))
 async def myrepo(event):
     try:

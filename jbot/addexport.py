@@ -2,15 +2,18 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, _ConfigDir, logger, chname, mybot, _LogDir
-from ..bot.utils import press_event, V4, QL
-from ..diy.utils import read, write
-from telethon import events, Button
-from asyncio import exceptions
-import re
 import asyncio
-import sys
 import os
+import re
+import sys
+from asyncio import exceptions
+
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, chname, mybot
+from ..bot.utils import press_event, V4
+from ..diy.utils import read, write
+
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'(export\s)?\w*=(".*"|\'.*\')'))
 async def myaddexport(event):

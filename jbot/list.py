@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
+import os
+import sys
+
 from telethon import events
-import os, sys
+
+from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/list$'))

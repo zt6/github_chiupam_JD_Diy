@@ -8,10 +8,8 @@ import time
 import json
 import re
 
-
 from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir
 from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
-
 
 with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
     diybotset = json.load(f)
@@ -99,6 +97,57 @@ def write(configs):
     elif isinstance(configs, list):
         with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
             f1.write("".join(configs))
+
+
+# 读写config.sh
+def rwcon(arg):
+    if arg == "str":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.read()
+        return configs
+    elif arg == "list":
+        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            configs = f1.readlines()
+        return configs
+    elif isinstance(arg, str):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write(arg)
+    elif isinstance(arg, list):
+        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+            f1.write("".join(arg))
+
+
+# 读写wskey.list
+def wskey(arg):
+    file = f"{_ConfigDir}/wskey.list"
+    if arg == "str":
+        with open(file, 'r', encoding='utf-8') as f1:
+            wskey = f1.read()
+        return wskey
+    elif arg == "list":
+        with open(file, 'r', encoding='utf-8') as f1:
+            wskey = f1.readlines()
+        return wskey
+    elif "wskey" in arg and "pin" in arg:
+        with open(file, 'w', encoding='utf-8') as f1:
+            f1.write(arg)
+
+
+# # 写入wskey.list
+# def write_wskey(wskey):
+#     file = f"{_ConfigDir}/wskey.list"
+#     if not os.path.exists(file):
+#         os.system(f"touch {file}")
+#     pin = wskey.split(";")[0].split("=")[1]
+#     with open(file, 'r', encoding='utf-8') as f1:
+#         wskeys = f1.read()
+#     if pin in wskeys:
+#         wskeys = re.sub(f"pin={pin};wskey=.*;", wskey, wskeys)
+#         with open(file, 'w', encoding='utf-8') as f2:
+#             f2.write(wskeys)
+#     else:
+#         with open(file, 'a', encoding='utf-8') as f2:
+#             f2.write(wskey + "\n")
 
 
 # user.py调用

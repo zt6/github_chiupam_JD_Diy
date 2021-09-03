@@ -5,15 +5,18 @@
 import json
 import os
 import re
-import requests
 import sys
 import time
 from asyncio import exceptions
 
+import requests
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, chname, mybot
+from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import press_event, V4, _ConfigFile, row, split_list, _Auth, myck
+from ..diy.utils import QL8, ql_token, rwcon
+
+bot_id = int(TOKEN.split(":")[0])
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/blockcookie'))
@@ -397,5 +400,75 @@ async def operate(conv, sender, msg, message):
         await jdbot.edit_message(msg, '对话已取消')
 
 
-if chname:
-    jdbot.add_event_handler(mytempblockcookie, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+@jdbot.on(events.NewMessage(from_users=bot_id, pattern=r'.*cookie已失效.*'))
+async def myautoblock(event):
+    try:
+        message = event.message.text.replace("\n", "")
+        pt_pin = re.findall("cookie已失效.*京东账号\d+\s(.*)请.*", message)
+        if not pt_pin:
+            return
+        msg = await jdbot.send_message(chat_id, "侦测到cookie失效通知，开始屏蔽账号")
+        pt_pin = pt_pin[0]
+        line, expired, blocks = None, None, []
+        if V4:
+            configs = rwcon("list")
+            for config in configs:
+                if pt_pin in config and "wskey" not in config:
+                    expired = int(re.findall(r"[Cc]ookie(\d+)=.*", config)[0])
+                    line = configs.index(config)
+                    break
+                elif "第二区域" in config:
+                    await jdbot.edit_message(msg, "请使用标准模板！")
+                    return
+            for config in configs[line:]:
+                if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config and ";;" not in configs[configs.index(config) + 1]:
+                    line = configs.index(config)
+                    blocks = re.findall(r'"([^"]*)"', config)[0]
+                    if len(blocks) == 0:
+                        blocks = []
+                    elif " " in blocks:
+                        blocks = list(map(int, blocks.split(" ")))
+                    else:
+                        blocks = [int(blocks)]
+                    break
+                elif "AutoDelCron" in config:
+                    await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
+                    return
+            if expired in blocks:
+                await jdbot.edit_message(msg, f"pin为{pt_pin}的账号先前已经被屏蔽，因此取消屏蔽！")
+            else:
+                blocks.append(expired)
+                blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
+                configs[line] = f'TempBlockCookie="{blocks}"\n'
+                rwcon(configs)
+                await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
+        elif QL8:
+            token = ql_token(_Auth)
+            url = 'http://127.0.0.1:5600/api/envs'
+            headers = {'Authorization': f'Bearer {token}'}
+            body = {"searchValue": f";pt_pin={pt_pin};"}
+            datas = requests.get(url, headers=headers, json=body).json()['data']
+            for data in datas:
+                if pt_pin in data['value'] and "pt_key" in data['value']:
+                    url = 'http://127.0.0.1:5600/api/envs/disable'
+                    requests.put(url, headers=headers, json=[data['_id']])
+                    await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
+                    break
+        else:
+            token = ql_token(_Auth)
+            url = 'http://127.0.0.1:5600/api/cookies'
+            headers = {'Authorization': f'Bearer {token}'}
+            datas = requests.get(url, headers=headers).json()['data']
+            for data in datas:
+                if pt_pin in data['value'] and "pt_key" in data['value']:
+                    url = 'http://127.0.0.1:5600/api/cookies/disable'
+                    requests.put(url, headers=headers, json=[data['_id']])
+                    await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
+                    break
+    except Exception as e:
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")

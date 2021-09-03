@@ -2,10 +2,13 @@
 # -*- coding: utf-8 -*-
 
 
+import os
+import sys
+
+from telethon import events
+
 from .. import chat_id, jdbot, logger, TOKEN
 from ..bot.utils import V4, QL
-from telethon import events
-import sys, os
 
 bot_id = int(TOKEN.split(':')[0])
 
