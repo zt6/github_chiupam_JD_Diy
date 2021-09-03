@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, chname, mybot
+import os
+import sys
+
 from telethon import events
-import os, sys
+
+from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir, chname, mybot
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/getcookie$'))

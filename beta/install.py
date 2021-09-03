@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
-from ..bot.utils import split_list, row, press_event, mybot, backfile, V4, QL
-from telethon import events, Button
 from asyncio import exceptions
-import requests, os, sys
+
+import os
+import requests
+import sys
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, _JdbotDir, chname
+from ..bot.utils import split_list, row, press_event, mybot, backfile, QL
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))

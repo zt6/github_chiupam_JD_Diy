@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot, _JdDir
-from ..bot.utils import split_list, row, press_event, V4, QL
-from telethon import events, Button
+import os
+import sys
 from asyncio import exceptions
-import os, sys
+
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot, _JdDir
+from ..bot.utils import split_list, row, press_event, QL
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/uninstall$'))

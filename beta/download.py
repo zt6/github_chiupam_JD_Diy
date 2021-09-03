@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
-from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, QL, _ConfigFile, mycron, split_list, row, qlcron, _Auth, upcron
-from ..diy.utils import mycronup, read, write
-from telethon import events, Button
 from asyncio import exceptions
-import requests, re, sys, os
+
+import os
+import re
+import requests
+import sys
+from telethon import events, Button
+
+from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
+from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, split_list, row
+from ..diy.utils import mycronup, read, write
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://.*(js|py|sh)$'))

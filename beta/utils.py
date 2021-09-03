@@ -100,7 +100,7 @@ def write(configs):
 
 
 # 读写config.sh
-def rw(arg):
+def rwcon(arg):
     if arg == "str":
         with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()

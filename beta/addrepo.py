@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 
 
-from .. import chat_id, jdbot, logger, TOKEN, _JdbotDir, chname, mybot
-from ..bot.utils import press_event, backfile, _DiyDir, V4, QL, cmd, _ConfigFile, split_list, row, _Auth, qlcron
-from ..diy.utils import ql_token, read, write
-from telethon import events, Button
 from asyncio import exceptions
-import requests, os, re, time, sys
+
+import os
+import re
+import requests
+import sys
+import time
+from telethon import events, Button
+
+from .. import chat_id, jdbot, logger, chname, mybot
+from ..bot.utils import press_event, V4, QL, cmd, split_list, row, _Auth, qlcron
+from ..diy.utils import ql_token, read, write
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^https?://github\.com/\S+git$'))
