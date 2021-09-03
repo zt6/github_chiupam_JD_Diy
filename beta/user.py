@@ -231,6 +231,9 @@ async def activityID(event):
 @client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
 async def upbot(event):
     try:
+        message = event.message.text
+        if "与测试版机器人同步文件" in message and "前瞻" not in message:
+            return
         with open(f"{_JdDir}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
             text = f1.read()
         if "【前瞻计划】" not in text:
