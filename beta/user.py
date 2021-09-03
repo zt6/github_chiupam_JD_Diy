@@ -8,10 +8,11 @@ import os
 import re
 import sys
 import time
+import requests
 
 from telethon import events, TelegramClient
 
-from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _JdDir, TOKEN
+from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _JdDir, TOKEN, _JdbotDir
 from ..bot.utils import cmd, V4, QL, _ConfigFile, myck
 from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, shoptokenIds
 from ..diy.utils import read, write
@@ -218,6 +219,32 @@ async def activityID(event):
         elif "jd_joinTeam_activityId" in event.message.text:
             from ..diy.diy import jd_joinTeam_activityId
             await jd_joinTeam_activityId()
+    except Exception as e:
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
+
+
+@client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
+async def upbot(event):
+    try:
+        with open(f"{_JdDir}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
+            text = f1.read()
+        if "【前瞻计划】" not in text:
+            return
+        await jdbot.send_message(chat_id, "【前瞻计划】\n检测到有更新，开始非覆盖式自动更新！")
+        fpath = f"{_JdDir}/diybot_beta.sh"
+        if not os.path.exists(fpath):
+            furl = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh"
+            resp = requests.get(furl).text
+            if not resp:
+                return
+            with open(fpath, 'w+', encoding='utf-8') as f:
+                f.write(resp)
+        os.system(f"bash {fpath}")
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
