@@ -46,7 +46,7 @@ async def myaddwskey(event):
                 url = 'http://127.0.0.1:5600/api/envs'
                 headers = {'Authorization': f'Bearer {token}'}
                 body = {'searchValue': "JD_WSCK"}
-                data = requests.get(url, headers=headers, params=body).json()['data']
+                data = get(url, headers=headers, params=body).json()['data']
                 if not data:
                     sender = event.sender_id
                     async with jdbot.conversation(sender, timeout=120) as conv:
