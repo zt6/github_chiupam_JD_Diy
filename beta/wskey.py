@@ -41,26 +41,28 @@ async def myaddwskey(event):
                     msg = await jdbot.edit_message(msg, f'你的选择是：存储在{res}中\n准备继续工作……')
             if os.path.exists(file):
                 for message in messages:
-                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
-                    pin, key = ws[0][0], ws[0][1]
+                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
+                    pin, key = ws[0], ws[1]
                     message = pin + key + ";"
+                    pt_pin = re.findall(r'pin=(.*);', pin)[0]
                     configs = wskey("str")
-                    if pin in configs:
-                        configs = re.sub(f"pin={pin};wskey=.*;", message, configs)
-                        text += f"更新wskey成功！pin为：{pin}\n"
+                    if pin + "wskey" in configs:
+                        configs = re.sub(f"{pin}wskey=.*;", message, configs)
+                        text += f"更新wskey成功！pin为：{pt_pin}\n"
                     else:
                         configs += message + "\n"
-                        text += f"新增wskey成功！pin为：{pin}\n"
+                        text += f"新增wskey成功！pin为：{pt_pin}\n"
                     wskey(configs)
             else:
                 for message in messages:
-                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
-                    pin, key = ws[0][0], ws[0][1]
+                    ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
+                    pin, key = ws[0], ws[1]
                     message = pin + key + ";"
+                    pt_pin = re.findall(r'pin=(.*);', pin)[0]
                     configs = read("str")
-                    if pin + ";wskey" in configs:
-                        configs = re.sub(f'pin={pin};wskey=.*;', message, configs)
-                        text += f"更新wskey成功！pin为：{pin}\n"
+                    if pin + "wskey" in configs:
+                        configs = re.sub(f'{pin}wskey=.*;', message, configs)
+                        text += f"更新wskey成功！pin为：{pt_pin}\n"
                     elif V4:
                         configs = read("list")
                         for config in configs:
@@ -68,38 +70,39 @@ async def myaddwskey(event):
                                 line = configs.index(config)
                                 num = re.findall(r'(?<=[Cc]ookie)[\d]+(?==")', config)[0]
                                 configs.insert(line, f'wskey{num}="{message}"\n')
-                                text += f"新增wskey成功！pin为：{pin}\n"
+                                text += f"新增wskey成功！pin为：{pt_pin}\n"
                                 break
                             elif "第二区域" in config:
                                 await jdbot.edit_message(msg, "请使用标准模板！")
                                 return
-                    elif QL2:
+                    else:
                         configs = read("str")
                         configs += f"{message}\n"
-                        text += f"新增wskey成功！pin为：{pin}\n"
+                        text += f"新增wskey成功！pin为：{pt_pin}\n"
                     await jdbot.edit_message(msg, text)
                     write(configs)
         elif QL8:
             token = ql_token(_Auth)
             for message in messages:
-                ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)
-                pin, key = ws[0][0], ws[0][1]
+                ws = re.findall(r'(pin=.*)(wskey=[^;]*);*', message)[0]
+                pin, key = ws[0], ws[1]
                 message = pin + key + ";"
+                pt_pin = re.findall(r'pin=(.*);', pin)[0]
                 url = 'http://127.0.0.1:5600/api/envs'
                 headers = {'Authorization': f'Bearer {token}'}
                 body = {
-                    'searchValue': pin + ";wskey",
+                    'searchValue': pin + "wskey",
                     'Authorization': f'Bearer {token}'
                 }
                 data = get(url, params=body, headers=headers).json()['data']
                 if data:
                     body = {"name": "JD_WSCK", "value": message, "_id": data[0]['_id']}
                     put(url, json=body, headers=headers)
-                    text += f"更新wskey成功！pin为：{pin}\n"
+                    text += f"更新wskey成功！pin为：{pt_pin}\n"
                 else:
                     body = [{"value": message, "name": "JD_WSCK"}]
                     post(url, json=body, headers=headers)
-                    text += f"新增wskey成功！pin为：{pin}\n"
+                    text += f"新增wskey成功！pin为：{pt_pin}\n"
                 await jdbot.edit_message(msg, text)
         if len(text) > 1:
             if V4:
