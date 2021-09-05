@@ -1,5 +1,5 @@
 <h1 align="center">
-  和东哥做兄弟
+  diy机器人
   <br>
   Author: chiupam
 </h1>
@@ -23,14 +23,17 @@
   - [部署方法](#部署方法)
 # 仓库目录说明
 ```text
-JD_Diy/               # JD_Diy 仓库
-  |-- backup            # 移除的旧文件
-  |-- beta              # 测试版机器人
-  |-- config            # 配置目录
-  |-- jbot              # 正式版机器人
-  |-- module            # 实例模块
-  |-- pys               # python版京东
-  `-- README.md         # 仓库说明
+JD_Diy/                     # JD_Diy 仓库
+  |-- backup                    # 移除的旧文件
+  |-- beta                      # 测试版机器人
+  |-- config                    # 配置目录
+  |-- jbot                      # 正式版机器人
+  |-- module                    # 实例模块
+  |-- other                     # 不便于分类脚本
+  |-- pys                       # python脚本
+  |-- shell                     # shell脚本
+  |-- requirements.txt          # 依赖文件
+  `-- README.md                 # 仓库说明
 ```
 # 版权
 - 未经本人同意，仓库内所有资源文件，禁止任何公众号、自媒体、开发者进行任何形式的转载、发布、搬运。
@@ -72,12 +75,12 @@ JD_Diy/               # JD_Diy 仓库
 ### 部署自定义机器人
 进入容器中执行以下命令即可，此命令也可以在机器人中使用（使用 /cmd 指令）
 ```shell
-rm -rf diybot.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot.sh;bash diybot.sh
+rm -rf diybot.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot.sh;bash diybot.sh
 ```
 ### 部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)监控机器人
 首先进入容器中执行以下命令，然后按提示操作即可（此命令禁止在机器人中使用）
 ```shell
-rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/user.sh;bash user.sh
+rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/user.sh;bash user.sh
 ```
 ## 前瞻计划
 测试版机器人的部署方法，功能不稳定，不建议尝试。
@@ -87,5 +90,5 @@ rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/confi
 - 甚至可以 Pr 部分功能
 ### 部署方法
 ```shell
-rm -rf diybot_beta.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh;bash diybot_beta.sh
+rm -rf diybot_beta.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot_beta.sh;bash diybot_beta.sh
 ```
