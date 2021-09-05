@@ -405,7 +405,7 @@ async def myautoblock(event):
     try:
         message = event.message.text.replace("\n", "")
         pt_pin = re.findall("cookie已失效.*京东账号\d+\s(.*)请.*", message)
-        if not pt_pin:
+        if not pt_pin and ("jd" in pt_pin or "%" in pt_pin):
             return
         msg = await jdbot.send_message(chat_id, "侦测到cookie失效通知，开始屏蔽账号")
         pt_pin = pt_pin[0]
@@ -418,7 +418,7 @@ async def myautoblock(event):
                     line = configs.index(config)
                     break
                 elif "第二区域" in config:
-                    await jdbot.edit_message(msg, "请使用标准模板！")
+                    await jdbot.edit_message(msg, f"无法寻找到{pt_pin}段的cookie存在于配置中！")
                     return
             for config in configs[line:]:
                 if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config and ";;" not in configs[configs.index(config) + 1]:
