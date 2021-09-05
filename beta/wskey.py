@@ -19,7 +19,10 @@ async def myaddwskey(event):
         text = ""
         msg = await jdbot.send_message(chat_id, "获取到wskey，正在工作中……")
         messages = event.raw_text.split("\n")
-        file = f"{_ConfigDir}/wskey.list"
+        if V4 or QL2:
+            file = f"{_ConfigDir}/wskey.list"
+        else:
+            file = "/ql/db/wskey.list"
         if not os.path.exists(file):
             if V4 or QL2:
                 configs = read("str")
@@ -120,11 +123,7 @@ async def myaddwskey(event):
                 body = {'searchValue': pin + "wskey="}
                 data = get(url, headers=headers, params=body).json()['data']
                 if data:
-                    body = {
-                        "value": message,
-                        "name": "JD_WSCK",
-                        "_id": data[0]['_id']
-                    }
+                    body = {"value": message, "name": "JD_WSCK", "_id": data[0]['_id']}
                     put(url, headers=headers, json=body)
                     text += f"更新wskey成功！pin为：{pt_pin}\n"
                 else:
