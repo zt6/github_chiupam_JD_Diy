@@ -145,9 +145,6 @@ async def myaddwskey(event):
                 await cmd("task /ql/scripts/wskey_ptkey.py")
             if "更新" in text:
                 await jdbot.edit_message(msg, text)
-            else:
-                text += "\n不存在wskey_ptkey.py，无法自动更新cookie列表，自行解决更新问题"
-                await jdbot.edit_message(msg, text)
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
