@@ -104,6 +104,7 @@ file_diy() {
   echo "检测 diy.py 文件 "
   if [ -f $diybot_diy_diy ]; then
     echo "  └—结果：存在，不拉取"
+    rm -f $diybot_repo_diy
   else
     echo "  └—结果：不存在，拉取"
     cp -f $diybot_repo_diy $diybot_diy_diy
