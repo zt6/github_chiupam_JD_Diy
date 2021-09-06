@@ -6,15 +6,15 @@ else
   root=/ql
 fi
 
-diybot_url="https://github.com/chiupam/diybot.git"
+diybot_url="https://github.com/chiupam/JD_Diy.git"
 jbot_botset=$root/config/bot.json
 diybot_repo=$root/repo/diybot
 diybot_diy=$root/jbot/diy
 diybot_repo_diybotset=$root/repo/diybot/config/diybotset.json
 diybot_config_diybotset=$root/config/diybotset.json
-diybot_repo_user=$root/repo/diybot/jbot/user.py
+diybot_repo_user=$root/repo/diybot/jbot/diy/user.py
 diybot_diy_user=$root/jbot/diy/user.py
-diybot_repo_diy=$root/repo/diybot/pys/diy.py
+diybot_repo_diy=$root/repo/diybot/jbot/diy/diy.py
 diybot_diy_diy=$root/jbot/diy/diy.py
 diybot_repo_hello=$root/repo/diybot/jbot/__main__.py
 diybot_diy_hello=$root/jbot/__main__.py
