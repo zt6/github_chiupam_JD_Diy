@@ -70,7 +70,7 @@ async def red(event):
     try:
         file = "jredrain.sh"
         if not os.path.exists(f'{_JdDir}/{file}'):
-            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/{file}'
+            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/other/{file}'
             await cmd(cmdtext)
             if not os.path.exists(f'{_JdDir}/{file}'):
                 await jdbot.send_message(chat_id, f"【龙王庙】\n\n监控到RRA，但是缺少{file}文件，无法执行定时")
@@ -227,30 +227,30 @@ async def activityID(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
-async def upbot(event):
-    try:
-        with open(f"{_JdDir}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
-            text = f1.read()
-        if "【前瞻计划】" not in text:
-            return
-        await jdbot.send_message(chat_id, "【前瞻计划】\n检测到有更新，开始非覆盖式自动更新！")
-        fpath = f"{_JdDir}/diybot_beta.sh"
-        if not os.path.exists(fpath):
-            furl = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh"
-            resp = requests.get(furl).text
-            if not resp:
-                return
-            with open(fpath, 'w+', encoding='utf-8') as f:
-                f.write(resp)
-        os.system(f"bash {fpath}")
-    except Exception as e:
-        title = "【💥错误💥】"
-        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
-        function = "函数名：" + sys._getframe().f_code.co_name
-        tip = '建议百度/谷歌进行查询'
-        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
-        logger.error(f"错误--->{str(e)}")
+# @client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
+# async def upbot(event):
+#     try:
+#         with open(f"{_JdDir}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
+#             text = f1.read()
+#         if "【前瞻计划】" not in text:
+#             return
+#         await jdbot.send_message(chat_id, "【前瞻计划】\n检测到有更新，开始非覆盖式自动更新！")
+#         fpath = f"{_JdDir}/diybot_beta.sh"
+#         if not os.path.exists(fpath):
+#             furl = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh"
+#             resp = requests.get(furl).text
+#             if not resp:
+#                 return
+#             with open(fpath, 'w+', encoding='utf-8') as f:
+#                 f.write(resp)
+#         os.system(f"bash {fpath}")
+#     except Exception as e:
+#         title = "【💥错误💥】"
+#         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+#         function = "函数名：" + sys._getframe().f_code.co_name
+#         tip = '建议百度/谷歌进行查询'
+#         await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+#         logger.error(f"错误--->{str(e)}")
 
 
 # @client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\sjd_zdjr_activity(Url|Id)=(".*"|\'.*\')'))

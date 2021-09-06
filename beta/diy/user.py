@@ -70,7 +70,7 @@ async def red(event):
     try:
         file = "jredrain.sh"
         if not os.path.exists(f'{_JdDir}/{file}'):
-            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/pys/{file}'
+            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/other/{file}'
             await cmd(cmdtext)
             if not os.path.exists(f'{_JdDir}/{file}'):
                 await jdbot.send_message(chat_id, f"【龙王庙】\n\n监控到RRA，但是缺少{file}文件，无法执行定时")
