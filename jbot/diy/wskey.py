@@ -143,7 +143,16 @@ async def myaddwskey(event):
             elif os.path.exists("/ql/scripts/wskey_ptkey.py"):
                 text += "\n将自动更新cookie列表，自行查看更新情况"
                 await cmd("task /ql/scripts/wskey_ptkey.py")
-            if "更新" in text:
+            elif os.path.exists("/ql/scripts/ql_pandaAPI_refreshCK.py") and not os.path.exists("/ql/db/wskey.list"):
+                text += "\n将自动更新cookie列表，自行查看更新情况"
+                await cmd("task /ql/scripts/ql_pandaAPI_refreshCK.py")
+            elif os.path.exists("/ql/raw/ql_pandaAPI_refreshCK.py") and not os.path.exists("/ql/db/wskey.list"):
+                text += "\n将自动更新cookie列表，自行查看更新情况"
+            elif os.path.exists("/ql/scripts/ql_pandaAPI_refreshCK.py") and os.path.exists("/ql/db/wskey.list"):
+                text += "\n由于使用wskey.list存储，无法执行scripts目录下的ql_pandaAPI_refreshCK.py脚本"
+            elif os.path.exists("/ql/raw/ql_pandaAPI_refreshCK.py") and os.path.exists("/ql/db/wskey.list"):
+                text += "\n由于使用wskey.list存储，无法执行raw目录下的ql_pandaAPI_refreshCK.py脚本"
+            if "自动更新" in text or "无法执行" in text:
                 await jdbot.edit_message(msg, text)
     except Exception as e:
         title = "【💥错误💥】"
