@@ -106,7 +106,7 @@ async def myaddwskey(event):
                             await jdbot.send_message(chat_id, "请使用标准模板！")
                             return
                 elif V4 and f"pt_pin={pt_pin}" not in configs:
-                    configs = read("list")
+                    configs, line, num = read("list"), 0, 0
                     for config in configs:
                         if "pt_pin" in config and "##" not in config:
                             line = configs.index(config) + 1
