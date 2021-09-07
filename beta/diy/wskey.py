@@ -93,18 +93,29 @@ async def myaddwskey(event):
                 if pin + "wskey" in configs:
                     configs = re.sub(f'{pin}wskey=.*;', message, configs)
                     text += f"更新wskey成功！pin为：{pt_pin}\n"
-                elif V4:
+                elif V4 and f"pt_pin={pt_pin}" in configs:
                     configs = read("list")
                     for config in configs:
-                        if pin in config and "wskey" not in config:
+                        if f"pt_pin={pt_pin}" in config:
                             line = configs.index(config)
                             num = re.findall(r'(?<=[Cc]ookie)[\d]+(?==")', config)[0]
                             configs.insert(line, f'wskey{num}="{message}"\n')
                             text += f"新增wskey成功！pin为：{pt_pin}\n"
                             break
                         elif "第二区域" in config:
-                            await jdbot.edit_message(msg, "请使用标准模板！")
+                            await jdbot.send_message(chat_id, "请使用标准模板！")
                             return
+                elif V4 and f"pt_pin={pt_pin}" not in configs:
+                    configs = read("list")
+                    for config in configs:
+                        if "pt_pin" in config and "##" not in config:
+                            line = configs.index(config) + 1
+                            num = int(re.findall(r'(?<=[Cc]ookie)[\d]+(?==")', config)[0]) + 1
+                        elif "第二区域" in config:
+                            break
+                    configs.insert(line, f'Cookie{str(num)}="pt_key=xxxxxx;pt_pin={pt_pin};"\n')
+                    configs.insert(line, f'wskey{str(num)}="{message}"\n')
+                    text += f"新增wskey成功！pin为：{pt_pin} 但请在配置中输入cookie值！\n"
                 else:
                     configs = read("str")
                     configs += f"{message}\n"
