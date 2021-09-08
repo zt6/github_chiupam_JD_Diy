@@ -17,7 +17,7 @@ from ..bot.utils import split_list, row, press_event, mybot, backfile, QL
 async def myinstall(event):
     try:
         SENDER = event.sender_id
-        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/"
+        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/beta/diy/"
         btns = [
             Button.inline("升级机器人", data="upbot.py"),
             Button.inline("检查账号过期", data="checkcookie.py"),
@@ -26,6 +26,7 @@ async def myinstall(event):
             Button.inline("添加仓库", data="addrepo.py"),
             Button.inline("添加环境变量", data="addexport.py"),
             Button.inline("修改环境变量", data="editexport.py"),
+            Button.inline("添加wskey", data="wskey.py"),
             Button.inline("帮我取消对话", data='cancel')
         ]
         async with jdbot.conversation(SENDER, timeout=60) as conv:
