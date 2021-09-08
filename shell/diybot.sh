@@ -62,7 +62,7 @@ fix() {
   if [ -z "$zoo_opencard" ]
     then echo "请先修改 $diybot_config_diybotset 的内容，再重新启动！参考链接如下"
     echo ""
-    echo "https://raw.githubusercontent.com/chiupam/diybot/master/config/diybotset.json"
+    echo "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json"
     echo ""
     exit
   fi
@@ -70,7 +70,7 @@ fix() {
   if [ -z "$shoptokenId" ]
     then echo "请先修改 $diybot_config_diybotset 的内容，再重新启动！参考链接如下"
     echo ""
-    echo "https://raw.githubusercontent.com/chiupam/diybot/master/config/diybotset.json"
+    echo "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybotset.json"
     echo ""
     exit
   fi
