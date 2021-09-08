@@ -123,3 +123,7 @@ if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; cd $root; rm -f user.session;
 ```shell
 if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; cd $root; bash user.sh
 ```
+8. 一键
+```shell
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; if [ -f $root/bot.sh ]; then rm -f $root/bot.sh; fi; cd $root; wget https://raw.githubusercontent.com/SuMaiKaDe/bot/main/config/bot.sh; bash bot.sh; if [ -f $root/diybot.sh ]; then rm -f $root/diybot.sh; fi; cd $root; wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot.sh; bash diybot.sh; if [ -f $root/user.sh ]; then rm -f $root/user.sh; fi; cd $root; wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/user.sh; bash user.sh
+```
