@@ -24,7 +24,7 @@ fix() {
 }
 
 start() {
-  echo "输入手机号（带国家代码）和 Telegram 验证码以完成登录"
+  echo "稍等片刻后，输入手机号（带国家代码）和 Telegram 验证码以完成登录"
   echo "登陆完成后使用 Ctrl + C 退出脚本，并使用以下命令启动 user 监控"
   echo ""
   if [ -d "/jd" ]
