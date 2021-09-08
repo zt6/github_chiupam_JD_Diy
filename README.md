@@ -21,6 +21,7 @@
 - [前瞻计划](#前瞻计划)
   - [用户要求](#用户要求)
   - [部署方法](#部署方法)
+- [常用命令](#常用命令)
 # 仓库目录说明
 ```text
 JD_Diy/                     # JD_Diy 仓库
@@ -63,6 +64,7 @@ JD_Diy/                     # JD_Diy 仓库
 - [x] 发送 `/checkcookie` 检测过期情况
 - [x] 发送 `/export` 修改环境变量
 - [x] 发送 `/blockcookie` 进行屏蔽操作
+- [x] 发送 `pin=xxx;wskey=xxx;` 快速添加 `wskey`
 - [x] 下载 `.js` `.sh` 的 `raw` 文件
 - [x] 添加以 `.git` 结尾的仓库链接可添加仓库
 - [x] 发送 `变量名="变量值"` 的格式消息可快捷添加环境变量
@@ -71,24 +73,53 @@ JD_Diy/                     # JD_Diy 仓库
 - [x] 关注店铺有礼自动执行（需自行配置频道ID）
 - [x] 自动替换某些环境变量（需自行配置频道ID）
 - [x] ~~监控动物园频道，自动下载开卡脚本并选择执行~~
-## 使用方法
-### 部署自定义机器人
-进入容器中执行以下命令即可，此命令也可以在机器人中使用（使用 /cmd 指令）
+# 使用方法
+## 部署自定义机器人
+进入容器中执行以下命令即可，此命令也可以在机器人中使用（即使用 /cmd 指令）
 ```shell
-rm -rf diybot.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot.sh;bash diybot.sh
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; if [ -f $root/diybot.sh ]; then rm -f $root/diybot.sh; fi; cd $root; wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot.sh; bash diybot.sh
 ```
-### 部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)监控机器人
+## 部署[user.py](https://github.com/chiupam/JD_Diy/blob/main/jbot/user.py)监控机器人
 首先进入容器中执行以下命令，然后按提示操作即可（此命令禁止在机器人中使用）
 ```shell
-rm -f user.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/user.sh;bash user.sh
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; if [ -f $root/user.sh ]; then rm -f $root/user.sh; fi; cd $root; wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/user.sh; bash user.sh
 ```
-## 前瞻计划
+# 前瞻计划
 测试版机器人的部署方法，功能不稳定，不建议尝试。
-### 用户要求
+## 用户要求
 - 比较热爱折腾
 - 一定的操作基础
 - 甚至可以 Pr 部分功能
-### 部署方法
+## 部署方法
 ```shell
-rm -rf diybot_beta.sh;wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot_beta.sh;bash diybot_beta.sh
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; if [ -f $root/diybot_beta.sh ]; then rm -f $root/diybot_beta.sh; fi; cd $root; wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot_beta.sh; bash diybot_beta.sh
+```
+# 常用命令
+1. 升级原机器人程序
+```shell
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; if [ -f $root/bot.sh ]; then rm -f $root/bot.sh; fi; cd $root; wget https://raw.githubusercontent.com/SuMaiKaDe/bot/main/config/bot.sh; bash bot.sh
+```
+2. 重启程序
+```shell
+if [ -d '/jd' ]; then cd /jd/jbot; pm2 start ecosystem.config.js; cd /jd; pm2 restart jbot; else ps -ef | grep 'python3 -m jbot' | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null; nohup python3 -m jbot >/ql/log/bot/bot.log 2>&1 & fi 
+```
+3. 启动程序
+```shell
+if [ -d '/jd' ]; then cd /jd/jbot; pm2 start ecosystem.config.js; cd /jd; pm2 start jbot; else nohup python3 -m jbot >/ql/log/bot/bot.log 2>&1 & fi 
+```
+4. 停止程序
+```shell
+if [ -d '/jd' ]; then cd /jd/jbot; pm2 start ecosystem.config.js; cd /jd; pm2 stop jbot; else ps -ef | grep 'python3 -m jbot' | grep -v grep | awk '{print $1}' | xargs kill -9 2>/dev/null; fi 
+```
+5. 卸载diy程序
+```shell
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; rm -f $root/jbot/diy/*.py
+```
+6. 卸载user监控程序
+```shell
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; cd $root; rm -f user.session; rm -f user.session-journal; rm -f $root/jbot/diy/user.py
+```
+7. 重启user监控程序
+```shell
+if [ -d "/jd" ]; then root=/jd; else root=/ql; fi; cd $root; bash user.sh
 ```
