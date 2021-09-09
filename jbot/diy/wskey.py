@@ -19,7 +19,7 @@ async def myaddwskey(event):
         text = ""
         msg = await jdbot.send_message(chat_id, "获取到wskey，正在工作中……")
         messages = event.raw_text.split("\n")
-        if V4 or QL2:
+        if V4:
             file = f"{_ConfigDir}/wskey.list"
         else:
             file = "/ql/db/wskey.list"
@@ -106,7 +106,7 @@ async def myaddwskey(event):
                             await jdbot.send_message(chat_id, "请使用标准模板！")
                             return
                 elif V4 and f"pt_pin={pt_pin}" not in configs:
-                    configs = read("list")
+                    configs, line, num = read("list"), 0, 0
                     for config in configs:
                         if "pt_pin" in config and "##" not in config:
                             line = configs.index(config) + 1

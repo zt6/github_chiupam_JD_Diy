@@ -119,7 +119,7 @@ def rwcon(arg):
 
 # 读写wskey.list
 def wskey(arg):
-    if V4 or QL2:
+    if V4:
         file = f"{_ConfigDir}/wskey.list"
     else:
         file = "/ql/db/wskey.list"
