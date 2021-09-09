@@ -19,7 +19,7 @@ async def myaddwskey(event):
         text = ""
         msg = await jdbot.send_message(chat_id, "获取到wskey，正在工作中……")
         messages = event.raw_text.split("\n")
-        if V4 or QL2:
+        if V4:
             file = f"{_ConfigDir}/wskey.list"
         else:
             file = "/ql/db/wskey.list"
