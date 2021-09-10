@@ -48,7 +48,7 @@ async def follow(event):
             return
         i = 0
         info = '关注店铺\n\n'
-        for cookie in myck(_ConfigFile):
+        for cookie in myck(_ConfigFile)[0]:
             i += 1
             info += getbean(i, cookie, url[0])
         await jdbot.send_message(chat_id, info)
