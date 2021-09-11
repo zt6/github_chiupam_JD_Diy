@@ -83,8 +83,8 @@ async def mychangeexport(event):
                 Button.inline("删除变量", data="delete"),
                 Button.inline("取消对话", data='cancel')
             ]
-            kname = res
             msg = await jdbot.edit_message(msg, f"这是{res}变量，对应的值为：\n```{valuedata}```\n请做出您的选择：", buttons=split_list(btns, row))
+            kname = res
             convdata = await conv.wait_event(press_event(SENDER))
             res = bytes.decode(convdata.data)
             if res == 'cancel':
@@ -92,7 +92,7 @@ async def mychangeexport(event):
                 conv.cancel()
                 return
             elif res == "change":
-                kname, loop = valuedata, True
+                loop = True
                 await jdbot.delete_messages(chat_id, msg)
                 btns.append(Button.inline("取消对话", data="cancel"))
                 while loop:
