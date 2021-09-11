@@ -85,7 +85,7 @@ async def v4_block(sender):
                     message = f"目前的屏蔽情况是：\n{str(' '.join('%s' % _ for _ in sorted(blocks, reverse=False))) if len(blocks) != 0 else '没有帐号被屏蔽'}"
                     return await operate(conv, sender, msg, message)
                 elif res == 'designated block':
-                    acounts = len(myck(_ConfigFile))
+                    acounts = len(myck(_ConfigFile)[0])
                     if acounts == len(blocks):
                         message = "所有账号都已被屏蔽，无需继续屏蔽"
                         return await operate(conv, sender, msg, message)
