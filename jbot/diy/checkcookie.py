@@ -50,7 +50,7 @@ async def mycheckcookie(event):
         text, o, res = '检测结果\n\n', '\n\t   └ ',  ""
         expireds, valids, changes, removes = [], [], [],[]
         if V4:
-            cookies = myck(_ConfigFile)
+            cookies = myck(_ConfigFile)[0]
             for cookie in cookies:
                 cknum = cookies.index(cookie) + 1
                 check = await checkCookie(cookie)

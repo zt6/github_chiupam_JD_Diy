@@ -47,7 +47,7 @@ def ql_token(file):
 
 def checkCookie1():
     expired = []
-    cookies = myck(_ConfigFile)
+    cookies = myck(_ConfigFile)[0]
     for cookie in cookies:
         cknum = cookies.index(cookie) + 1
         if checkCookie2(cookie):
@@ -208,7 +208,7 @@ async def checkShopToken(tokens, msg):
             charts.append(f'export MyShopToken{token[0]}="{token[1]}"')
             await asyncio.sleep(0.5)
         else:
-            cookies = myck(_ConfigFile)
+            cookies = myck(_ConfigFile)[0]
             for cookie in cookies:
                 venderId = getvenderId(token)
                 activityId, endday, actinfo = getActivityInfo(token, venderId)
