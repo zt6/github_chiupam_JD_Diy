@@ -100,7 +100,7 @@ async def mychangeexport(event):
                     msg = await conv.send_message("上一条消息为待修改的值\n现在请回复你所需要设置的新值")
                     vname = await conv.get_response()
                     vname = vname.raw_text
-                    btns_yn = [Button.inline("是", data=res), Button.inline("否", data="no")]
+                    btns_yn = [Button.inline("是", data="yes"), Button.inline("否", data="no")]
                     msg = await jdbot.edit_message(msg, f'好的，请稍等\n键名：{kname}\n值名：{vname}\n请问是这样吗？', buttons=split_list(btns_yn, row))
                     convdata = await conv.wait_event(press_event(SENDER))
                     res = bytes.decode(convdata.data)
@@ -111,7 +111,6 @@ async def mychangeexport(event):
                     elif res == 'no':
                         await jdbot.delete_messages(chat_id, valuedatamsg)
                         await jdbot.delete_messages(chat_id, msg)
-                        loop = True
                     else:
                         await jdbot.delete_messages(chat_id, valuedatamsg)
                         msg = await jdbot.edit_message(msg, f'好的，请稍等\n你设置变量为：{kname}="{vname}"')
