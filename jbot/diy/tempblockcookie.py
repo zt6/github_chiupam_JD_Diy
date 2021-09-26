@@ -13,7 +13,7 @@ import requests
 from telethon import events, Button
 
 from .. import chat_id, jdbot, logger, TOKEN
-from ..bot.utils import press_event, V4, _ConfigFile, row, split_list, _Auth, myck
+from ..bot.utils import press_event, V4, CONFIG_DIR, row, split_list, AUTH_FILE, get_cks
 from ..diy.utils import QL8, ql_token, rwcon
 
 bot_id = int(TOKEN.split(":")[0])
@@ -65,7 +65,7 @@ async def v4_block(sender):
                 await jdbot.edit_message(msg, '对话已取消')
                 return False
             else:
-                with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+                with open(CONFIG_DIR, 'r', encoding='utf-8') as f1:
                     configs = f1.readlines()
                 for config in configs:
                     if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config:
@@ -85,7 +85,7 @@ async def v4_block(sender):
                     message = f"目前的屏蔽情况是：\n{str(' '.join('%s' % _ for _ in sorted(blocks, reverse=False))) if len(blocks) != 0 else '没有帐号被屏蔽'}"
                     return await operate(conv, sender, msg, message)
                 elif res == 'designated block':
-                    acounts = len(myck(_ConfigFile)[0])
+                    acounts = len(get_cks(CONFIG_DIR))
                     if acounts == len(blocks):
                         message = "所有账号都已被屏蔽，无需继续屏蔽"
                         return await operate(conv, sender, msg, message)
@@ -112,7 +112,7 @@ async def v4_block(sender):
                         blocks.append(int(res_2))
                         blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
                         configs[line] = f'TempBlockCookie="{blocks}"\n'
-                        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                        with open(CONFIG_DIR, 'w', encoding='utf-8') as f2:
                             f2.write(''.join(configs))
                         message = f"指定屏蔽账号{str(res_2)}成功"
                         return await operate(conv, sender, msg, message)
@@ -139,13 +139,13 @@ async def v4_block(sender):
                         blocks.remove(int(res_2))
                         blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
                         configs[line] = f'TempBlockCookie="{blocks}"\n'
-                        with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                        with open(CONFIG_DIR, 'w', encoding='utf-8') as f2:
                             f2.write(''.join(configs))
                         message = f"指定取消屏蔽账号{res_2}成功"
                         return await operate(conv, sender, msg, message)
                 elif res == 'unblock all accounts':
                     configs[line] = 'TempBlockCookie=""\n'
-                    with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+                    with open(CONFIG_DIR, 'w', encoding='utf-8') as f2:
                         f2.write(''.join(configs))
                     message = "取消屏蔽所有账号成功"
                     return await operate(conv, sender, msg, message)
@@ -180,7 +180,7 @@ async def ql_block(sender):
                 await jdbot.edit_message(msg, '对话已取消')
                 return False
             else:
-                with open(_Auth, 'r', encoding='utf-8') as f:
+                with open(AUTH_FILE, 'r', encoding='utf-8') as f:
                     auth = json.load(f)
                 token = auth['token']
                 headers = {'Authorization': f'Bearer {token}'}
@@ -319,7 +319,7 @@ async def ql_block(sender):
 
 async def v4_appoint(ck_num):
     msg = await jdbot.send_message(chat_id, f"开始屏蔽账号{ck_num}")
-    with open(_ConfigFile, 'r', encoding='utf-8') as f1:
+    with open(CONFIG_DIR, 'r', encoding='utf-8') as f1:
         configs = f1.readlines()
     for config in configs:
         if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config:
@@ -341,14 +341,14 @@ async def v4_appoint(ck_num):
     blocks.append(int(ck_num))
     blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
     configs[line] = f'TempBlockCookie="{blocks}"\n'
-    with open(_ConfigFile, 'w', encoding='utf-8') as f2:
+    with open(CONFIG_DIR, 'w', encoding='utf-8') as f2:
         f2.write(''.join(configs))
     await jdbot.edit_message(msg, f"指定屏蔽账号{str(ck_num)}成功")
 
 
 async def ql_appoint(ck_num):
     msg = await jdbot.send_message(chat_id, f"开始屏蔽账号{ck_num}")
-    with open(_Auth, 'r', encoding='utf-8') as f:
+    with open(AUTH_FILE, 'r', encoding='utf-8') as f:
         auth = json.load(f)
     token = auth['token']
     headers = {'Authorization': f'Bearer {token}'}
@@ -405,7 +405,7 @@ async def myautoblock(event):
     try:
         message = event.message.text.replace("\n", "")
         pt_pin = re.findall("cookie已失效.*京东账号\d+\s(.*)请.*", message)
-        if not pt_pin and ("jd" in pt_pin or "%" in pt_pin):
+        if not pt_pin:
             return
         msg = await jdbot.send_message(chat_id, "侦测到cookie失效通知，开始屏蔽账号")
         pt_pin = pt_pin[0]
@@ -418,7 +418,7 @@ async def myautoblock(event):
                     line = configs.index(config)
                     break
                 elif "第二区域" in config:
-                    await jdbot.edit_message(msg, f"无法寻找到{pt_pin}段的cookie存在于配置中！")
+                    await jdbot.edit_message(msg, "请使用标准模板！")
                     return
             for config in configs[line:]:
                 if "TempBlockCookie" in config and " TempBlockCookie" not in config and "举例" not in config and ";;" not in configs[configs.index(config) + 1]:
@@ -435,15 +435,15 @@ async def myautoblock(event):
                     await jdbot.edit_message(msg, "无法找到 TempBlockCookie 目标字符串，请检查是否使用了标准配置模板")
                     return
             if expired in blocks:
-                await jdbot.edit_message(msg, f"【取消】{pt_pin}先前已经被屏蔽，因此取消屏蔽！")
+                await jdbot.edit_message(msg, f"pin为{pt_pin}的账号先前已经被屏蔽，因此取消屏蔽！")
             else:
                 blocks.append(expired)
                 blocks = " ".join('%s' % _ for _ in sorted(blocks, reverse=False))
                 configs[line] = f'TempBlockCookie="{blocks}"\n'
                 rwcon(configs)
-                await jdbot.edit_message(msg, f"【成功】{pt_pin}屏蔽成功！")
+                await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
         elif QL8:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             url = 'http://127.0.0.1:5600/api/envs'
             headers = {'Authorization': f'Bearer {token}'}
             body = {"searchValue": f";pt_pin={pt_pin};"}
@@ -452,10 +452,10 @@ async def myautoblock(event):
                 if pt_pin in data['value'] and "pt_key" in data['value']:
                     url = 'http://127.0.0.1:5600/api/envs/disable'
                     requests.put(url, headers=headers, json=[data['_id']])
-                    await jdbot.edit_message(msg, f"【成功】{pt_pin}屏蔽成功！")
+                    await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
                     break
         else:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             url = 'http://127.0.0.1:5600/api/cookies'
             headers = {'Authorization': f'Bearer {token}'}
             datas = requests.get(url, headers=headers).json()['data']
@@ -463,7 +463,7 @@ async def myautoblock(event):
                 if pt_pin in data['value'] and "pt_key" in data['value']:
                     url = 'http://127.0.0.1:5600/api/cookies/disable'
                     requests.put(url, headers=headers, json=[data['_id']])
-                    await jdbot.edit_message(msg, f"【成功】{pt_pin}屏蔽成功！")
+                    await jdbot.edit_message(msg, f"pin为{pt_pin}的账号屏蔽成功！")
                     break
     except Exception as e:
         title = "【💥错误💥】"

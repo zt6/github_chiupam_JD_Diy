@@ -10,7 +10,7 @@ from asyncio import exceptions
 
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, chname, mybot
+from .. import chat_id, jdbot, logger, ch_name, BOT_SET
 from ..bot.utils import press_event, V4
 from ..diy.utils import read, write
 
@@ -80,5 +80,5 @@ async def myaddexport(event):
         await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
-if chname:
-    jdbot.add_event_handler(myaddexport, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myaddexport, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))

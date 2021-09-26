@@ -8,10 +8,10 @@ import time
 import json
 import re
 
-from .. import chat_id, jdbot, logger, _JdbotDir, _ConfigDir
-from ..bot.utils import V4, QL, mycron, press_event, _Auth, qlcron, upcron, backfile, myck, _ConfigFile
+from .. import chat_id, jdbot, CONFIG_DIR
+from ..bot.utils import V4, QL, mycron, press_event, AUTH_FILE, cron_manage_QL, add_cron_V4, get_cks, CONFIG_SH_FILE
 
-with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+with open(f"{CONFIG_DIR}/diybotset.json", 'r', encoding='utf-8') as f:
     diybotset = json.load(f)
 my_chat_id = int(diybotset['my_chat_id'])
 
@@ -47,7 +47,7 @@ def ql_token(file):
 
 def checkCookie1():
     expired = []
-    cookies = myck(_ConfigFile)[0]
+    cookies = get_cks(CONFIG_SH_FILE)
     for cookie in cookies:
         cknum = cookies.index(cookie) + 1
         if checkCookie2(cookie):
@@ -80,11 +80,11 @@ def checkCookie2(cookie):
 # 读取config.sh
 def read(arg):
     if arg == "str":
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         return configs
     elif arg == "list":
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         return configs
 
@@ -92,35 +92,35 @@ def read(arg):
 # 写入config.sh
 def write(configs):
     if isinstance(configs, str):
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f1:
             f1.write(configs)
     elif isinstance(configs, list):
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f1:
             f1.write("".join(configs))
 
 
 # 读写config.sh
 def rwcon(arg):
     if arg == "str":
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.read()
         return configs
     elif arg == "list":
-        with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
             configs = f1.readlines()
         return configs
     elif isinstance(arg, str):
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f1:
             f1.write(arg)
     elif isinstance(arg, list):
-        with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f1:
+        with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f1:
             f1.write("".join(arg))
 
 
 # 读写wskey.list
 def wskey(arg):
     if V4:
-        file = f"{_ConfigDir}/wskey.list"
+        file = f"{CONFIG_DIR}/wskey.list"
     else:
         file = "/ql/db/wskey.list"
     if arg == "str":
@@ -138,7 +138,7 @@ def wskey(arg):
 
 # # 写入wskey.list
 # def write_wskey(wskey):
-#     file = f"{_ConfigDir}/wskey.list"
+#     file = f"{CONFIG_DIR}/wskey.list"
 #     if not os.path.exists(file):
 #         os.system(f"touch {file}")
 #     pin = wskey.split(";")[0].split("=")[1]
@@ -208,7 +208,7 @@ async def checkShopToken(tokens, msg):
             charts.append(f'export MyShopToken{token[0]}="{token[1]}"')
             await asyncio.sleep(0.5)
         else:
-            cookies = myck(_ConfigFile)[0]
+            cookies = get_cks(CONFIG_SH_FILE)
             for cookie in cookies:
                 venderId = getvenderId(token)
                 activityId, endday, actinfo = getActivityInfo(token, venderId)
@@ -362,11 +362,11 @@ async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
     await jdbot.delete_messages(chat_id, msg)
     if QL:
         crondata = {"name": f'{filename.split(".")[0]}', "command": f'task {path}/{filename}', "schedule": f'{cron}'}
-        with open(_Auth, 'r', encoding='utf-8') as f:
+        with open(AUTH_FILE, 'r', encoding='utf-8') as f:
             auth = json.load(f)
-        qlcron('add', crondata, auth['token'])
+        cron_manage_QL('add', crondata, auth['token'])
     else:
-        upcron(f'{cron} mtask {path}/{filename}')
+        add_cron_V4(f'{cron} mtask {path}/{filename}')
     await jdbot.send_message(chat_id, '添加定时任务成功')
 
 # async def upuser(fname, msg):
@@ -381,7 +381,7 @@ async def mycronup(jdbot, conv, resp, filename, msg, SENDER, markup, path):
 #         if resp:
 #             msg = await jdbot.edit_message(msg, f"下载{fname}成功")
 #             path = f"{_JdbotDir}/diy/user.py"
-#             backfile(path)
+#             backup_file(path)
 #             with open(path, 'w+', encoding='utf-8') as f:
 #                 f.write(resp)
 #         else:

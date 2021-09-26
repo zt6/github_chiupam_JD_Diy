@@ -13,7 +13,7 @@ import requests
 from telethon import events
 
 from .. import chat_id, jdbot, logger
-from ..bot.utils import V4, QL, _ConfigFile, myck, _Auth
+from ..bot.utils import V4, QL, CONFIG_SH_FILE, get_cks, AUTH_FILE
 from ..diy.utils import QL8, ql_token, read, write
 
 
@@ -37,8 +37,6 @@ async def checkCookie(cookie):
             return False
         else:
             nickname = data['data']['userInfo']['baseInfo']['nickname']
-            if len(nickname) < 1:
-                nickname = cookie.split(";")[1].split("=")[1]
             return nickname
     except Exception as e:
         await jdbot.send_message(chat_id, f"此cookie无法完成检测，请自行斟酌！\n\n{cookie}\n\n错误：{e}")
@@ -52,7 +50,7 @@ async def mycheckcookie(event):
         text, o, res = '检测结果\n\n', '\n\t   └ ',  ""
         expireds, valids, changes, removes = [], [], [],[]
         if V4:
-            cookies = myck(_ConfigFile)[0]
+            cookies = get_cks(CONFIG_SH_FILE)
             for cookie in cookies:
                 cknum = cookies.index(cookie) + 1
                 check = await checkCookie(cookie)
@@ -64,7 +62,7 @@ async def mycheckcookie(event):
                 msg = await jdbot.edit_message(msg, res)
             await asyncio.sleep(2)
         elif QL8:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             headers = {'Authorization': f'Bearer {token}'}
             url = 'http://127.0.0.1:5600/api/envs'
             body = {'searchValue': 'JD_COOKIE'}
@@ -99,7 +97,7 @@ async def mycheckcookie(event):
                     msg = await jdbot.edit_message(msg, res)
                     await asyncio.sleep(1)
         else:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             headers = {'Authorization': f'Bearer {token}'}
             url = 'http://127.0.0.1:5600/api/cookies'
             body = {'t': int(round(time.time() * 1000))}
@@ -132,7 +130,7 @@ async def mycheckcookie(event):
             write(configs)
             await jdbot.edit_message(msg, text)
         elif QL:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             headers = {'Authorization': f'Bearer {token}'}
             if expireds:
                 text += f'【禁用情况】\n'

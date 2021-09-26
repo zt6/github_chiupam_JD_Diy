@@ -12,17 +12,17 @@ import requests
 
 from telethon import events, TelegramClient
 
-from .. import chat_id, jdbot, logger, api_id, api_hash, proxystart, proxy, _ConfigDir, _JdDir, TOKEN, _JdbotDir
-from ..bot.utils import cmd, V4, QL, _ConfigFile, myck
+from .. import chat_id, jdbot, logger, API_ID, API_HASH, PROXY_START, proxy, CONFIG_DIR, JD_DIR, TOKEN, BOT_DIR
+from ..bot.utils import cmd, V4, QL, CONFIG_SH_FILE, get_cks
 from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, shoptokenIds
 from ..diy.utils import read, write
 
 bot_id = int(TOKEN.split(":")[0])
 
-if proxystart:
-    client = TelegramClient("user", api_id, api_hash, proxy=proxy, connection_retries=None).start()
+if PROXY_START:
+    client = TelegramClient("user", API_ID, API_HASH, proxy=proxy, connection_retries=None).start()
 else:
-    client = TelegramClient("user", api_id, api_hash, connection_retries=None).start()
+    client = TelegramClient("user", API_ID, API_HASH, connection_retries=None).start()
 
 
 @client.on(events.NewMessage(chats=[bot_id, my_chat_id], from_users=chat_id, pattern=r"^user(\?|\？)$"))
@@ -48,7 +48,7 @@ async def follow(event):
             return
         i = 0
         info = '关注店铺\n\n'
-        for cookie in myck(_ConfigFile)[0]:
+        for cookie in get_cks(CONFIG_SH_FILE):
             i += 1
             info += getbean(i, cookie, url[0])
         await jdbot.send_message(chat_id, info)
@@ -69,10 +69,10 @@ async def red(event):
     """
     try:
         file = "jredrain.sh"
-        if not os.path.exists(f'{_JdDir}/{file}'):
-            cmdtext = f'cd {_JdDir} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/other/{file}'
+        if not os.path.exists(f'{JD_DIR}/{file}'):
+            cmdtext = f'cd {JD_DIR} && wget https://raw.githubusercontent.com/chiupam/JD_Diy/master/other/{file}'
             await cmd(cmdtext)
-            if not os.path.exists(f'{_JdDir}/{file}'):
+            if not os.path.exists(f'{JD_DIR}/{file}'):
                 await jdbot.send_message(chat_id, f"【龙王庙】\n\n监控到RRA，但是缺少{file}文件，无法执行定时")
                 return
         message = event.message.text
@@ -80,7 +80,7 @@ async def red(event):
         Times = re.findall(r'开始时间.*', message)
         for RRA in RRAs:
             i = RRAs.index(RRA)
-            cmdtext = f"/cmd bash {_JdDir}/{file} {RRA}"
+            cmdtext = f"/cmd bash {JD_DIR}/{file} {RRA}"
             Time_1 = Times[i].split(" ")[0].split("-")
             Time_2 = Times[i].split(" ")[1].split(":")
             Time_3 = time.localtime()
@@ -119,7 +119,7 @@ async def activityID(event):
             if "jd_zdjr_activityId" in key and len(value) != 32:
                 await jdbot.edit_message(msg, f"这是一趟灵车，不上车了\n\n{event.message.text}")
                 return
-            with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+            with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
                 configs = f1.read()
             if kv in configs:
                 continue
@@ -129,7 +129,7 @@ async def activityID(event):
                 msg = await jdbot.edit_message(msg, change)
             else:
                 if V4:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                    with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
                         configs = f2.readlines()
                     for config in configs:
                         if config.find("第五区域") != -1 and config.find("↑") != -1:
@@ -138,12 +138,12 @@ async def activityID(event):
                     configs.insert(end_line - 2, f'export {key}="{value}"\n')
                     configs = ''.join(configs)
                 else:
-                    with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+                    with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
                         configs = f2.read()
                     configs += f'export {key}="{value}"\n'
                 change += f"新增 {activity} 环境变量成功\n{kv}\n\n"
                 msg = await jdbot.edit_message(msg, change)
-            with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+            with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f3:
                 f3.write(configs)
         if len(change) == 0:
             await jdbot.edit_message(msg, f"目前配置中的 {activity} 环境变量无需改动")
@@ -169,54 +169,55 @@ async def activityID(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=shoptokenIds, pattern=r'(export\s)?MyShopToken\d*=(".*"|\'.*\')'))
-async def myshoptoken(event):
+@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\s(jd_zdjr_activity|jd_joinTeam_activity).*=(".*"|\'.*\')'))
+async def activityID(event):
     try:
+        text = event.message.text
+        if "jd_zdjr_activity" in text:
+            activity = "jd_zdjr_activity"
+        elif "jd_joinTeam_activity" in text:
+            activity = "jd_joinTeam_activity"
+        msg = await jdbot.send_message(chat_id, f'监控到 {activity} 环境变量')
         messages = event.message.text.split("\n")
-        exports = re.findall(r'export MyShopToken(\d+)="(.*)"', read("str"))
         change = ""
-        if not exports:
-            msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，直接添加！')
+        for message in messages:
+            kv = message.replace("export ", "")
+            key = kv.split("=")[0]
+            value = re.findall(r'"([^"]*)"', kv)[0]
+            if "jd_zdjr_activityId" in key and len(value) != 32:
+                await jdbot.edit_message(msg, f"这是一趟灵车，不上车了\n\n{event.message.text}")
+                return
             configs = read("str")
-            for message in messages:
-                value = re.findall(r'"([^"]*)"', message)[0]
+            if kv in configs:
+                continue
+            if key in configs:
+                configs = re.sub(f'{key}=(\"|\').*(\"|\')', kv, configs)
+                change += f"替换 {activity} 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
+            else:
                 if V4:
                     configs = read("list")
                     for config in configs:
-                        if "第五区域" in config and "↑" in config:
-                            line = configs.index(config)
+                        if config.find("第五区域") != -1 and config.find("↑") != -1:
+                            end_line = configs.index(config)
                             break
-                    change += f'export MyShopToken1="{value}"\n'
-                    configs.insert(line - 2, f'export MyShopToken1="{value}"\n')
-                elif QL:
-                    change += f'export MyShopToken1="{value}"\n'
-                    configs += f'export MyShopToken1="{value}"\n'
-                write(configs)
-            await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
-            return
-        msg = await jdbot.send_message(chat_id, '监控到店铺签到环境变量，继续添加！')
-        for message in messages:
-            value = re.findall(r'"([^"]*)"', message)[0]
-            configs = read("str")
-            if value in configs:
-                continue
-            configs = read("list")
-            for config in configs:
-                if "export MyShopToken" in config:
-                    number = int(re.findall(r'\d+', config.split("=")[0])[0]) + 1
-                    line = configs.index(config) + 1
-            change += f'export MyShopToken{number}="{value}"\n'
-            configs.insert(line, f'export MyShopToken{number}="{value}"\n')
+                    configs.insert(end_line - 2, f'export {key}="{value}"\n')
+                    configs = ''.join(configs)
+                else:
+                    configs = read("str")
+                    configs += f'export {key}="{value}"\n'
+                change += f"新增 {activity} 环境变量成功\n{kv}\n\n"
+                msg = await jdbot.edit_message(msg, change)
             write(configs)
         if len(change) == 0:
-            await jdbot.edit_message(msg, "目前配置中的环境变量无需改动")
+            await jdbot.edit_message(msg, f"目前配置中的 {activity} 环境变量无需改动")
             return
-        await jdbot.edit_message(msg, f"【店铺签到领京豆】\n\n此次添加的变量\n{change}")
-        try:
-            from ..diy.diy import signCollectGift
-            await signCollectGift()
-        except:
-            None
+        if "jd_zdjr_activity" in event.message.text:
+            from ..diy.diy import smiek_jd_zdjr
+            await smiek_jd_zdjr()
+        elif "jd_joinTeam_activityId" in event.message.text:
+            from ..diy.diy import jd_joinTeam_activityId
+            await jd_joinTeam_activityId()
     except Exception as e:
         title = "【💥错误💥】"
         name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
@@ -229,15 +230,12 @@ async def myshoptoken(event):
 # @client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
 # async def upbot(event):
 #     try:
-#         message = event.message.text
-#         if "与测试版机器人同步文件" in message and "前瞻" not in message:
-#             return
-#         with open(f"{_JdDir}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
+#         with open(f"{JD_DIR}/jbot/diy/upbot.py", "r", encoding="utf-8") as f1:
 #             text = f1.read()
 #         if "【前瞻计划】" not in text:
 #             return
 #         await jdbot.send_message(chat_id, "【前瞻计划】\n检测到有更新，开始非覆盖式自动更新！")
-#         fpath = f"{_JdDir}/diybot_beta.sh"
+#         fpath = f"{JD_DIR}/diybot_beta.sh"
 #         if not os.path.exists(fpath):
 #             furl = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/config/diybot_beta.sh"
 #             resp = requests.get(furl).text
@@ -268,7 +266,7 @@ async def myshoptoken(event):
 #             if "Id" in key and len(value) != 32:
 #                 await jdbot.edit_message(msg, f"这是一趟灵车，不上车了\n\n{event.message.text}")
 #                 return
-#             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+#             with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
 #                 configs = f1.read()
 #             if kv in configs:
 #                 continue
@@ -278,7 +276,7 @@ async def myshoptoken(event):
 #                 msg = await jdbot.edit_message(msg, change)
 #             else:
 #                 if V4:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                     with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
 #                         configs = f2.readlines()
 #                     for config in configs:
 #                         if config.find("第五区域") != -1 and config.find("↑") != -1:
@@ -287,12 +285,12 @@ async def myshoptoken(event):
 #                     configs.insert(end_line - 2, f'export {key}="{value}"\n')
 #                     configs = ''.join(configs)
 #                 else:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                     with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
 #                         configs = f2.read()
 #                     configs += f'export {key}="{value}"\n'
 #                 change += f"新增 jd_zdjr_activity 环境变量成功\n{kv}\n\n"
 #                 msg = await jdbot.edit_message(msg, change)
-#             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+#             with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f3:
 #                 f3.write(configs)
 #         if len(change) == 0:
 #             await jdbot.edit_message(msg, "目前配置中的 jd_zdjr_activity 环境变量无需改动")
@@ -321,7 +319,7 @@ async def myshoptoken(event):
 #             kv = message.replace("export ", "")
 #             key = kv.split("=")[0]
 #             value = re.findall(r'"([^"]*)"', kv)[0]
-#             with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f1:
+#             with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f1:
 #                 configs = f1.read()
 #             if kv in configs:
 #                 continue
@@ -330,7 +328,7 @@ async def myshoptoken(event):
 #                 end = f"替换 jd_joinTeam_activityId 环境变量成功\n\n{env}"
 #             else:
 #                 if V4:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                     with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
 #                         configs = f2.readlines()
 #                     for config in configs:
 #                         if config.find("第五区域") != -1 and config.find("↑") != -1:
@@ -339,11 +337,11 @@ async def myshoptoken(event):
 #                     configs.insert(end_line - 2, f'export {key}="{value}"\n')
 #                     configs = ''.join(configs)
 #                 else:
-#                     with open(f"{_ConfigDir}/config.sh", 'r', encoding='utf-8') as f2:
+#                     with open(f"{CONFIG_DIR}/config.sh", 'r', encoding='utf-8') as f2:
 #                         configs = f2.read()
 #                     configs += f'export {key}="{value}"\n'
 #                 end = f"新增 jd_joinTeam_activityId 环境变量成功\n\n{env}"
-#             with open(f"{_ConfigDir}/config.sh", 'w', encoding='utf-8') as f3:
+#             with open(f"{CONFIG_DIR}/config.sh", 'w', encoding='utf-8') as f3:
 #                 f3.write(configs)
 #         if end:
 #             await jdbot.send_message(chat_id, end)
@@ -386,7 +384,7 @@ async def myshoptoken(event):
 #             fname = event.message.file.name
 #             try:
 #                 if fname.endswith("bot-06-21.py") or fname.endswith("user.py"):
-#                     path = f'{_JdbotDir}/diy/{fname}'
+#                     path = f'{BOT_DIR}/diy/{fname}'
 #                     backfile(path)
 #                     await client.download_file(input_location=event.message, file=path)
 #                     from ..diy.bot import restart
@@ -404,7 +402,7 @@ async def myshoptoken(event):
 
 # @client.on(events.NewMessage(chats=[-1001197524983, my_chat_id], pattern=r'.*店'))
 # async def shopbean(event):
-#     cookies = myck(_ConfigFile)[0]
+#     cookies = get_cks(CONFIG_SH_FILE)
 #     message = event.message.text
 #     url = re.findall(re.compile(r"[(](https://api\.m\.jd\.com.*?)[)]", re.S), message)
 #     if url != [] and len(cookies) > 0:
@@ -443,7 +441,7 @@ async def myshoptoken(event):
 #             backfile(fpath)
 #             with open(fpath, 'w+', encoding='utf-8') as f:
 #                 f.write(resp)
-#             with open(f"{_ConfigDir}/diybotset.json", 'r', encoding='utf-8') as f:
+#             with open(f"{CONFIG_DIR}/diybotset.json", 'r', encoding='utf-8') as f:
 #                 diybotset = json.load(f)
 #             run = diybotset['zoo_opencard']
 #             if run == "False":

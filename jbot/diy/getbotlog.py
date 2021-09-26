@@ -6,13 +6,13 @@ import sys
 
 from telethon import events
 
-from .. import chat_id, jdbot, logger, _LogDir
+from .. import chat_id, jdbot, logger, LOG_DIR
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^e$'))
 async def getbotlog(event):
     try:
-        fpath = f"{_LogDir}/bot/run.log"
+        fpath = f"{LOG_DIR}/bot/run.log"
         await jdbot.send_message(chat_id, "这是bot的运行日志，用于排查问题所在", file=fpath)
     except Exception as e:
         title = "【💥错误💥】"
