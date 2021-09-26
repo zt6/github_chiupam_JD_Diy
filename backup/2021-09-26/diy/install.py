@@ -9,15 +9,15 @@ import requests
 import sys
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname
-from ..bot.utils import split_list, row, press_event, mybot, backfile, QL
+from .. import chat_id, jdbot, logger, BOT_DIR, ch_name
+from ..bot.utils import split_list, row, press_event, BOT_SET, backup_file, QL
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/install$'))
 async def myinstall(event):
     try:
         SENDER = event.sender_id
-        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/beta/diy/"
+        furl_startswith = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/jbot/diy/"
         btns = [
             Button.inline("升级机器人", data="upbot.py"),
             Button.inline("检查账号过期", data="checkcookie.py"),
@@ -40,8 +40,8 @@ async def myinstall(event):
             conv.cancel()
         msg = await jdbot.edit_message(msg, "开始下载文件")
         furl = f"{furl_startswith}{fname}"
-        if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false':
-            furl = f'{str(mybot["下载代理"])}/{furl}'
+        if '下载代理' in BOT_SET.keys() and str(BOT_SET['下载代理']).lower() != 'false':
+            furl = f'{str(BOT_SET["下载代理"])}/{furl}'
         try:
             resp = requests.get(furl).text
             info = f"下载{fname}成功，正在自动重启"
@@ -51,8 +51,8 @@ async def myinstall(event):
             botresp = False
         await jdbot.edit_message(msg, info)
         if botresp:
-            path = f"{_JdbotDir}/diy/{fname}"
-            backfile(path)
+            path = f"{BOT_DIR}/diy/{fname}"
+            backup_file(path)
             with open(path, 'w+', encoding='utf-8') as f:
                 f.write(resp)
             if QL:
@@ -71,5 +71,5 @@ async def myinstall(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(myinstall, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myinstall, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))
