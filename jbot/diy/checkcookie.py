@@ -37,6 +37,8 @@ async def checkCookie(cookie):
             return False
         else:
             nickname = data['data']['userInfo']['baseInfo']['nickname']
+            if len(nickname) < 1:
+                nickname = cookie.split(";")[1].split("=")[1]
             return nickname
     except Exception as e:
         await jdbot.send_message(chat_id, f"此cookie无法完成检测，请自行斟酌！\n\n{cookie}\n\n错误：{e}")

@@ -10,8 +10,8 @@ import requests
 import sys
 from telethon import events, Button
 
-from .. import chat_id, jdbot, _ConfigDir, _ScriptsDir, _OwnDir, logger, _JdbotDir, chname, mybot
-from ..bot.utils import cmd, press_event, backfile, jdcmd, V4, split_list, row
+from .. import chat_id, jdbot, CONFIG_DIR, SCRIPTS_DIR, OWN_DIR, logger, BOT_DIR, ch_name, BOT
+from ..bot.utils import press_event, backup_file, cmd, V4, split_list, row
 from ..diy.utils import mycronup, read, write
 
 
@@ -20,8 +20,8 @@ async def mydownload(event):
     try:
         SENDER = event.sender_id
         furl = event.raw_text
-        if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false' and 'github' in furl:
-            furl = f'{str(mybot["下载代理"])}/{furl}'
+        if '下载代理' in BOT.keys() and str(BOT['下载代理']).lower() != 'false' and 'github' in furl:
+            furl = f'{str(BOT["下载代理"])}/{furl}'
         try:
             resp = requests.get(furl).text
             if "</html>" in resp:
@@ -40,9 +40,9 @@ async def mydownload(event):
                 else:
                     fname_cn = ''
             if V4:
-                btns = [Button.inline('放入config目录', data=_ConfigDir), Button.inline('放入jbot/diy目录', data=f'{_JdbotDir}/diy'), Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('放入own目录', data=_OwnDir ), Button.inline('取消对话', data='cancel')]
+                btns = [Button.inline('放入config目录', data=CONFIG_DIR), Button.inline('放入jbot/diy目录', data=f'{BOT_DIR}/diy'), Button.inline('放入scripts目录', data=SCRIPTS_DIR), Button.inline('放入own目录', data=OWN_DIR ), Button.inline('取消对话', data='cancel')]
             else:
-                btns = [Button.inline('放入config目录', data=_ConfigDir), Button.inline('放入scripts目录', data=_ScriptsDir), Button.inline('取消对话', data='cancel')]
+                btns = [Button.inline('放入config目录', data=CONFIG_DIR), Button.inline('放入scripts目录', data=SCRIPTS_DIR), Button.inline('取消对话', data='cancel')]
             cmdtext = False
             msg = await conv.send_message(f'成功下载{fname_cn}脚本\n现在，请做出你的选择：', buttons=split_list(btns, row))
             convdata = await conv.wait_event(press_event(SENDER))
@@ -51,29 +51,29 @@ async def mydownload(event):
                 await jdbot.edit_message(msg, '对话已取消，感谢你的使用')
                 conv.cancel()
                 return
-            elif res1 == _ScriptsDir:
-                fpath = f"{_ScriptsDir}/{fname}"
+            elif res1 == SCRIPTS_DIR:
+                fpath = f"{SCRIPTS_DIR}/{fname}"
                 btns = [Button.inline("是", data="confirm"), Button.inline("否", data="cancel")]
                 msg = await jdbot.edit_message(msg, f"请问需要运行{fname_cn}脚本吗？", buttons=btns)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res2 = bytes.decode(convdata.data)
                 if res2 == "confirm":
-                    cmdtext = f'{jdcmd} {_ScriptsDir}/{fname} now'
+                    cmdtext = f'{cmd} {SCRIPTS_DIR}/{fname} now'
                 msg = await jdbot.edit_message(msg, f"请问需要添加定时吗？", buttons=btns)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res2 = bytes.decode(convdata.data)
                 if res2 == 'cancel':
-                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{_ScriptsDir}目录")
+                    await jdbot.edit_message(msg, f"{fname_cn}脚本将保存到{SCRIPTS_DIR}目录")
                 else:
-                    await mycronup(jdbot, conv, resp, fname, msg, SENDER, btns, _ScriptsDir)
-            elif res1 == _OwnDir:
-                fpath = f"{_OwnDir}/raw/{fname}"
+                    await mycronup(jdbot, conv, resp, fname, msg, SENDER, btns, SCRIPTS_DIR)
+            elif res1 == OWN_DIR:
+                fpath = f"{OWN_DIR}/raw/{fname}"
                 btns = [Button.inline("是", data="confirm"), Button.inline("否", data="cancel")]
                 msg = await jdbot.edit_message(msg, f"请问需要运行{fname_cn}脚本吗？", buttons=btns)
                 convdata = await conv.wait_event(press_event(SENDER))
                 res2 = bytes.decode(convdata.data)
                 if res2 == "confirm":
-                    cmdtext = f'{jdcmd} {fpath} now'
+                    cmdtext = f'{cmd} {fpath} now'
                     await jdbot.edit_message(msg, f"文件将保存到{res1}目录，且已写入配置中，准备执行脚本")
                 else:
                     await jdbot.edit_message(msg, f'文件将保存到{res1}目录，且已写入配置中，准备拉取单个脚本，请耐心等待')
@@ -90,7 +90,7 @@ async def mydownload(event):
             else:
                 fpath = f"{res1}/{fname}"
                 await jdbot.edit_message(msg, f"文件将保存到{res1}目录")
-            backfile(fpath)
+            backup_file(fpath)
             with open(fpath, 'w+', encoding='utf-8') as f:
                 f.write(resp)
             conv.cancel()
@@ -107,6 +107,6 @@ async def mydownload(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(mydownload, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(mydownload, events.NewMessage(from_users=chat_id, pattern=BOT['命令别名']['cron']))
 

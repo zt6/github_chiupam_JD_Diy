@@ -16,23 +16,23 @@ from ..bot.utils import press_event, split_list, row
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/upbot$'))
 async def myupbot(event):
     try:
-        msg = await jdbot.send_message(chat_id, "【diy正式版】\n\n准备更新程序")
+        msg = await jdbot.send_message(chat_id, "【前瞻计划】\n\n准备更新程序")
         SENDER = event.sender_id
         furl = "https://raw.githubusercontent.com/chiupam/JD_Diy/master/shell/diybot.sh"
         if '下载代理' in mybot.keys() and str(mybot['下载代理']).lower() != 'false' and 'github' in furl:
             furl = f'{str(mybot["下载代理"])}/{furl}'
         resp = requests.get(furl).text
         if not resp:
-            await jdbot.edit_message(msg, "【diy正式版】\n\n下载shell文件失败\n请稍后重试，或尝试关闭代理重启")
+            await jdbot.edit_message(msg, "【前瞻计划】\n\n下载shell文件失败\n请稍后重试，或尝试关闭代理重启")
             return
-        cmdtext = f"bash {_JdDir}/diybot.sh"
+        cmdtext = f"bash {_JdDir}/diybot_beta.sh"
         if os.path.exists(f'{_JdbotDir}/diy/user.py'):
             btns = [
                 Button.inline("更新", data="user"),
                 Button.inline("不更新", data="no")
             ]
             async with jdbot.conversation(SENDER, timeout=60) as conv:
-                msg = await jdbot.edit_message(msg, "【diy正式版】\n\n下载shell文件成功\n是否更新 user.py？（覆盖式更新）", buttons=split_list(btns, row))
+                msg = await jdbot.edit_message(msg, "【diy机器人】\n\n下载shell文件成功\n是否更新 user.py？（覆盖式更新）", buttons=split_list(btns, row))
                 convdata = await conv.wait_event(press_event(SENDER))
                 res = bytes.decode(convdata.data)
                 if res == "user":

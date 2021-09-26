@@ -8,8 +8,8 @@ import sys
 from requests import get, put, post
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, _ConfigDir
-from ..bot.utils import V4, _Auth, press_event, split_list, row, cmd
+from .. import chat_id, jdbot, logger, CONFIG_DIR
+from ..bot.utils import V4, AUTH_FILE, press_event, split_list, row, cmd
 from ..diy.utils import QL2, ql_token, wskey, read, write
 
 
@@ -20,7 +20,7 @@ async def myaddwskey(event):
         msg = await jdbot.send_message(chat_id, "获取到wskey，正在工作中……")
         messages = event.raw_text.split("\n")
         if V4:
-            file = f"{_ConfigDir}/wskey.list"
+            file = f"{CONFIG_DIR}/wskey.list"
         else:
             file = "/ql/db/wskey.list"
         if not os.path.exists(file):
@@ -45,7 +45,7 @@ async def myaddwskey(event):
                             os.system(f"touch {file}")
                         msg = await jdbot.edit_message(msg, f'你的选择是：存储在{res}中\n准备继续工作……')
             else:
-                token = ql_token(_Auth)
+                token = ql_token(AUTH_FILE)
                 url = 'http://127.0.0.1:5600/api/envs'
                 headers = {'Authorization': f'Bearer {token}'}
                 body = {'searchValue': "JD_WSCK"}
@@ -123,7 +123,7 @@ async def myaddwskey(event):
                 msg = await jdbot.edit_message(msg, text)
                 write(configs)
         else:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             url = 'http://127.0.0.1:5600/api/envs'
             headers = {'Authorization': f'Bearer {token}'}
             for message in messages:

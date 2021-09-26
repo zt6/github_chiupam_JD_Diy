@@ -7,7 +7,7 @@ import sys
 
 from telethon import events
 
-from .. import chat_id, jdbot, logger, chname, mybot
+from .. import chat_id, jdbot, logger, ch_name, BOT_SET
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/restart$'))
@@ -27,6 +27,6 @@ async def myrestart(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(myrestart, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myrestart, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))
 

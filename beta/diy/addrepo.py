@@ -11,8 +11,8 @@ import sys
 import time
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, chname, mybot
-from ..bot.utils import press_event, V4, QL, cmd, split_list, row, _Auth, qlcron
+from .. import chat_id, jdbot, logger, ch_name, BOT_SET
+from ..bot.utils import press_event, V4, QL, cmd, split_list, row, AUTH_FILE, cron_manage_QL
 from ..diy.utils import ql_token, read, write
 
 
@@ -162,7 +162,7 @@ async def myaddrepo(event):
                 "command": command,
                 "schedule": cron
             }
-            res = qlcron("add", data, ql_token(_Auth))
+            res = cron_manage_QL("add", data, ql_token(AUTH_FILE))
             if res['code'] == 200:
                 await jdbot.send_message(chat_id, "新增仓库的定时任务成功")
                 await cmd(command)
@@ -181,8 +181,8 @@ async def myaddrepo(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(myaddrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myaddrepo, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^ql repo'))
@@ -210,7 +210,7 @@ async def myqladdrepo(event):
                 "name": taskname,
                 "schedule": cron
             }
-            res = qlcron("add", data, ql_token(_Auth))
+            res = cron_manage_QL("add", data, ql_token(AUTH_FILE))
             if res['code'] == 200:
                 await jdbot.send_message(chat_id, "新增仓库的定时任务成功")
                 await cmd(message)
@@ -227,8 +227,8 @@ async def myqladdrepo(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))
 
 
 
@@ -329,7 +329,7 @@ async def myrepo(event):
                     configs = re.sub(f"OwnRepoPath{num}=.*", "", configs)
                 write(configs)
         else:
-            token = ql_token(_Auth)
+            token = ql_token(AUTH_FILE)
             url = 'http://127.0.0.1:5600/api/crons'
             body = {
                 "searchValue": "ql repo",
@@ -388,5 +388,5 @@ async def myrepo(event):
         await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
         logger.error(f"错误--->{str(e)}")
 
-if chname:
-    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myqladdrepo, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))

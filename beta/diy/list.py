@@ -7,7 +7,7 @@ import sys
 
 from telethon import events
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot
+from .. import chat_id, jdbot, logger, BOT_DIR, ch_name, BOT_SET
 
 
 @jdbot.on(events.NewMessage(from_users=chat_id, pattern=r'^/list$'))
@@ -22,10 +22,9 @@ async def mylist(event):
             "addrepo.py": "添加仓库",
             "addexport.py": "添加环境变量",
             "editexport.py": "修改环境变量",
-            "wskey.py": "快速添加wskey",
             "user.py": "user.py"
         }
-        dirs = os.listdir(f"{_JdbotDir}/diy")
+        dirs = os.listdir(f"{BOT_DIR}/diy")
         for dir in dirs:
             if dir in mydiy:
                 lists.append(mydiy[f'{dir}'])
@@ -40,5 +39,5 @@ async def mylist(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(mylist, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(mylist, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))

@@ -8,7 +8,7 @@ from asyncio import exceptions
 
 from telethon import events, Button
 
-from .. import chat_id, jdbot, logger, _JdbotDir, chname, mybot, _JdDir
+from .. import chat_id, jdbot, logger, BOT_DIR, ch_name, BOT_SET, JD_DIR
 from ..bot.utils import split_list, row, press_event, QL
 
 
@@ -27,7 +27,7 @@ async def myuninstall(event):
             "user.py": "user.py"
         }
         btns = []
-        dirs = os.listdir(f"{_JdbotDir}/diy")
+        dirs = os.listdir(f"{BOT_DIR}/diy")
         for dir in dirs:
             if dir in mydiy:
                 btns.append(Button.inline(mydiy[f'{dir}'], data=dir))
@@ -41,8 +41,8 @@ async def myuninstall(event):
                 conv.cancel()
                 return
             conv.cancel()
-        fpath_1 = f"{_JdbotDir}/diy/{fname}"
-        fpath_2 = f"{_JdDir}/repo/diybot/jbot/{fname}"
+        fpath_1 = f"{BOT_DIR}/diy/{fname}"
+        fpath_2 = f"{JD_DIR}/repo/diybot/jbot/{fname}"
         os.system(f'rm -f {fpath_1} && rm -f {fpath_2}')
         if not os.path.isfile(fpath_1):
             await jdbot.edit_message(msg, "删除成功，正在自动重启")
@@ -64,5 +64,5 @@ async def myuninstall(event):
         logger.error(f"错误--->{str(e)}")
 
 
-if chname:
-    jdbot.add_event_handler(myuninstall, events.NewMessage(from_users=chat_id, pattern=mybot['命令别名']['cron']))
+if ch_name:
+    jdbot.add_event_handler(myuninstall, events.NewMessage(from_users=chat_id, pattern=BOT_SET['命令别名']['cron']))

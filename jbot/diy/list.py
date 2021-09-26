@@ -22,6 +22,7 @@ async def mylist(event):
             "addrepo.py": "添加仓库",
             "addexport.py": "添加环境变量",
             "editexport.py": "修改环境变量",
+            "wskey.py": "快速添加wskey",
             "user.py": "user.py"
         }
         dirs = os.listdir(f"{_JdbotDir}/diy")
