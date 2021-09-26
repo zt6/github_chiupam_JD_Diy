@@ -50,7 +50,7 @@ async def mycheckcookie(event):
         text, o, res = '检测结果\n\n', '\n\t   └ ',  ""
         expireds, valids, changes, removes = [], [], [],[]
         if V4:
-            cookies = get_cks(CONFIG_SH_FILE)[0]
+            cookies = get_cks(CONFIG_SH_FILE)
             for cookie in cookies:
                 cknum = cookies.index(cookie) + 1
                 check = await checkCookie(cookie)
