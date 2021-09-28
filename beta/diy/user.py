@@ -8,13 +8,12 @@ import os
 import re
 import sys
 import time
-import requests
 
 from telethon import events, TelegramClient
 
-from .. import chat_id, jdbot, logger, API_ID, API_HASH, PROXY_START, proxy, CONFIG_DIR, JD_DIR, TOKEN, BOT_DIR
-from ..bot.utils import cmd, V4, QL, CONFIG_SH_FILE, get_cks
-from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds, shoptokenIds
+from .. import chat_id, jdbot, logger, API_ID, API_HASH, PROXY_START, proxy, CONFIG_DIR, JD_DIR, TOKEN
+from ..bot.utils import cmd, V4, CONFIG_SH_FILE, get_cks, AUTH_FILE
+from ..diy.utils import getbean, my_chat_id, myzdjr_chatIds
 from ..diy.utils import read, write
 
 bot_id = int(TOKEN.split(":")[0])
@@ -48,7 +47,7 @@ async def follow(event):
             return
         i = 0
         info = '关注店铺\n\n'
-        for cookie in get_cks(CONFIG_SH_FILE):
+        for cookie in get_cks(CONFIG_SH_FILE if V4 else AUTH_FILE):
             i += 1
             info += getbean(i, cookie, url[0])
         await jdbot.send_message(chat_id, info)
