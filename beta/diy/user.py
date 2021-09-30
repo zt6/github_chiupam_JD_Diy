@@ -116,7 +116,7 @@ async def activityID(event):
             if "jd_zdjr_activityId" in key and len(value) != 32:
                 await jdbot.edit_message(msg, f"这不是去幼儿园的车🚗！\n\n`{kv}`")
                 return
-            configs = read("str")
+            configs = rwcon("str")
             if kv in configs:
                 continue
             if key in configs:
