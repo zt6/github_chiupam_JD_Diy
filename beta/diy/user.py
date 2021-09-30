@@ -99,11 +99,11 @@ async def activityID(event):
     try:
         text = event.message.text
         if "jd_zdjr_activity" in text:
-            activity , name = "jd_zdjr_activity", "组队瓜分1"
+            name = "组队瓜分1"
         elif "jd_joinTeam_activity" in text:
-            activity, name = "jd_joinTeam_activity", "组队瓜分2"
+            name = "组队瓜分2"
         elif "FAV_SHOP" in text:
-            activity, name = "FAV_SHOP", "关注有礼"
+            name = "关注有礼"
         else:
             return
         msg = await jdbot.send_message(chat_id, f'【监控】 监测到`{name}` 环境变量！')
@@ -116,7 +116,7 @@ async def activityID(event):
             if "jd_zdjr_activityId" in key and len(value) != 32:
                 await jdbot.edit_message(msg, f"这不是去幼儿园的车🚗！\n\n`{kv}`")
                 return
-            configs = rwcon("list")
+            configs = read("str")
             if kv in configs:
                 continue
             if key in configs:
@@ -128,10 +128,10 @@ async def activityID(event):
                     end_line = 0
                     configs = rwcon("list")
                     for config in configs:
-                        if config.find("第五区域") != -1 and config.find("↑") != -1:
-                            end_line = configs.index(config)
+                        if "第五区域" in config and "↑" in config:
+                            end_line = configs.index(config) - 1
                             break
-                    configs.insert(end_line - 2, f'export {key}="{value}"\n')
+                    configs.insert(end_line, f'export {key}="{value}"\n')
                 else:
                     configs = rwcon("str")
                     configs += f'export {key}="{value}"\n'
