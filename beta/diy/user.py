@@ -110,6 +110,8 @@ async def activityID(event):
         messages = event.message.text.split("\n")
         change = ""
         for message in messages:
+            if "export " not in message:
+                continue
             kv = message.replace("export ", "")
             key = kv.split("=")[0]
             value = re.findall(r'"([^"]*)"', kv)[0]
