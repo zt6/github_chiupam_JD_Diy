@@ -116,7 +116,9 @@ async def activityID(event):
             key = kv.split("=")[0]
             value = re.findall(r'"([^"]*)"', kv)[0]
             if "jd_zdjr_activityId" in key and len(value) != 32:
-                await jdbot.edit_message(msg, f"这不是去幼儿园的车🚗！\n\n`{kv}`")
+                msg = await jdbot.edit_message(msg, f"这不是去幼儿园的车🚗！\n\n`{kv}`")
+                await asyncio.sleep(3)
+                await jdbot.delete_messages(chat_id, msg)
                 return
             configs = rwcon("str")
             if kv in configs:
