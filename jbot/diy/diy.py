@@ -105,3 +105,22 @@ async def signCollectGift():
     except Exception as e:
         await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
         logger.error('something wrong,I\'m sorry\n' + str(e))
+
+
+async def rush_lzclient():
+    try:
+        """
+        try 部分则自由发挥即可
+        """
+
+
+
+
+
+
+
+
+    except Exception as e:
+        await jdbot.send_message(chat_id, 'something wrong,I\'m sorry\n' + str(e))
+        logger.error('something wrong,I\'m sorry\n' + str(e))
+
