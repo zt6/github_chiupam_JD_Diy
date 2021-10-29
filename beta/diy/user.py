@@ -223,6 +223,19 @@ async def myshoptoken(event):
         logger.error(f"错误--->{str(e)}")
 
 
+@client.on(events.NewMessage(chats=bot_id, pattern=r'复制.*gua_addCart.js.*'))
+async def changenotify_gua_addCart(event):
+    try:
+        await client.delete_messages(chat_id, event.id)
+    except Exception as e:
+        title = "【💥错误💥】"
+        name = "文件名：" + os.path.split(__file__)[-1].split(".")[0]
+        function = "函数名：" + sys._getframe().f_code.co_name
+        tip = '建议百度/谷歌进行查询'
+        await jdbot.send_message(chat_id, f"{title}\n\n{name}\n{function}\n错误原因：{str(e)}\n\n{tip}")
+        logger.error(f"错误--->{str(e)}")
+
+
 # @client.on(events.NewMessage(chats=-1001235868507, from_users=107550100, pattern=r'.*JD_Diy:master:.*'))
 # async def upbot(event):
 #     try:
