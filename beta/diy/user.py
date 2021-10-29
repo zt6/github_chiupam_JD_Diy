@@ -94,7 +94,7 @@ async def red(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\s(jd_zdjr_activity|jd_joinTeam_activity|FAV|RUSH_LZCLIENT).*=(".*"|\'.*\')'))
+@client.on(events.NewMessage(chats=myzdjr_chatIds, pattern=r'export\s(jd_zdjr_activity|jd_joinTeam_activity|FAV|RUSH_LZCLIENT|jd_smiek_addCart_activity).*=(".*"|\'.*\')'))
 async def activityID(event):
     try:
         text = event.message.text
@@ -106,6 +106,8 @@ async def activityID(event):
             name = "关注有礼"
         elif "RUSH_LZCLIENT" in text:
             name = "转盘抽奖"
+        elif "jd_smiek_addCart_activity" in text:
+            name = "加购有礼"
         else:
             return
         msg = await jdbot.send_message(chat_id, f'【监控】 监测到`{name}` 环境变量！')
@@ -160,6 +162,9 @@ async def activityID(event):
             elif "RUSH_LZCLIENT" in event.message.text:
                 from ..diy.diy import rush_lzclient
                 await rush_lzclient()
+            elif "jd_smiek_addCart_activity" in event.message.text:
+                from ..diy.diy import gua_addCart
+                await gua_addCart()
         except ImportError:
             pass
     except Exception as e:
