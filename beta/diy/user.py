@@ -56,7 +56,7 @@ async def follow(event):
         logger.error(f"错误--->{str(e)}")
 
 
-@client.on(events.NewMessage(chats=[-1001159808620, my_chat_id], pattern=r".*京豆雨.*"))
+@client.on(events.NewMessage(chats=[-1001159808620, -1001588025107, my_chat_id], pattern=r".*京豆雨.*|红包雨.*"))
 async def red(event):
     """
     龙王庙京豆雨
